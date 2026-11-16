@@ -1,0 +1,164 @@
+{
+ "tickets": [
+  {
+   "id": 3001,
+   "subject": "Invoice INV-16995",
+   "status": "open",
+   "requester_id": 900040,
+   "comments": [
+    {
+     "id": 700026,
+     "author_id": 900040,
+     "public": true,
+     "body": "Please find invoice INV-16995 attached for processing.",
+     "created_at": "2026-10-24T09:49:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-16995.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700027,
+     "author_id": 900002,
+     "public": false,
+     "body": "Received. Waiting on coding before entry.",
+     "created_at": "2026-10-27T09:49:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 3005,
+   "subject": "Status of invoice 2026-87470",
+   "status": "solved",
+   "requester_id": 900045,
+   "comments": [
+    {
+     "id": 700046,
+     "author_id": 900045,
+     "public": true,
+     "body": "Can you confirm the status of invoice 2026-87470?",
+     "created_at": "2026-11-12T10:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700047,
+     "author_id": 900002,
+     "public": true,
+     "body": "Invoice 2026-87470 was paid on 2026-11-12, reference ACH552013.",
+     "created_at": "2026-11-12T18:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 3002,
+   "subject": "Invoice INV-65031",
+   "status": "open",
+   "requester_id": 900054,
+   "comments": [
+    {
+     "id": 700070,
+     "author_id": 900054,
+     "public": true,
+     "body": "Please find invoice INV-65031 attached for processing.",
+     "created_at": "2026-10-29T14:40:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-65031.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700071,
+     "author_id": 900002,
+     "public": false,
+     "body": "Received. Waiting on coding before entry.",
+     "created_at": "2026-11-01T14:40:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 3003,
+   "subject": "Status of invoice HP93691",
+   "status": "solved",
+   "requester_id": 900073,
+   "comments": [
+    {
+     "id": 700101,
+     "author_id": 900073,
+     "public": true,
+     "body": "Can you confirm the status of invoice HP93691?",
+     "created_at": "2026-11-12T10:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700102,
+     "author_id": 900002,
+     "public": true,
+     "body": "Invoice HP93691 was paid on 2026-11-12, reference 23052.",
+     "created_at": "2026-11-12T18:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 3000,
+   "subject": "Invoice INV-93636",
+   "status": "open",
+   "requester_id": 900098,
+   "comments": [
+    {
+     "id": 700173,
+     "author_id": 900098,
+     "public": true,
+     "body": "Please find invoice INV-93636 attached for processing.",
+     "created_at": "2026-10-26T16:39:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-93636.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700174,
+     "author_id": 900002,
+     "public": false,
+     "body": "Received. Waiting on coding before entry.",
+     "created_at": "2026-10-29T16:39:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 3004,
+   "subject": "Status of invoice 2026-63533",
+   "status": "solved",
+   "requester_id": 900049,
+   "comments": [
+    {
+     "id": 700177,
+     "author_id": 900049,
+     "public": true,
+     "body": "Can you confirm the status of invoice 2026-63533?",
+     "created_at": "2026-11-05T10:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700178,
+     "author_id": 900002,
+     "public": true,
+     "body": "Invoice 2026-63533 was paid on 2026-11-05, reference ACH672329.",
+     "created_at": "2026-11-05T18:00:00Z",
+     "attachments": []
+    }
+   ]
+  }
+ ],
+ "count": 6
+}

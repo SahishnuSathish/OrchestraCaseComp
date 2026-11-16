@@ -1,0 +1,14 @@
+{
+ "team": "your team name",
+ "results": [
+  {
+   "ticket_id": 0,
+   "output_type": "draft_reply",
+   "recipient": "person@example.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "The reply a staff member would review, or the internal note, or a one-line reason for no draft."
+  }
+ ]
+}

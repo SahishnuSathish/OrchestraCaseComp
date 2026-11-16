@@ -1,0 +1,2862 @@
+[
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@dovetaillaneprinti.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-22",
+     "2026-10-27"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH578416"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41249,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41252,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "victor@copperleafevents.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41259,
+  "archetype": "released"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "rosa.dunmore@orchestra-mock.example",
+     "dunmore"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41262,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@bramblewickprintco.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "copy",
+     "PDF",
+     "resend",
+     "re-send"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "No bill and no linked ticket: ask for a copy.",
+  "ticket_id": 41267,
+  "archetype": "not_on_file"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "maya.kettering@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41268,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "elena.fairbanks@orchestra-mock.example",
+     "fairbanks"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41271,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "bank",
+     "settle",
+     "trace"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Vendor says not received, records say paid: a person verifies.",
+  "ticket_id": 41276,
+  "archetype": "paid_not_received"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "luciafenwickoy@mailbox-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-10"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH721131"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "$1,359.40",
+     "1359.40",
+     "1,359.40"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-24"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41277,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "dmitri.jessup@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-15",
+     "2026-10-19"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH939654"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41278,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "elena@juniperslateanalyt.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-22",
+     "2026-10-23"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH973133"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41286,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "expedite",
+     "early",
+     "outside",
+     "off-cycle",
+     "rush"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "Expedite outside the run: a person decides.",
+  "ticket_id": 41294,
+  "archetype": "expedite"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "dmitri@wrenfielddatalabs.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41303,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "dmitri.jessup@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-09"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH256063"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41305,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "3001"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "Invoice sits on a linked intake ticket; a person should pick it up.",
+  "ticket_id": 41312,
+  "archetype": "not_on_file_linked"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@dovetaillaneprinti.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41319,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "misrouted",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "HR or payroll request in the AP queue.",
+  "ticket_id": 41323,
+  "archetype": "misrouted_hr"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "elena.fairbanks@orchestra-mock.example",
+     "fairbanks"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41327,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "carla.pemberton@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41333,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "unresolved_account",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Invoice number matches two vendors and the sender is neither.",
+  "ticket_id": 41340,
+  "archetype": "unresolved_account"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41343,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "authorized",
+     "on record",
+     "not a contact",
+     "unknown",
+     "not listed",
+     "unverified"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ACH455359"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Sender is not a contact on record: do not disclose.",
+  "ticket_id": 41344,
+  "archetype": "unauthorized_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "nadia.lockhart@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41348,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ines.merriweather@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH464351"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "$3,724.87",
+     "3724.87",
+     "3,724.87"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-12"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41349,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41351,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "samir@kestrelhollowweb.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41352,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "duplicate",
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Same question answered publicly on a linked ticket two days ago.",
+  "ticket_id": 41353,
+  "archetype": "duplicate"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "bank",
+     "settle",
+     "trace"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Vendor says not received, records say paid: a person verifies.",
+  "ticket_id": 41355,
+  "archetype": "paid_not_received"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@sablecresttranslat.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41358,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "accounts@greywatersound.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "2026-78947"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-13278"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-89527"
+    ]
+   },
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-15",
+     "2026-10-16"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR39870"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "mixed",
+  "why": "One line per invoice: paid, scheduled, pending.",
+  "ticket_id": 41361,
+  "archetype": "multi_invoice"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "carla.stanhope@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "29741"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Check",
+     "check"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "$3,822.25",
+     "3822.25",
+     "3,822.25"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-11"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41370,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "rosa.dunmore@orchestra-mock.example",
+     "dunmore"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41373,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ana.abernathy@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "$25,794.04",
+     "25794.04",
+     "25,794.04"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-25"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41377,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "bronwyncastell@mailbox-mock.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "copy",
+     "PDF",
+     "resend",
+     "re-send"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "No bill and no linked ticket: ask for a copy.",
+  "ticket_id": 41380,
+  "archetype": "not_on_file"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "jamal@saltmarshcreative.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41382,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41384,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "carla.pemberton@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH381631"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41389,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "greta.northcott@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "$3,911.80",
+     "3911.80",
+     "3,911.80"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-25"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41391,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "late fee",
+     "fee"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Late fee: a person decides.",
+  "ticket_id": 41393,
+  "archetype": "late_fee"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "misrouted",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Client paying the agency is AR mail.",
+  "ticket_id": 41401,
+  "archetype": "wrong_direction_ar"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ben.merriweather@orchestra-mock.example",
+     "merriweather"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41405,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "finance@thistledownstaffin.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-29",
+     "2026-11-02"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "29370"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Check",
+     "check"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41411,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "3002"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "Invoice sits on a linked intake ticket; a person should pick it up.",
+  "ticket_id": 41414,
+  "archetype": "not_on_file_linked"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "bank",
+     "settle",
+     "trace"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Vendor says not received, records say paid: a person verifies.",
+  "ticket_id": 41420,
+  "archetype": "paid_not_received"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "finance@copperleafevents.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "copy",
+     "PDF",
+     "resend",
+     "re-send"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "No bill and no linked ticket: ask for a copy.",
+  "ticket_id": 41425,
+  "archetype": "not_on_file"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "tomaszvelarde@mailbox-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-09"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "VC-9761"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Card",
+     "card"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Bill shows Open but a settled card payment is applied. Payment record controls.",
+  "ticket_id": 41434,
+  "archetype": "paid_card_open"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "bank",
+     "settle",
+     "trace"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Vendor says not received, records say paid: a person verifies.",
+  "ticket_id": 41440,
+  "archetype": "paid_not_received"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "tessa@cobaltfinchdesign.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-17"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "reason_tag": null,
+  "priority": true,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "Executive copied: holding reply with next-update date, priority.",
+  "ticket_id": 41448,
+  "archetype": "escalation_exec_cc"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@foxglovetalent.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41449,
+  "archetype": "released"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "machine_notice",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Machine notice with no request.",
+  "ticket_id": 41455,
+  "archetype": "machine_notice"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ana.underhill@orchestra-mock.example",
+     "underhill"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41458,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41464,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@birchmerelogistics.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12",
+     "2026-11-13"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "23525"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Check",
+     "check"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41467,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "fraud",
+     "callback",
+     "bank"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "099621433"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "000851180"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [
+   "fraud"
+  ],
+  "record_status": "scheduled",
+  "why": "Bank change inside a payment email: possible fraud.",
+  "ticket_id": 41476,
+  "archetype": "bank_change"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "accounts@greywatersound.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "2026-67322"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-24816"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-80973"
+    ]
+   },
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-15",
+     "2026-10-20"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "25007"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "mixed",
+  "why": "One line per invoice: paid, scheduled, pending.",
+  "ticket_id": 41478,
+  "archetype": "multi_invoice"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "yara.merriweather@orchestra-mock.example",
+     "merriweather"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41484,
+  "archetype": "pending_po"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ana@dovetaillaneprinti.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41490,
+  "archetype": "released"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "quinn.brightwater@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41491,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@bramblewickprintco.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-17"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "reason_tag": null,
+  "priority": true,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "Threat: holding reply with next-update date, priority.",
+  "ticket_id": 41500,
+  "archetype": "escalation"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@pennywhistleaudio.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-17"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "reason_tag": null,
+  "priority": true,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "Threat: holding reply with next-update date, priority.",
+  "ticket_id": 41502,
+  "archetype": "escalation"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "fraud",
+     "callback",
+     "bank"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "045067609"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "000711758"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [
+   "fraud"
+  ],
+  "record_status": "scheduled",
+  "why": "Bank change inside a payment email: possible fraud.",
+  "ticket_id": 41508,
+  "archetype": "bank_change"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@oxbowcourierservic.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-22",
+     "2026-10-26"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH603298"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41513,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "machine_notice",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Machine notice with no request.",
+  "ticket_id": 41518,
+  "archetype": "machine_notice"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "accounts@mossandmeridianllc.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-06"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH607556"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41523,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "unresolved_account",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Invoice number matches two vendors and the sender is neither.",
+  "ticket_id": 41529,
+  "archetype": "unresolved_account"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "bronwyncastell@mailbox-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR79815"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Wire",
+     "wire"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "$18,068.64",
+     "18068.64",
+     "18,068.64"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-25"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41536,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "expedite",
+     "early",
+     "outside",
+     "off-cycle",
+     "rush"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "Expedite outside the run: a person decides.",
+  "ticket_id": 41541,
+  "archetype": "expedite"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@ninebarksurveys.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41550,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "wendy@mossandmeridianllc.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-09"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "VC-9838"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Card",
+     "card"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Bill shows Open but a settled card payment is applied. Payment record controls.",
+  "ticket_id": 41555,
+  "archetype": "paid_card_open"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "duplicate",
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Same question answered publicly on a linked ticket two days ago.",
+  "ticket_id": 41560,
+  "archetype": "duplicate"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "machine_notice",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Machine notice with no request.",
+  "ticket_id": 41569,
+  "archetype": "machine_notice"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "xavier@tinlanternvideo.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-09"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH850802"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41574,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41580,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@larkspurcateringgr.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "A-68339"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "A-87846"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "A-23295"
+    ]
+   },
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-10"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "22453"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "mixed",
+  "why": "One line per invoice: paid, scheduled, pending.",
+  "ticket_id": 41581,
+  "archetype": "multi_invoice"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "accounts@oxbowcourierservic.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-29",
+     "2026-10-30"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR18924"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Wire",
+     "wire"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41588,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "verify",
+     "authorized",
+     "on record",
+     "not a contact",
+     "unknown",
+     "not listed",
+     "unverified"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "26759"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Sender is not a contact on record: do not disclose.",
+  "ticket_id": 41597,
+  "archetype": "unauthorized_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "victor@larkspurcateringgr.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "copy",
+     "PDF",
+     "resend",
+     "re-send"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "No bill and no linked ticket: ask for a copy.",
+  "ticket_id": 41605,
+  "archetype": "not_on_file"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "samir@kestrelhollowweb.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "2026-27033"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-12638"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-7271"
+    ]
+   },
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-22",
+     "2026-10-23"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR39882"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "mixed",
+  "why": "One line per invoice: paid, scheduled, pending.",
+  "ticket_id": 41609,
+  "archetype": "multi_invoice"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ben.merriweather@orchestra-mock.example",
+     "merriweather"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41610,
+  "archetype": "pending_approval"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "ar@copperleafevents.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-12"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH223466"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "$49,455.16",
+     "49455.16",
+     "49,455.16"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-09-13"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41615,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "quinn.fairbanks@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-29",
+     "2026-10-30"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR60466"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Wire",
+     "wire"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41620,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "elena.fairbanks@orchestra-mock.example",
+     "fairbanks"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41624,
+  "archetype": "pending_po"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "returned",
+     "failed",
+     "bounced"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ACH399501"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "failed",
+  "why": "Returned payment: hand to a person.",
+  "ticket_id": 41629,
+  "archetype": "failed_returned"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_request",
+  "priority": false,
+  "flags": [],
+  "record_status": null,
+  "why": "Thank-you with no request.",
+  "ticket_id": 41632,
+  "archetype": "thank_you"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "quinn.fairbanks@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41639,
+  "archetype": "released"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "quinn.brightwater@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41643,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "conflict",
+     "no payment",
+     "mismatch",
+     "disagree",
+     "missing",
+     "not found",
+     "verify",
+     "does not match"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "conflict",
+  "why": "Bill says Paid In Full but no payment record exists.",
+  "ticket_id": 41644,
+  "archetype": "records_conflict"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "liam.pemberton@orchestra-mock.example",
+     "pemberton"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "pending",
+  "why": "Pending approval or PO: no date, note to the approver (or their delegate if inactive).",
+  "ticket_id": 41653,
+  "archetype": "pending_inactive_approver"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41656,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "greta.northcott@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "scheduled",
+  "why": "On a scheduled run: give the run date.",
+  "ticket_id": 41661,
+  "archetype": "scheduled_run"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "fraud",
+     "phish",
+     "security",
+     "suspicious"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [
+   "fraud"
+  ],
+  "record_status": "approved",
+  "why": "Lookalike domain and sign-in link: to security, no reply.",
+  "ticket_id": 41669,
+  "archetype": "phishing"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "finance@copperleafevents.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41671,
+  "archetype": "released"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "wendy@mossandmeridianllc.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "2026-94267"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-39425"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "2026-53986"
+    ]
+   },
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-29",
+     "2026-11-03"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "28043"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "mixed",
+  "why": "One line per invoice: paid, scheduled, pending.",
+  "ticket_id": 41678,
+  "archetype": "multi_invoice"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "omar@ironbarkrentals.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "5 to 10 business days",
+     "5-10 business days",
+     "five to ten business days",
+     "5 and 10 business days"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-19"
+   },
+   {
+    "kind": "date",
+    "value": "2026-11-25"
+   },
+   {
+    "kind": "date",
+    "value": "2026-12-03"
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "Approved, not on a run: standard window only, no date.",
+  "ticket_id": 41683,
+  "archetype": "approved_no_run"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "finance@copperleafevents.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-11-05",
+     "2026-11-09"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "WIR13482"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "Wire",
+     "wire"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41685,
+  "archetype": "paid_simple"
+ },
+ {
+  "output_type": "no_draft",
+  "recipient": null,
+  "must_contain": [],
+  "must_not_contain": [],
+  "reason_tag": "no_reply_sender",
+  "priority": false,
+  "flags": [],
+  "record_status": "approved",
+  "why": "No-reply sender.",
+  "ticket_id": 41692,
+  "archetype": "no_reply_sender"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "wendy.fairbanks@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "any": [
+     "2026-10-15",
+     "2026-10-16"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH630274"
+    ]
+   },
+   {
+    "kind": "text",
+    "any": [
+     "ACH",
+     "ACH"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "paid",
+  "why": "Payment settled: give date, method and reference.",
+  "ticket_id": 41697,
+  "archetype": "paid_internal"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "quinn.fairbanks@orchestra-mock.example",
+  "must_contain": [
+   {
+    "kind": "date",
+    "value": "2026-11-12"
+   },
+   {
+    "kind": "text",
+    "any": [
+     "left our bank",
+     "left the bank",
+     "funds have left",
+     "released"
+    ]
+   }
+  ],
+  "must_not_contain": [],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "released",
+  "why": "Released, not yet settled.",
+  "ticket_id": 41702,
+  "archetype": "released"
+ },
+ {
+  "output_type": "draft_reply",
+  "recipient": "billing@foxglovetalent.example",
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "copy",
+     "PDF",
+     "resend",
+     "re-send"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "has been paid",
+     "was paid",
+     "paid in full"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "not_on_file",
+  "why": "No bill and no linked ticket: ask for a copy.",
+  "ticket_id": 41707,
+  "archetype": "not_on_file"
+ },
+ {
+  "output_type": "internal_action_note",
+  "recipient": null,
+  "must_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "returned",
+     "failed",
+     "bounced"
+    ]
+   }
+  ],
+  "must_not_contain": [
+   {
+    "kind": "text",
+    "any": [
+     "ACH591044"
+    ]
+   }
+  ],
+  "reason_tag": null,
+  "priority": false,
+  "flags": [],
+  "record_status": "failed",
+  "why": "Returned payment: hand to a person.",
+  "ticket_id": 41716,
+  "archetype": "failed_returned"
+ }
+]

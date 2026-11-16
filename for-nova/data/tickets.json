@@ -1,0 +1,4832 @@
+{
+ "tickets": [
+  {
+   "id": 41249,
+   "subject": "Checking in on INV-21529",
+   "description": "Hi there!\n\nHope your week is going well and that the weather is treating you better than it is treating us. We've had rain for days and the print shop smells like wet paper.\n\nAnyway, I was going back through our open items and wanted to check in on this invoice. Do you know if it has gone out for payment yet, or is it still working its way through? No rush at all, I just like to keep my list tidy.\n\nThanks so much!\nZane Vandermeer\nDovetail Lane Printing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900030,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@dovetaillaneprinti.example",
+      "name": "Zane Vandermeer"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T06:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700001,
+     "author_id": 900030,
+     "public": true,
+     "body": "Hi there!\n\nHope your week is going well and that the weather is treating you better than it is treating us. We've had rain for days and the print shop smells like wet paper.\n\nAnyway, I was going back through our open items and wanted to check in on this invoice. Do you know if it has gone out for payment yet, or is it still working its way through? No rush at all, I just like to keep my list tidy.\n\nThanks so much!\nZane Vandermeer\nDovetail Lane Printing",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700002,
+     "author_id": 900002,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-10T20:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700003,
+     "author_id": 900030,
+     "public": true,
+     "body": "Any update on this?",
+     "created_at": "2026-11-12T06:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41252,
+   "subject": "Payment reminder from Ironbark Rentals",
+   "description": "IRONBARK RENTALS BILLING\n\nThis is an automated reminder.\n\nOur records show that invoice 2026-27681 is open on your account. If you have already arranged payment, please disregard this message.\n\nTo view or download a copy of the invoice, sign in to the Ironbark Rentals customer portal.\n\nPlease do not reply to this email. This mailbox is not monitored.\n\nIronbark Rentals Billing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900031,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@ironbarkrentals.example",
+      "name": "Ironbark Rentals Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T09:50:00Z",
+   "updated_at": "2026-11-08T09:50:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700004,
+     "author_id": 900031,
+     "public": true,
+     "body": "IRONBARK RENTALS BILLING\n\nThis is an automated reminder.\n\nOur records show that invoice 2026-27681 is open on your account. If you have already arranged payment, please disregard this message.\n\nTo view or download a copy of the invoice, sign in to the Ironbark Rentals customer portal.\n\nPlease do not reply to this email. This mailbox is not monitored.\n\nIronbark Rentals Billing",
+     "created_at": "2026-11-08T09:50:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41259,
+   "subject": "Payment status of our invoice",
+   "description": "Dear Accounts Payable,\n\nI trust you are well. I am following up on the attached invoice from Copperleaf Events. Might you be able to confirm whether it has been paid, or advise when payment is expected?\n\nMany thanks in advance for your assistance.\n\nKind regards,\nVictor Galloway\nCopperleaf Events",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900032,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "victor@copperleafevents.example",
+      "name": "Victor Galloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T15:34:00Z",
+   "updated_at": "2026-11-04T15:34:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700005,
+     "author_id": 900032,
+     "public": true,
+     "body": "Dear Accounts Payable,\n\nI trust you are well. I am following up on the attached invoice from Copperleaf Events. Might you be able to confirm whether it has been paid, or advise when payment is expected?\n\nMany thanks in advance for your assistance.\n\nKind regards,\nVictor Galloway\nCopperleaf Events",
+     "created_at": "2026-11-04T15:34:00Z",
+     "attachments": [
+      {
+       "file_name": "CE96524.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41262,
+   "subject": "Quick question on our invoice",
+   "description": "Hi there,\n\nHope your week is going well! It's Liam over at Oxbow Courier Service. I was tidying up our books this morning and wanted to check in on invoice 26390. Do you happen to know if it's been paid yet, or if not, roughly when it's lined up to go out?\n\nNo rush at all, I just like to keep our records neat before the month wraps up. Thanks so much, and say hi to the team for us.\n\nCheers,\nLiam Fairbanks\nOxbow Courier Service",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900033,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@oxbowcourierservic.example",
+      "name": "Liam Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T10:07:00Z",
+   "updated_at": "2026-11-10T02:07:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700006,
+     "author_id": 900033,
+     "public": true,
+     "body": "Hi there,\n\nHope your week is going well! It's Liam over at Oxbow Courier Service. I was tidying up our books this morning and wanted to check in on invoice 26390. Do you happen to know if it's been paid yet, or if not, roughly when it's lined up to go out?\n\nNo rush at all, I just like to keep our records neat before the month wraps up. Thanks so much, and say hi to the team for us.\n\nCheers,\nLiam Fairbanks\nOxbow Courier Service",
+     "created_at": "2026-11-08T10:07:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700007,
+     "author_id": 900003,
+     "public": true,
+     "body": "Hi, we have this logged and will get back to you.",
+     "created_at": "2026-11-08T21:07:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700008,
+     "author_id": 900033,
+     "public": true,
+     "body": "Following up on the below, please.",
+     "created_at": "2026-11-10T02:07:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41267,
+   "subject": "Invoice 58577",
+   "description": "Sent invoice 58577 weeks ago, no response. Can you confirm receipt?\n\nJamal, Bramblewick Print Co",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900034,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@bramblewickprintco.example",
+      "name": "Jamal Underhill"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T09:36:00Z",
+   "updated_at": "2026-11-12T09:36:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700009,
+     "author_id": 900034,
+     "public": true,
+     "body": "Sent invoice 58577 weeks ago, no response. Can you confirm receipt?\n\nJamal, Bramblewick Print Co",
+     "created_at": "2026-11-12T09:36:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41268,
+   "subject": "Saltmarsh Creative invoice 3325, payment status?",
+   "description": "Hi AP team,\n\nSaltmarsh Creative has contacted me a couple of times now asking whether their invoice has been paid, and I don't have an answer for them. Could you let me know where it stands, or when it's expected to be paid? I'd like to get back to them today if possible.\n\nThanks,\nMaya Kettering",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900023,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "maya.kettering@orchestra-mock.example",
+      "name": "Maya Kettering"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T16:18:00Z",
+   "updated_at": "2026-11-04T16:18:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700010,
+     "author_id": 900023,
+     "public": true,
+     "body": "Hi AP team,\n\nSaltmarsh Creative has contacted me a couple of times now asking whether their invoice has been paid, and I don't have an answer for them. Could you let me know where it stands, or when it's expected to be paid? I'd like to get back to them today if possible.\n\nThanks,\nMaya Kettering",
+     "created_at": "2026-11-04T16:18:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41271,
+   "subject": "Invoice 88061",
+   "description": "Has invoice 88061 been paid? If not, when will it be? - Jamal, Saltmarsh Creative",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900035,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "jamal@saltmarshcreative.example",
+      "name": "Jamal Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T16:20:00Z",
+   "updated_at": "2026-11-11T16:20:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700011,
+     "author_id": 900035,
+     "public": true,
+     "body": "Has invoice 88061 been paid? If not, when will it be? - Jamal, Saltmarsh Creative",
+     "created_at": "2026-11-11T16:20:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41276,
+   "subject": "INV-37787 not received",
+   "description": "I was told INV-37787 was paid but I haven't received anything. Where is the money?\n\nLucia",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900036,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "luciafenwickoy@mailbox-mock.example",
+      "name": "Lucia Fenwick-Oyelaran"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T14:04:00Z",
+   "updated_at": "2026-11-11T14:04:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700012,
+     "author_id": 900036,
+     "public": true,
+     "body": "I was told INV-37787 was paid but I haven't received anything. Where is the money?\n\nLucia",
+     "created_at": "2026-11-11T14:04:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41277,
+   "subject": "Payment timing on INV-58125",
+   "description": "Hi,\n\nI'm following up on invoice INV-58125 for $1,359.40. The due date was September 24 and I'd like to know where it stands. Has it been paid, or is there a date it's scheduled to go out?\n\nI'd rather not keep chasing this, so a quick reply with the status would be appreciated.\n\nThanks,\nLucia Fenwick-Oyelaran",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900036,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "luciafenwickoy@mailbox-mock.example",
+      "name": "Lucia Fenwick-Oyelaran"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T06:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700013,
+     "author_id": 900036,
+     "public": true,
+     "body": "Hi,\n\nI'm following up on invoice INV-58125 for $1,359.40. The due date was September 24 and I'd like to know where it stands. Has it been paid, or is there a date it's scheduled to go out?\n\nI'd rather not keep chasing this, so a quick reply with the status would be appreciated.\n\nThanks,\nLucia Fenwick-Oyelaran",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700014,
+     "author_id": 900003,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-11T13:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700015,
+     "author_id": 900036,
+     "public": true,
+     "body": "Following up on the below, please.",
+     "created_at": "2026-11-12T06:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41278,
+   "subject": "Ninebark Surveys payment",
+   "description": "Is INV-26340 from Ninebark Surveys paid yet? They're asking. Thanks, Dmitri",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900018,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "dmitri.jessup@orchestra-mock.example",
+      "name": "Dmitri Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T09:39:00Z",
+   "updated_at": "2026-11-07T09:39:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700016,
+     "author_id": 900018,
+     "public": true,
+     "body": "Is INV-26340 from Ninebark Surveys paid yet? They're asking. Thanks, Dmitri",
+     "created_at": "2026-11-07T09:39:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41286,
+   "subject": "Following up",
+   "description": "Hello,\n\nI hope this message finds you well. It has been a busy season for us here at Juniper Slate Analytics. We wrapped up two large client engagements in October, onboarded a new junior analyst, and moved offices, so I apologize if my follow-ups have been scattered. Thank you as always for your partnership on the dashboard project, which our whole team has enjoyed working on.\n\nOn to the reason I'm writing. I'm trying to reconcile our receivables and I can't tell whether invoice 43812 has been paid. I've attached a copy for reference. Could you let me know its status, and if it hasn't been paid, when we might expect it?\n\nThank you again for your time, and I look forward to hearing from you.\n\nWarm regards,\nElena Yarborough\nJuniper Slate Analytics",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900037,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "elena@juniperslateanalyt.example",
+      "name": "Elena Yarborough"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T21:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700017,
+     "author_id": 900037,
+     "public": true,
+     "body": "Hello,\n\nI hope this message finds you well. It has been a busy season for us here at Juniper Slate Analytics. We wrapped up two large client engagements in October, onboarded a new junior analyst, and moved offices, so I apologize if my follow-ups have been scattered. Thank you as always for your partnership on the dashboard project, which our whole team has enjoyed working on.\n\nOn to the reason I'm writing. I'm trying to reconcile our receivables and I can't tell whether invoice 43812 has been paid. I've attached a copy for reference. Could you let me know its status, and if it hasn't been paid, when we might expect it?\n\nThank you again for your time, and I look forward to hearing from you.\n\nWarm regards,\nElena Yarborough\nJuniper Slate Analytics",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": [
+      {
+       "file_name": "43812.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700018,
+     "author_id": 900003,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-11T04:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700019,
+     "author_id": 900037,
+     "public": true,
+     "body": "Any update on this?",
+     "created_at": "2026-11-12T21:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41294,
+   "subject": "Fwd: Invoice 2026-47566",
+   "description": "Would it be possible to pay this one early? Things are a bit tight on my side this month. Thank you for considering it.\n\nTomasz\n\n---------- Forwarded message ----------\nFrom: Tomasz Velarde <tomaszvelarde@mailbox-mock.example>\nTo: Accounts Payable\nSubject: Invoice 2026-47566\n\nHello, please find my invoice 2026-47566 attached.\n\nBest,\nTomasz",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900038,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "tomaszvelarde@mailbox-mock.example",
+      "name": "Tomasz Velarde"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T09:47:00Z",
+   "updated_at": "2026-11-10T09:47:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700020,
+     "author_id": 900038,
+     "public": true,
+     "body": "Would it be possible to pay this one early? Things are a bit tight on my side this month. Thank you for considering it.\n\nTomasz\n\n---------- Forwarded message ----------\nFrom: Tomasz Velarde <tomaszvelarde@mailbox-mock.example>\nTo: Accounts Payable\nSubject: Invoice 2026-47566\n\nHello, please find my invoice 2026-47566 attached.\n\nBest,\nTomasz",
+     "created_at": "2026-11-10T09:47:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_2026-47566.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41303,
+   "subject": "invoice question",
+   "description": "hi, checking on invoice A-95058 from wrenfield data labs. has it been paid or do you know when it will be? thanks\n\ndmitri winslow\nsent from my phone",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900039,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "dmitri@wrenfielddatalabs.example",
+      "name": "Dmitri Winslow"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T11:04:00Z",
+   "updated_at": "2026-11-08T21:04:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700021,
+     "author_id": 900039,
+     "public": true,
+     "body": "hi, checking on invoice A-95058 from wrenfield data labs. has it been paid or do you know when it will be? thanks\n\ndmitri winslow\nsent from my phone",
+     "created_at": "2026-11-06T11:04:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700022,
+     "author_id": 900003,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-07T05:04:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700023,
+     "author_id": 900039,
+     "public": true,
+     "body": "Checking in again. Thanks.",
+     "created_at": "2026-11-08T21:04:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41305,
+   "subject": "Question about invoice for Juniper Slate Analytics",
+   "description": "Good day,\n\nI write for our vendor Juniper Slate Analytics. They ask me about their invoice number 35423, if it is already paid or not yet. Please can you tell me the status and when the payment will be done?\n\nThank you for your help.\n\nBest regards,\nDmitri Jessup",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900018,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "dmitri.jessup@orchestra-mock.example",
+      "name": "Dmitri Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T13:56:00Z",
+   "updated_at": "2026-11-10T13:56:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700024,
+     "author_id": 900018,
+     "public": true,
+     "body": "Good day,\n\nI write for our vendor Juniper Slate Analytics. They ask me about their invoice number 35423, if it is already paid or not yet. Please can you tell me the status and when the payment will be done?\n\nThank you for your help.\n\nBest regards,\nDmitri Jessup",
+     "created_at": "2026-11-10T13:56:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41312,
+   "subject": "Checking in on our invoice (Quillfern Studio)",
+   "description": "Hi there!\n\nHope your week is going well. I wanted to circle back on the invoice I sent over to this inbox a little while ago. I've attached it again so you don't have to dig through your email. It's the attached invoice for the design work we finished with your marketing folks.\n\nI haven't seen any note that it's been entered into your system, so I wanted to make sure it didn't slip through a crack somewhere. Totally happy to resend anything or fix a detail if something is missing.\n\nThanks so much!\nAna Winslow\nQuillfern Studio",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900040,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@quillfernstudio.example",
+      "name": "Ana Winslow"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T09:49:00Z",
+   "updated_at": "2026-11-07T09:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": [
+      3001
+     ]
+    }
+   ],
+   "comments": [
+    {
+     "id": 700025,
+     "author_id": 900040,
+     "public": true,
+     "body": "Hi there!\n\nHope your week is going well. I wanted to circle back on the invoice I sent over to this inbox a little while ago. I've attached it again so you don't have to dig through your email. It's the attached invoice for the design work we finished with your marketing folks.\n\nI haven't seen any note that it's been entered into your system, so I wanted to make sure it didn't slip through a crack somewhere. Totally happy to resend anything or fix a detail if something is missing.\n\nThanks so much!\nAna Winslow\nQuillfern Studio",
+     "created_at": "2026-11-07T09:49:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-16995.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41319,
+   "subject": "Fwd: Invoice INV-10498",
+   "description": "Any update on this? Wondering if it's been paid yet.\n\nZane\n\n---------- Forwarded message ----------\nFrom: Zane Vandermeer <billing@dovetaillaneprinti.example>\nSubject: Invoice INV-10498\n\nHello,\n\nPlease find our invoice attached for the printing job we completed for your team. Let us know if you need anything else from us.\n\nThanks,\nZane Vandermeer\nDovetail Lane Printing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900030,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@dovetaillaneprinti.example",
+      "name": "Zane Vandermeer"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-09T15:49:00Z",
+   "updated_at": "2026-11-09T15:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700028,
+     "author_id": 900030,
+     "public": true,
+     "body": "Any update on this? Wondering if it's been paid yet.\n\nZane\n\n---------- Forwarded message ----------\nFrom: Zane Vandermeer <billing@dovetaillaneprinti.example>\nSubject: Invoice INV-10498\n\nHello,\n\nPlease find our invoice attached for the printing job we completed for your team. Let us know if you need anything else from us.\n\nThanks,\nZane Vandermeer\nDovetail Lane Printing",
+     "created_at": "2026-11-09T15:49:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-10498.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41323,
+   "subject": "Request for a copy of my pay stub",
+   "description": "Dear Accounts Payable team,\n\nI hope you are well. I am writing because one of my pay stubs does not appear to be available to me. I would be grateful if you could look into this and send me a copy at your convenience.\n\nThank you for your assistance.\n\nKind regards,\nNadia Lockhart",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900017,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "nadia.lockhart@orchestra-mock.example",
+      "name": "Nadia Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T13:12:00Z",
+   "updated_at": "2026-11-06T13:12:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700029,
+     "author_id": 900017,
+     "public": true,
+     "body": "Dear Accounts Payable team,\n\nI hope you are well. I am writing because one of my pay stubs does not appear to be available to me. I would be grateful if you could look into this and send me a copy at your convenience.\n\nThank you for your assistance.\n\nKind regards,\nNadia Lockhart",
+     "created_at": "2026-11-06T13:12:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41327,
+   "subject": "Copperleaf Events payment",
+   "description": "Copperleaf Events invoice CE24599: paid yet, or when will it be? Thanks. Quinn",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900016,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.brightwater@orchestra-mock.example",
+      "name": "Quinn Brightwater"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T13:10:00Z",
+   "updated_at": "2026-11-05T13:10:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700030,
+     "author_id": 900016,
+     "public": true,
+     "body": "Copperleaf Events invoice CE24599: paid yet, or when will it be? Thanks. Quinn",
+     "created_at": "2026-11-05T13:10:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41333,
+   "subject": "Question about payment for Ninebark Surveys",
+   "description": "Dear Accounts Payable,\n\nI am writing for the vendor Ninebark Surveys. They ask me about the invoice INV-18779, I attach it again here. Can you please tell me if this invoice is already paid, or when you will pay it? The vendor is waiting and they ask me every week.\n\nThank you for your help.\n\nBest regards,\nCarla Pemberton",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900021,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "carla.pemberton@orchestra-mock.example",
+      "name": "Carla Pemberton"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T13:04:00Z",
+   "updated_at": "2026-11-07T00:04:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700031,
+     "author_id": 900021,
+     "public": true,
+     "body": "Dear Accounts Payable,\n\nI am writing for the vendor Ninebark Surveys. They ask me about the invoice INV-18779, I attach it again here. Can you please tell me if this invoice is already paid, or when you will pay it? The vendor is waiting and they ask me every week.\n\nThank you for your help.\n\nBest regards,\nCarla Pemberton",
+     "created_at": "2026-11-04T13:04:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-18779.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700032,
+     "author_id": 900002,
+     "public": true,
+     "body": "Received, thank you. Checking with the team.",
+     "created_at": "2026-11-04T23:04:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700033,
+     "author_id": 900021,
+     "public": true,
+     "body": "Checking in again. Thanks.",
+     "created_at": "2026-11-07T00:04:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41340,
+   "subject": "Second request: invoice INV-13835",
+   "description": "Hello,\n\nThis is our second message about invoice INV-13835. I have attached statement.pdf for reference. Could someone look at it and reply so we can close the query on our side?\n\nThanks,\nAna Isherwood\nAP Desk, Remit Platform",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900041,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ap-desk@remit-platform-mock.example",
+      "name": "Ana Isherwood"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T11:49:00Z",
+   "updated_at": "2026-11-05T11:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700034,
+     "author_id": 900041,
+     "public": true,
+     "body": "Hello,\n\nThis is our second message about invoice INV-13835. I have attached statement.pdf for reference. Could someone look at it and reply so we can close the query on our side?\n\nThanks,\nAna Isherwood\nAP Desk, Remit Platform",
+     "created_at": "2026-11-05T11:49:00Z",
+     "attachments": [
+      {
+       "file_name": "statement.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41343,
+   "subject": "Open invoice reminder - Ironbark Rentals",
+   "description": "Hello,\n\nThis is an automated notice from Ironbark Rentals Billing.\n\nInvoice 2026-81176 appears as open on your account. A copy is available in the customer portal.\n\nIf payment has already been sent, no further action is needed.\n\nThis mailbox is not monitored. Replies to this address will not be read.\n\nIronbark Rentals Billing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900031,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@ironbarkrentals.example",
+      "name": "Ironbark Rentals Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T09:55:00Z",
+   "updated_at": "2026-11-08T09:55:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700035,
+     "author_id": 900031,
+     "public": true,
+     "body": "Hello,\n\nThis is an automated notice from Ironbark Rentals Billing.\n\nInvoice 2026-81176 appears as open on your account. A copy is available in the customer portal.\n\nIf payment has already been sent, no further action is needed.\n\nThis mailbox is not monitored. Replies to this address will not be read.\n\nIronbark Rentals Billing",
+     "created_at": "2026-11-08T09:55:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41344,
+   "subject": "Question about invoice payment details",
+   "description": "Good day,\n\nI work with Fernhollow Photo. Can you please send to me the payment details of invoice INV-28477? I am sending from my personal email, sorry for this.\n\nThank you,\nMaya Calloway",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900042,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "maya48@freemail-mock.example",
+      "name": "Maya Calloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T16:26:00Z",
+   "updated_at": "2026-11-06T16:26:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700036,
+     "author_id": 900042,
+     "public": true,
+     "body": "Good day,\n\nI work with Fernhollow Photo. Can you please send to me the payment details of invoice INV-28477? I am sending from my personal email, sorry for this.\n\nThank you,\nMaya Calloway",
+     "created_at": "2026-11-06T16:26:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41348,
+   "subject": "Cobalt Finch Design invoice",
+   "description": "cobalt finch design is asking about the attached invoice. has it been paid yet or when will it be? need to tell them somthing asap\n\nNadia Lockhart",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900017,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "nadia.lockhart@orchestra-mock.example",
+      "name": "Nadia Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T10:40:00Z",
+   "updated_at": "2026-11-08T00:40:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700037,
+     "author_id": 900017,
+     "public": true,
+     "body": "cobalt finch design is asking about the attached invoice. has it been paid yet or when will it be? need to tell them somthing asap\n\nNadia Lockhart",
+     "created_at": "2026-11-06T10:40:00Z",
+     "attachments": [
+      {
+       "file_name": "A-36257.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700038,
+     "author_id": 900002,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-06T15:40:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700039,
+     "author_id": 900017,
+     "public": true,
+     "body": "Checking in again. Thanks.",
+     "created_at": "2026-11-08T00:40:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41349,
+   "subject": "Invoice 27453 payment status",
+   "description": "Hello,\n\nI'm asking on behalf of Oluwaseun Lindqvist about the attached invoice for $3,724.87, due September 12. Could you tell me whether it has been paid, and if not, when it is expected to be?\n\nThank you,\nInes Merriweather",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900015,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ines.merriweather@orchestra-mock.example",
+      "name": "Ines Merriweather"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T11:52:00Z",
+   "updated_at": "2026-11-12T13:52:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700040,
+     "author_id": 900015,
+     "public": true,
+     "body": "Hello,\n\nI'm asking on behalf of Oluwaseun Lindqvist about the attached invoice for $3,724.87, due September 12. Could you tell me whether it has been paid, and if not, when it is expected to be?\n\nThank you,\nInes Merriweather",
+     "created_at": "2026-11-10T11:52:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_27453.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700041,
+     "author_id": 900003,
+     "public": true,
+     "body": "Received, thank you. Checking with the team.",
+     "created_at": "2026-11-10T18:52:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700042,
+     "author_id": 900015,
+     "public": true,
+     "body": "Following up on the below, please.",
+     "created_at": "2026-11-12T13:52:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41351,
+   "subject": "Invoice Reminder from Larkspur Catering Group",
+   "description": "LARKSPUR CATERING GROUP BILLING\n\nThis is an automated reminder for invoice A-62987.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Please do not reply to this email. For billing questions, contact your Larkspur Catering Group representative.\n\nLarkspur Catering Group Billing System",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900043,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@larkspurcateringgr.example",
+      "name": "Larkspur Catering Group Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T15:29:00Z",
+   "updated_at": "2026-11-11T15:29:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700043,
+     "author_id": 900043,
+     "public": true,
+     "body": "LARKSPUR CATERING GROUP BILLING\n\nThis is an automated reminder for invoice A-62987.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Please do not reply to this email. For billing questions, contact your Larkspur Catering Group representative.\n\nLarkspur Catering Group Billing System",
+     "created_at": "2026-11-11T15:29:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41352,
+   "subject": "Quick check on invoice 2026-23754",
+   "description": "Hi there!\n\nHope your week is going well and the weather is treating you better than it is treating us. I'm Samir over at Kestrel Hollow Web. We wrapped up the site work with your team a little while back and everyone seemed really happy with how it turned out, which was great to hear.\n\nI'm just doing my regular tidy-up of our books and wanted to ask about invoice 2026-23754. Do you know if it's been paid yet, or when it's likely to go out? No stress at all, I just like to keep my records straight.\n\nThanks so much, and have a good one!\n\nSamir Jessup\nKestrel Hollow Web",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900044,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "samir@kestrelhollowweb.example",
+      "name": "Samir Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T16:21:00Z",
+   "updated_at": "2026-11-13T16:21:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700044,
+     "author_id": 900044,
+     "public": true,
+     "body": "Hi there!\n\nHope your week is going well and the weather is treating you better than it is treating us. I'm Samir over at Kestrel Hollow Web. We wrapped up the site work with your team a little while back and everyone seemed really happy with how it turned out, which was great to hear.\n\nI'm just doing my regular tidy-up of our books and wanted to ask about invoice 2026-23754. Do you know if it's been paid yet, or when it's likely to go out? No stress at all, I just like to keep my records straight.\n\nThanks so much, and have a good one!\n\nSamir Jessup\nKestrel Hollow Web",
+     "created_at": "2026-11-13T16:21:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41353,
+   "subject": "Invoice 2026-87470 - second request",
+   "description": "Hello,\n\nI am following up on my email from earlier this week. Please see the attached invoice again. Could you let me know the status of this invoice and when payment is expected?\n\nThank you,\nWendy Jessup\nKestrel Hollow Web",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900045,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@kestrelhollowweb.example",
+      "name": "Wendy Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T14:00:00Z",
+   "updated_at": "2026-11-13T14:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": [
+      3005
+     ]
+    }
+   ],
+   "comments": [
+    {
+     "id": 700045,
+     "author_id": 900045,
+     "public": true,
+     "body": "Hello,\n\nI am following up on my email from earlier this week. Please see the attached invoice again. Could you let me know the status of this invoice and when payment is expected?\n\nThank you,\nWendy Jessup\nKestrel Hollow Web",
+     "created_at": "2026-11-13T14:00:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_2026-87470.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41355,
+   "subject": "payment never showed up",
+   "description": "hi, we were told invoice 80234 was paid but nothing has hit our account. can you tell me where the money is? thanks\n\nsent from my phone",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900046,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@juniperslateanalyt.example",
+      "name": "Yara Oakhurst"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T16:52:00Z",
+   "updated_at": "2026-11-12T16:52:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700048,
+     "author_id": 900046,
+     "public": true,
+     "body": "hi, we were told invoice 80234 was paid but nothing has hit our account. can you tell me where the money is? thanks\n\nsent from my phone",
+     "created_at": "2026-11-12T16:52:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41358,
+   "subject": "Fwd: Invoice follow-up",
+   "description": "Any update on this? Still showing as open on our side.\n\nGreta\n\n---------- Forwarded message ----------\nFrom: Greta Radcliffe <ar@sablecresttranslat.example>\nSubject: Invoice 4827\n\nHello,\n\nWe sent invoice 4827 a while ago and wanted to check whether it has been paid or when we can expect payment. Please let us know.\n\nThanks,\nGreta Radcliffe\nSablecrest Translation",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900047,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@sablecresttranslat.example",
+      "name": "Greta Radcliffe"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T16:40:00Z",
+   "updated_at": "2026-11-07T16:40:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700049,
+     "author_id": 900047,
+     "public": true,
+     "body": "Any update on this? Still showing as open on our side.\n\nGreta\n\n---------- Forwarded message ----------\nFrom: Greta Radcliffe <ar@sablecresttranslat.example>\nSubject: Invoice 4827\n\nHello,\n\nWe sent invoice 4827 a while ago and wanted to check whether it has been paid or when we can expect payment. Please let us know.\n\nThanks,\nGreta Radcliffe\nSablecrest Translation",
+     "created_at": "2026-11-07T16:40:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41361,
+   "subject": "Status of several invoices",
+   "description": "Hello,\n\nCould you give me a status on these three invoices: 2026-78947, 2026-13278 and 2026-89527? I've asked about open items before and haven't had a clear answer, so a quick line on each would help.\n\nThanks,\nRosa Underhill\nGreywater Sound",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900048,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@greywatersound.example",
+      "name": "Rosa Underhill"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T13:05:00Z",
+   "updated_at": "2026-11-07T13:05:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700050,
+     "author_id": 900048,
+     "public": true,
+     "body": "Hello,\n\nCould you give me a status on these three invoices: 2026-78947, 2026-13278 and 2026-89527? I've asked about open items before and haven't had a clear answer, so a quick line on each would help.\n\nThanks,\nRosa Underhill\nGreywater Sound",
+     "created_at": "2026-11-07T13:05:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41370,
+   "subject": "Payment status inquiry, Priya Halvorsen invoice 2026-49417",
+   "description": "Dear Accounts Payable team,\n\nI am writing on behalf of Priya Halvorsen, who has been working with our department. Priya's invoice is for $3,822.25 and, as I understand it, payment was due September 11. I have attached the statement for your reference.\n\nWould you kindly let me know whether this has been paid, or when payment is expected? I would be grateful for any information you can share.\n\nWith thanks and kind regards,\nCarla Stanhope",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900025,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "carla.stanhope@orchestra-mock.example",
+      "name": "Carla Stanhope"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T10:08:00Z",
+   "updated_at": "2026-11-06T10:08:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700051,
+     "author_id": 900025,
+     "public": true,
+     "body": "Dear Accounts Payable team,\n\nI am writing on behalf of Priya Halvorsen, who has been working with our department. Priya's invoice is for $3,822.25 and, as I understand it, payment was due September 11. I have attached the statement for your reference.\n\nWould you kindly let me know whether this has been paid, or when payment is expected? I would be grateful for any information you can share.\n\nWith thanks and kind regards,\nCarla Stanhope",
+     "created_at": "2026-11-06T10:08:00Z",
+     "attachments": [
+      {
+       "file_name": "statement.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41373,
+   "subject": "Inquiry regarding payment, Tallowridge Media, 63162",
+   "description": "Dear Accounts Payable Team,\n\nI am writing on behalf of Tallowridge Media, who have asked me about the status of their invoice 63162. Could you kindly let me know whether it has been paid, or, if not, when payment is expected?\n\nI appreciate your assistance.\n\nKind regards,\nGreta Northcott",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900024,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "greta.northcott@orchestra-mock.example",
+      "name": "Greta Northcott"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T15:13:00Z",
+   "updated_at": "2026-11-07T15:13:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700052,
+     "author_id": 900024,
+     "public": true,
+     "body": "Dear Accounts Payable Team,\n\nI am writing on behalf of Tallowridge Media, who have asked me about the status of their invoice 63162. Could you kindly let me know whether it has been paid, or, if not, when payment is expected?\n\nI appreciate your assistance.\n\nKind regards,\nGreta Northcott",
+     "created_at": "2026-11-07T15:13:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41377,
+   "subject": "Marrowgate Consulting invoice",
+   "description": "Marrowgate Consulting invoice A-96728, $25,794.04, due September 25. Has it been paid, and if not when will it be?\n\nAna",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900019,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ana.abernathy@orchestra-mock.example",
+      "name": "Ana Abernathy"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T10:07:00Z",
+   "updated_at": "2026-11-12T10:07:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700053,
+     "author_id": 900019,
+     "public": true,
+     "body": "Marrowgate Consulting invoice A-96728, $25,794.04, due September 25. Has it been paid, and if not when will it be?\n\nAna",
+     "created_at": "2026-11-12T10:07:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41380,
+   "subject": "Invoice sent three weeks ago",
+   "description": "Hello,\n\nI sent invoice 2026-10858 to this address about three weeks ago and have not had a reply. A copy is attached. Please confirm you have received it and tell me when payment can be expected.\n\nThank you,\nBronwyn Castellano",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900049,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "bronwyncastell@mailbox-mock.example",
+      "name": "Bronwyn Castellano"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T16:29:00Z",
+   "updated_at": "2026-11-08T16:29:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700054,
+     "author_id": 900049,
+     "public": true,
+     "body": "Hello,\n\nI sent invoice 2026-10858 to this address about three weeks ago and have not had a reply. A copy is attached. Please confirm you have received it and tell me when payment can be expected.\n\nThank you,\nBronwyn Castellano",
+     "created_at": "2026-11-08T16:29:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_2026-10858.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41382,
+   "subject": "Payment status, invoice 69225",
+   "description": "Hello,\n\nPlease let us know whether invoice 69225 has been paid. If it hasn't, please give us the expected payment date.\n\nRegards,\nJamal Jessup\nSaltmarsh Creative",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900035,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "jamal@saltmarshcreative.example",
+      "name": "Jamal Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T20:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700055,
+     "author_id": 900035,
+     "public": true,
+     "body": "Hello,\n\nPlease let us know whether invoice 69225 has been paid. If it hasn't, please give us the expected payment date.\n\nRegards,\nJamal Jessup\nSaltmarsh Creative",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700056,
+     "author_id": 900002,
+     "public": true,
+     "body": "Hi, we have this logged and will get back to you.",
+     "created_at": "2026-11-11T10:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700057,
+     "author_id": 900035,
+     "public": true,
+     "body": "Checking in again. Thanks.",
+     "created_at": "2026-11-12T20:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41384,
+   "subject": "Reminder: invoice OF67811 is open",
+   "description": "Ostrander Field Research Billing\n\nThis is an automated payment reminder.\n\nInvoice: OF67811\n\nOur system shows this invoice as open. If you have recently made payment, please ignore this reminder.\n\nNOTE: This mailbox is not monitored. Do not reply to this email.\n\nOstrander Field Research",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900050,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@ostranderfieldrese.example",
+      "name": "Ostrander Field Research Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T14:04:00Z",
+   "updated_at": "2026-11-07T14:04:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700058,
+     "author_id": 900050,
+     "public": true,
+     "body": "Ostrander Field Research Billing\n\nThis is an automated payment reminder.\n\nInvoice: OF67811\n\nOur system shows this invoice as open. If you have recently made payment, please ignore this reminder.\n\nNOTE: This mailbox is not monitored. Do not reply to this email.\n\nOstrander Field Research",
+     "created_at": "2026-11-07T14:04:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41389,
+   "subject": "Ironbark Rentals invoice status",
+   "description": "Dear Accounts Payable team,\n\nI hope you are well. I am writing on behalf of Ironbark Rentals regarding their invoice 2026-54516, which I have attached for convenience.\n\nCould you please confirm whether it has been paid, or let me know when payment is anticipated? I would appreciate any update you can provide.\n\nKind regards,\nCarla Pemberton",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900021,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "carla.pemberton@orchestra-mock.example",
+      "name": "Carla Pemberton"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T03:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700059,
+     "author_id": 900021,
+     "public": true,
+     "body": "Dear Accounts Payable team,\n\nI hope you are well. I am writing on behalf of Ironbark Rentals regarding their invoice 2026-54516, which I have attached for convenience.\n\nCould you please confirm whether it has been paid, or let me know when payment is anticipated? I would appreciate any update you can provide.\n\nKind regards,\nCarla Pemberton",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_2026-54516.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700060,
+     "author_id": 900003,
+     "public": true,
+     "body": "Hi, we have this logged and will get back to you.",
+     "created_at": "2026-11-10T19:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700061,
+     "author_id": 900021,
+     "public": true,
+     "body": "Any update on this?",
+     "created_at": "2026-11-12T03:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41391,
+   "subject": "Question about Ostrander Field Research invoice",
+   "description": "Hello,\n\nI am writing for Ostrander Field Research. They ask me about the attached invoice. The amount is $3,911.80 and the due date is September 25, as they told to me. Please can you tell me if this invoice is already paid, or when it will be paid? I need to answer them.\n\nThank you for your help.\n\nBest regards,\nGreta Northcott",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900024,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "greta.northcott@orchestra-mock.example",
+      "name": "Greta Northcott"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T10:57:00Z",
+   "updated_at": "2026-11-13T10:57:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700062,
+     "author_id": 900024,
+     "public": true,
+     "body": "Hello,\n\nI am writing for Ostrander Field Research. They ask me about the attached invoice. The amount is $3,911.80 and the due date is September 25, as they told to me. Please can you tell me if this invoice is already paid, or when it will be paid? I need to answer them.\n\nThank you for your help.\n\nBest regards,\nGreta Northcott",
+     "created_at": "2026-11-13T10:57:00Z",
+     "attachments": [
+      {
+       "file_name": "OF44613.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41393,
+   "subject": "Checking in on invoice 2026-87149",
+   "description": "Hi!\n\nPriya Halvorsen here. Just touching base about invoice 2026-87149. I haven't got a clear idea of when it will be paid, and I wanted to ask if you could let me know the timing when you get a chance.\n\nI also wanted to mention, since it's past the due date now, the 5% late fee from my terms has kicked in on this one. I'd honestly rather not make a fuss about it, I just want to make sure it's on your radar so we can get everything squared away.\n\nThanks a bunch, and hope the week is treating you kindly!\n\nPriya",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900051,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "priyahalvorsen@mailbox-mock.example",
+      "name": "Priya Halvorsen"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T12:09:00Z",
+   "updated_at": "2026-11-12T12:09:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700063,
+     "author_id": 900051,
+     "public": true,
+     "body": "Hi!\n\nPriya Halvorsen here. Just touching base about invoice 2026-87149. I haven't got a clear idea of when it will be paid, and I wanted to ask if you could let me know the timing when you get a chance.\n\nI also wanted to mention, since it's past the due date now, the 5% late fee from my terms has kicked in on this one. I'd honestly rather not make a fuss about it, I just want to make sure it's on your radar so we can get everything squared away.\n\nThanks a bunch, and hope the week is treating you kindly!\n\nPriya",
+     "created_at": "2026-11-12T12:09:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41401,
+   "subject": "Our payment is on its way!",
+   "description": "Hi there,\n\nJust a quick note to say we've sent our payment for the invoice you guys issued us. Our finance person did it yesterday afternoon and told me it should show up soon. Hope the month is treating you well, and thanks for being so easy to work with!\n\nCheers,\nBen Merriweather\nClientCo 7",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900052,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ben@clientco7.example",
+      "name": "Ben Merriweather"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T09:54:00Z",
+   "updated_at": "2026-11-11T09:54:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700064,
+     "author_id": 900052,
+     "public": true,
+     "body": "Hi there,\n\nJust a quick note to say we've sent our payment for the invoice you guys issued us. Our finance person did it yesterday afternoon and told me it should show up soon. Hope the month is treating you well, and thanks for being so easy to work with!\n\nCheers,\nBen Merriweather\nClientCo 7",
+     "created_at": "2026-11-11T09:54:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41405,
+   "subject": "Fwd: Harborlight Staging invoice",
+   "description": "Can someone confirm if this was paid? Vendor is asking again. - Greta\n\n> From: Harborlight Staging\n> Date: last week\n>\n> Hi Greta,\n> Just checking in on invoice INV-5536. Has it been paid yet, and if not, do you know when it will be? Thanks!\n",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900024,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "greta.northcott@orchestra-mock.example",
+      "name": "Greta Northcott"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T14:28:00Z",
+   "updated_at": "2026-11-06T08:28:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700065,
+     "author_id": 900024,
+     "public": true,
+     "body": "Can someone confirm if this was paid? Vendor is asking again. - Greta\n\n> From: Harborlight Staging\n> Date: last week\n>\n> Hi Greta,\n> Just checking in on invoice INV-5536. Has it been paid yet, and if not, do you know when it will be? Thanks!\n",
+     "created_at": "2026-11-04T14:28:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700066,
+     "author_id": 900003,
+     "public": true,
+     "body": "Hi, we have this logged and will get back to you.",
+     "created_at": "2026-11-05T11:28:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700067,
+     "author_id": 900024,
+     "public": true,
+     "body": "Following up on the below, please.",
+     "created_at": "2026-11-06T08:28:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41411,
+   "subject": "INV-72923 status?",
+   "description": "Has INV-72923 been paid? If not, when will it be?\n\nKeiko Galloway\nThistledown Staffing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900053,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@thistledownstaffin.example",
+      "name": "Keiko Galloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T13:16:00Z",
+   "updated_at": "2026-11-13T13:16:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700068,
+     "author_id": 900053,
+     "public": true,
+     "body": "Has INV-72923 been paid? If not, when will it be?\n\nKeiko Galloway\nThistledown Staffing",
+     "created_at": "2026-11-13T13:16:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41414,
+   "subject": "FW: Invoice INV-65031",
+   "description": "Not sure this was ever entered, could someone take a look?\n\nRosa\n\n-----Original Message-----\nFrom: Rosa Calloway <finance@fernhollowphoto.example>\nTo: Accounts Payable\nSubject: Invoice INV-65031\n\nHi team,\n\nSending invoice INV-65031 for the photography session you booked with us. Please let me know once it's in the system.\n\nBest,\nRosa Calloway\nFernhollow Photo",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900054,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@fernhollowphoto.example",
+      "name": "Rosa Calloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T14:40:00Z",
+   "updated_at": "2026-11-12T14:40:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": [
+      3002
+     ]
+    }
+   ],
+   "comments": [
+    {
+     "id": 700069,
+     "author_id": 900054,
+     "public": true,
+     "body": "Not sure this was ever entered, could someone take a look?\n\nRosa\n\n-----Original Message-----\nFrom: Rosa Calloway <finance@fernhollowphoto.example>\nTo: Accounts Payable\nSubject: Invoice INV-65031\n\nHi team,\n\nSending invoice INV-65031 for the photography session you booked with us. Please let me know once it's in the system.\n\nBest,\nRosa Calloway\nFernhollow Photo",
+     "created_at": "2026-11-12T14:40:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41420,
+   "subject": "Payment for invoice 30707 not received",
+   "description": "Hello,\n\nI was informed that invoice 30707 had been paid, but the funds have not arrived in our account. I've attached a copy of the invoice for reference.\n\nI'd appreciate it if you could tell me where the payment is and how it was sent. This is the second time I've had to chase something like this, so I'd like to get it sorted out.\n\nThanks,\nGreta Winslow\nVerdigris Signage",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900055,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "greta@verdigrissignage.example",
+      "name": "Greta Winslow"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T10:12:00Z",
+   "updated_at": "2026-11-10T10:12:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700072,
+     "author_id": 900055,
+     "public": true,
+     "body": "Hello,\n\nI was informed that invoice 30707 had been paid, but the funds have not arrived in our account. I've attached a copy of the invoice for reference.\n\nI'd appreciate it if you could tell me where the payment is and how it was sent. This is the second time I've had to chase something like this, so I'd like to get it sorted out.\n\nThanks,\nGreta Winslow\nVerdigris Signage",
+     "created_at": "2026-11-10T10:12:00Z",
+     "attachments": [
+      {
+       "file_name": "30707.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41425,
+   "subject": "invoice sent weeks ago",
+   "description": "hi, nadia at copperleaf events. we emailed invoice CE92485 a few weeks ago and nothing back yet. copy attached just in case it got lost. can you confirm you have it? thanks\n\nsent from my phone",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900056,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@copperleafevents.example",
+      "name": "Nadia Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T12:16:00Z",
+   "updated_at": "2026-11-05T12:16:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700073,
+     "author_id": 900056,
+     "public": true,
+     "body": "hi, nadia at copperleaf events. we emailed invoice CE92485 a few weeks ago and nothing back yet. copy attached just in case it got lost. can you confirm you have it? thanks\n\nsent from my phone",
+     "created_at": "2026-11-05T12:16:00Z",
+     "attachments": [
+      {
+       "file_name": "CE92485.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41434,
+   "subject": "Inquiry regarding payment of attached invoice",
+   "description": "Dear Accounts Payable Team,\n\nI hope this message finds you well. I am writing to enquire about the status of the attached invoice, which I submitted for my recent services.\n\nCould you kindly let me know whether it has been paid, or, if not, when I might expect payment to be made?\n\nThank you very much for your time and assistance.\n\nSincerely,\nTomasz Velarde",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900038,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "tomaszvelarde@mailbox-mock.example",
+      "name": "Tomasz Velarde"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T15:49:00Z",
+   "updated_at": "2026-11-13T15:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700074,
+     "author_id": 900038,
+     "public": true,
+     "body": "Dear Accounts Payable Team,\n\nI hope this message finds you well. I am writing to enquire about the status of the attached invoice, which I submitted for my recent services.\n\nCould you kindly let me know whether it has been paid, or, if not, when I might expect payment to be made?\n\nThank you very much for your time and assistance.\n\nSincerely,\nTomasz Velarde",
+     "created_at": "2026-11-13T15:49:00Z",
+     "attachments": [
+      {
+       "file_name": "2026-75433.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41440,
+   "subject": "Payment we haven't received - Foxglove Talent",
+   "description": "Hi there,\n\nHope you're doing well! I'm writing about invoice FT63863. Someone on your side let us know it had been paid, which was great news, but I've checked our bank account a few times now and I can't find anything come in. I even asked our bookkeeper to double check in case I was missing something silly, and she doesn't see it either.\n\nCould you help me figure out where the money went? If there's anything you need from me, like our bank details on file, just say the word.\n\nThanks a bunch,\nCarla Merriweather\nFoxglove Talent",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900057,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@foxglovetalent.example",
+      "name": "Carla Merriweather"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T14:41:00Z",
+   "updated_at": "2026-11-04T14:41:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700075,
+     "author_id": 900057,
+     "public": true,
+     "body": "Hi there,\n\nHope you're doing well! I'm writing about invoice FT63863. Someone on your side let us know it had been paid, which was great news, but I've checked our bank account a few times now and I can't find anything come in. I even asked our bookkeeper to double check in case I was missing something silly, and she doesn't see it either.\n\nCould you help me figure out where the money went? If there's anything you need from me, like our bank details on file, just say the word.\n\nThanks a bunch,\nCarla Merriweather\nFoxglove Talent",
+     "created_at": "2026-11-04T14:41:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41448,
+   "subject": "Quick question on our invoice",
+   "description": "Hi there,\n\nHope your week is going well! It's been a busy one over here at the studio, we just wrapped a big rebrand and I am finally digging out of my inbox.\n\nI wanted to check in on the attached invoice. I'm not sure whether it made it to the right person on your side, so I thought I'd ask. Could you let me know where it stands, or tell me if you need anything else from me to move it along?\n\nThanks so much, and have a lovely day!\n\nTessa Winslow\nCobalt Finch Design",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900058,
+   "email_cc_ids": [
+    900001
+   ],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "tessa@cobaltfinchdesign.example",
+      "name": "Tessa Winslow"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T14:41:00Z",
+   "updated_at": "2026-11-05T14:41:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700076,
+     "author_id": 900058,
+     "public": true,
+     "body": "Hi there,\n\nHope your week is going well! It's been a busy one over here at the studio, we just wrapped a big rebrand and I am finally digging out of my inbox.\n\nI wanted to check in on the attached invoice. I'm not sure whether it made it to the right person on your side, so I thought I'd ask. Could you let me know where it stands, or tell me if you need anything else from me to move it along?\n\nThanks so much, and have a lovely day!\n\nTessa Winslow\nCobalt Finch Design",
+     "created_at": "2026-11-05T14:41:00Z",
+     "attachments": [
+      {
+       "file_name": "A-17829.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41449,
+   "subject": "Invoice FT60664 payment timing?",
+   "description": "Hey team!\n\nSamir here from Foxglove Talent. Hope all is good on your side. Just popping in to ask about invoice FT60664. Do you know if it's been paid yet, or when it's likely to go out? We've got a busy few weeks coming up and I'm trying to line up our cash flow.\n\nAppreciate you all, thanks a bunch!\n\nSamir Oakhurst\nFoxglove Talent",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900059,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@foxglovetalent.example",
+      "name": "Samir Oakhurst"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-09T12:53:00Z",
+   "updated_at": "2026-11-09T12:53:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700077,
+     "author_id": 900059,
+     "public": true,
+     "body": "Hey team!\n\nSamir here from Foxglove Talent. Hope all is good on your side. Just popping in to ask about invoice FT60664. Do you know if it's been paid yet, or when it's likely to go out? We've got a busy few weeks coming up and I'm trying to line up our cash flow.\n\nAppreciate you all, thanks a bunch!\n\nSamir Oakhurst\nFoxglove Talent",
+     "created_at": "2026-11-09T12:53:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41455,
+   "subject": "Join us: Faster Payments for Growing Teams (webinar)",
+   "description": "Thistledown Staffing\n\nYou're invited!\n\nJoin our free webinar, Faster Payments for Growing Teams, and learn how finance teams are streamlining invoicing and payment workflows.\n\nWhat you'll learn:\n- Setting up electronic payment options\n- Cutting down on invoice errors\n- Keeping vendor records current\n\nSeats are limited. Reserve your spot using the registration link on our website.\n\nYou are receiving this message because you are listed as a contact for Thistledown Staffing. To stop receiving these emails, use the unsubscribe link in your account preferences.\n\nThis is an automated message. Replies are not monitored.",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900060,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "notify@thistledownstaffin.example",
+      "name": "Notifications"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T14:29:00Z",
+   "updated_at": "2026-11-05T14:29:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700078,
+     "author_id": 900060,
+     "public": true,
+     "body": "Thistledown Staffing\n\nYou're invited!\n\nJoin our free webinar, Faster Payments for Growing Teams, and learn how finance teams are streamlining invoicing and payment workflows.\n\nWhat you'll learn:\n- Setting up electronic payment options\n- Cutting down on invoice errors\n- Keeping vendor records current\n\nSeats are limited. Reserve your spot using the registration link on our website.\n\nYou are receiving this message because you are listed as a contact for Thistledown Staffing. To stop receiving these emails, use the unsubscribe link in your account preferences.\n\nThis is an automated message. Replies are not monitored.",
+     "created_at": "2026-11-05T14:29:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41458,
+   "subject": "Ostrander Field Research payment",
+   "description": "Hello team,\n\nI am asking for the vendor Ostrander Field Research. They want to know the invoice OF45660, if it is paid already or when it will be paid. Please you can tell me the status so I can answer them?\n\nThank you very much.\nMaya Kettering",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900023,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "maya.kettering@orchestra-mock.example",
+      "name": "Maya Kettering"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T10:21:00Z",
+   "updated_at": "2026-11-07T10:21:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700079,
+     "author_id": 900023,
+     "public": true,
+     "body": "Hello team,\n\nI am asking for the vendor Ostrander Field Research. They want to know the invoice OF45660, if it is paid already or when it will be paid. Please you can tell me the status so I can answer them?\n\nThank you very much.\nMaya Kettering",
+     "created_at": "2026-11-07T10:21:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41464,
+   "subject": "Invoice Reminder from Birchmere Logistics",
+   "description": "BIRCHMERE LOGISTICS BILLING\n\nThis is an automated reminder regarding invoice 2026-76288.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nTo view invoice details or ask a question, contact your Birchmere Logistics account representative directly.\n\nThis mailbox is not monitored. Please do not reply to this message.\n\nBirchmere Logistics Billing System",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900061,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@birchmerelogistics.example",
+      "name": "Birchmere Logistics Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T15:06:00Z",
+   "updated_at": "2026-11-11T15:06:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700080,
+     "author_id": 900061,
+     "public": true,
+     "body": "BIRCHMERE LOGISTICS BILLING\n\nThis is an automated reminder regarding invoice 2026-76288.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nTo view invoice details or ask a question, contact your Birchmere Logistics account representative directly.\n\nThis mailbox is not monitored. Please do not reply to this message.\n\nBirchmere Logistics Billing System",
+     "created_at": "2026-11-11T15:06:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41467,
+   "subject": "Checking in on an invoice",
+   "description": "Hi there!\n\nHope your week is going well. Ines here from Birchmere Logistics. I was tidying up our books this morning and wanted to check on invoice 2026-6346. Could you let me know if it's been paid yet, and if not, roughly when we should expect it? We've had a busy stretch with the fall freight season, so I'm trying to get ahead of our reconciliation.\n\nNo rush on a long answer, just a date or a status is perfect.\n\nThanks so much,\nInes Radcliffe\nBirchmere Logistics",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900062,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@birchmerelogistics.example",
+      "name": "Ines Radcliffe"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T11:57:00Z",
+   "updated_at": "2026-11-06T04:57:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700081,
+     "author_id": 900062,
+     "public": true,
+     "body": "Hi there!\n\nHope your week is going well. Ines here from Birchmere Logistics. I was tidying up our books this morning and wanted to check on invoice 2026-6346. Could you let me know if it's been paid yet, and if not, roughly when we should expect it? We've had a busy stretch with the fall freight season, so I'm trying to get ahead of our reconciliation.\n\nNo rush on a long answer, just a date or a status is perfect.\n\nThanks so much,\nInes Radcliffe\nBirchmere Logistics",
+     "created_at": "2026-11-04T11:57:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700082,
+     "author_id": 900003,
+     "public": true,
+     "body": "Received, thank you. Checking with the team.",
+     "created_at": "2026-11-04T16:57:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700083,
+     "author_id": 900062,
+     "public": true,
+     "body": "Any update on this?",
+     "created_at": "2026-11-06T04:57:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41476,
+   "subject": "Greywater Sound invoice and change of bank",
+   "description": "Dear Accounts Payable,\n\nI am writing regarding invoice 2026-23291, a copy of which is attached. Could you kindly advise on its status?\n\nPlease also be informed that Greywater Sound has changed banks. Payments should now be directed to the following account:\n\nRouting number: 099621433\nAccount number: 000851180\n\nWe would be grateful if you could acknowledge receipt of this notice.\n\nYours sincerely,\nKeiko Oakhurst\nFinance, Greywater Sound",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900063,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@greywatersound.example",
+      "name": "Keiko Oakhurst"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T12:25:00Z",
+   "updated_at": "2026-11-13T12:25:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700084,
+     "author_id": 900063,
+     "public": true,
+     "body": "Dear Accounts Payable,\n\nI am writing regarding invoice 2026-23291, a copy of which is attached. Could you kindly advise on its status?\n\nPlease also be informed that Greywater Sound has changed banks. Payments should now be directed to the following account:\n\nRouting number: 099621433\nAccount number: 000851180\n\nWe would be grateful if you could acknowledge receipt of this notice.\n\nYours sincerely,\nKeiko Oakhurst\nFinance, Greywater Sound",
+     "created_at": "2026-11-13T12:25:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_2026-23291.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41478,
+   "subject": "Invoice status",
+   "description": "Status please on 2026-67322, 2026-24816 and 2026-80973.\n\nRosa Underhill\nGreywater Sound",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900048,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@greywatersound.example",
+      "name": "Rosa Underhill"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T12:46:00Z",
+   "updated_at": "2026-11-13T12:46:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700085,
+     "author_id": 900048,
+     "public": true,
+     "body": "Status please on 2026-67322, 2026-24816 and 2026-80973.\n\nRosa Underhill\nGreywater Sound",
+     "created_at": "2026-11-13T12:46:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41484,
+   "subject": "Cobalt Finch Design invoice A-32216 - paid yet?",
+   "description": "Hi AP team,\n\nHope you're all doing well! I'm checking in for Cobalt Finch Design. They did the layout work for us a while back and their contact pinged me asking where their invoice stands. I've attached it again so you don't have to dig for it.\n\nCould you tell me whether it's been paid, and if not, when it's expected to go out? I'd love to get back to them with something solid.\n\nThanks a bunch,\nInes Merriweather",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900015,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ines.merriweather@orchestra-mock.example",
+      "name": "Ines Merriweather"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T09:10:00Z",
+   "updated_at": "2026-11-05T09:10:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700086,
+     "author_id": 900015,
+     "public": true,
+     "body": "Hi AP team,\n\nHope you're all doing well! I'm checking in for Cobalt Finch Design. They did the layout work for us a while back and their contact pinged me asking where their invoice stands. I've attached it again so you don't have to dig for it.\n\nCould you tell me whether it's been paid, and if not, when it's expected to go out? I'd love to get back to them with something solid.\n\nThanks a bunch,\nInes Merriweather",
+     "created_at": "2026-11-05T09:10:00Z",
+     "attachments": [
+      {
+       "file_name": "A-32216.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41490,
+   "subject": "Invoice payment inquiry, Dovetail Lane Printing",
+   "description": "Dear Accounts Payable Team,\n\nI hope you are well. I am writing on behalf of Dovetail Lane Printing regarding invoice INV-38064, a copy of which is attached.\n\nWould you be so kind as to let me know whether this invoice has been paid, or when payment is anticipated?\n\nThank you for your time.\n\nRespectfully,\nAna Lockhart\nDovetail Lane Printing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900064,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ana@dovetaillaneprinti.example",
+      "name": "Ana Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T09:15:00Z",
+   "updated_at": "2026-11-04T09:15:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700087,
+     "author_id": 900064,
+     "public": true,
+     "body": "Dear Accounts Payable Team,\n\nI hope you are well. I am writing on behalf of Dovetail Lane Printing regarding invoice INV-38064, a copy of which is attached.\n\nWould you be so kind as to let me know whether this invoice has been paid, or when payment is anticipated?\n\nThank you for your time.\n\nRespectfully,\nAna Lockhart\nDovetail Lane Printing",
+     "created_at": "2026-11-04T09:15:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-38064.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41491,
+   "subject": "Payment status for invoice A-92855",
+   "description": "Hello,\n\nI am following up on behalf of Wrenfield Data Labs. Could you let me know whether their invoice has been paid, and if not, when payment is scheduled?\n\nThank you,\nQuinn Brightwater",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900016,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.brightwater@orchestra-mock.example",
+      "name": "Quinn Brightwater"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T11:56:00Z",
+   "updated_at": "2026-11-11T11:56:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700088,
+     "author_id": 900016,
+     "public": true,
+     "body": "Hello,\n\nI am following up on behalf of Wrenfield Data Labs. Could you let me know whether their invoice has been paid, and if not, when payment is scheduled?\n\nThank you,\nQuinn Brightwater",
+     "created_at": "2026-11-11T11:56:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41500,
+   "subject": "overdue - 61787",
+   "description": "Invoice 61787 is way past due and we have had no answer from your side. If its not paid soon we will be sending the account to collections. Dont want to do that but we will.\n\nFarid at our office already called twice. Please get back to me.\n\nJamal Underhill\nBramblewick Print Co",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900034,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@bramblewickprintco.example",
+      "name": "Jamal Underhill"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T09:39:00Z",
+   "updated_at": "2026-11-13T09:39:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700089,
+     "author_id": 900034,
+     "public": true,
+     "body": "Invoice 61787 is way past due and we have had no answer from your side. If its not paid soon we will be sending the account to collections. Dont want to do that but we will.\n\nFarid at our office already called twice. Please get back to me.\n\nJamal Underhill\nBramblewick Print Co",
+     "created_at": "2026-11-13T09:39:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41502,
+   "subject": "Unpaid invoice INV-48997",
+   "description": "INV-48997 is still open. If we dont receive payment this week we will suspend service on the project until its settled. Our crew has already stoped scheduling your sessions.\n\nPlease confirm asap.\n\nFarid Thackeray\nPennywhistle Audio AR",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900065,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@pennywhistleaudio.example",
+      "name": "Farid Thackeray"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T09:26:00Z",
+   "updated_at": "2026-11-13T09:26:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700090,
+     "author_id": 900065,
+     "public": true,
+     "body": "INV-48997 is still open. If we dont receive payment this week we will suspend service on the project until its settled. Our crew has already stoped scheduling your sessions.\n\nPlease confirm asap.\n\nFarid Thackeray\nPennywhistle Audio AR",
+     "created_at": "2026-11-13T09:26:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41508,
+   "subject": "Question about invoice 20007",
+   "description": "Hello,\n\nI write about the invoice 20007 from Verdigris Signage. Please can you tell me when it will be pay? We wait already some weeks.\n\nAlso we have change our bank, so please use the new details for payment. Routing 045067609 and account 000711758. The old account is not valid anymore.\n\nThank you for your help.\n\nZane Underhill\nVerdigris Signage",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900066,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@verdigrissignage.example",
+      "name": "Zane Underhill"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T14:59:00Z",
+   "updated_at": "2026-11-06T14:59:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700091,
+     "author_id": 900066,
+     "public": true,
+     "body": "Hello,\n\nI write about the invoice 20007 from Verdigris Signage. Please can you tell me when it will be pay? We wait already some weeks.\n\nAlso we have change our bank, so please use the new details for payment. Routing 045067609 and account 000711758. The old account is not valid anymore.\n\nThank you for your help.\n\nZane Underhill\nVerdigris Signage",
+     "created_at": "2026-11-06T14:59:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41513,
+   "subject": "Question on an Oxbow invoice",
+   "description": "Good afternoon,\n\nThank you for your continued business with Oxbow Courier Service. We have had a strong year on the regional routes and recently added three vans to our fleet, which has let us improve same-day turnaround for many of our customers. We appreciate you being one of them.\n\nI am reaching out because I'm reviewing our open receivables and wanted to ask about invoice 53983. Has it been paid? If not, could you tell me when we should expect payment?\n\nMany thanks for your help.\n\nBen Lockhart\nAccounts Receivable\nOxbow Courier Service",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900067,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@oxbowcourierservic.example",
+      "name": "Ben Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T12:54:00Z",
+   "updated_at": "2026-11-13T12:54:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700092,
+     "author_id": 900067,
+     "public": true,
+     "body": "Good afternoon,\n\nThank you for your continued business with Oxbow Courier Service. We have had a strong year on the regional routes and recently added three vans to our fleet, which has let us improve same-day turnaround for many of our customers. We appreciate you being one of them.\n\nI am reaching out because I'm reviewing our open receivables and wanted to ask about invoice 53983. Has it been paid? If not, could you tell me when we should expect payment?\n\nMany thanks for your help.\n\nBen Lockhart\nAccounts Receivable\nOxbow Courier Service",
+     "created_at": "2026-11-13T12:54:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41518,
+   "subject": "Sablecrest Translation: your sign-in code",
+   "description": "Sablecrest Translation Vendor Portal\n\nUse the following one-time passcode to finish signing in:\n\n705162\n\nThe code is valid for 15 minutes and can be used once.\n\nIf you didn't request this code, please ignore this email. For your security, do not share this code.\n\nThis is an automated message. Please do not reply.",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900068,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "notify@sablecresttranslat.example",
+      "name": "Notifications"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T15:00:00Z",
+   "updated_at": "2026-11-13T15:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700093,
+     "author_id": 900068,
+     "public": true,
+     "body": "Sablecrest Translation Vendor Portal\n\nUse the following one-time passcode to finish signing in:\n\n705162\n\nThe code is valid for 15 minutes and can be used once.\n\nIf you didn't request this code, please ignore this email. For your security, do not share this code.\n\nThis is an automated message. Please do not reply.",
+     "created_at": "2026-11-13T15:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41523,
+   "subject": "Payment inquiry",
+   "description": "Hi, can you tell me if invoice 2026-98192 has been paid, or when it will be? Thanks.\n\nNadia Ellsworth\nMoss and Meridian LLC",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900069,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@mossandmeridianllc.example",
+      "name": "Nadia Ellsworth"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-09T14:59:00Z",
+   "updated_at": "2026-11-09T14:59:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700094,
+     "author_id": 900069,
+     "public": true,
+     "body": "Hi, can you tell me if invoice 2026-98192 has been paid, or when it will be? Thanks.\n\nNadia Ellsworth\nMoss and Meridian LLC",
+     "created_at": "2026-11-09T14:59:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41529,
+   "subject": "Invoice query",
+   "description": "Hello,\n\nWe have a query open on invoice number 62964 and we have not had a reply. Please check your records and tell us what you have for it. We would like to close this out.\n\nInes Kettering\nAP Desk, Remit Platform",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900041,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ap-desk@remit-platform-mock.example",
+      "name": "Ines Kettering"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T10:37:00Z",
+   "updated_at": "2026-11-08T10:37:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700095,
+     "author_id": 900041,
+     "public": true,
+     "body": "Hello,\n\nWe have a query open on invoice number 62964 and we have not had a reply. Please check your records and tell us what you have for it. We would like to close this out.\n\nInes Kettering\nAP Desk, Remit Platform",
+     "created_at": "2026-11-08T10:37:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41536,
+   "subject": "Fwd: Invoice 2026-9176",
+   "description": "Any update on this? Can you tell me if it's been paid or when it will be?\n\nBronwyn\n\n---------- Forwarded message ----------\nFrom: Bronwyn Castellano <bronwyncastell@mailbox-mock.example>\nSubject: Invoice 2026-9176\n\nHi,\n\nSending along invoice 2026-9176 for $18,068.64. Payment is due September 25. Please let me know if you need anything else from me.\n\nBronwyn Castellano",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900049,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "bronwyncastell@mailbox-mock.example",
+      "name": "Bronwyn Castellano"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T15:44:00Z",
+   "updated_at": "2026-11-04T15:44:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700096,
+     "author_id": 900049,
+     "public": true,
+     "body": "Any update on this? Can you tell me if it's been paid or when it will be?\n\nBronwyn\n\n---------- Forwarded message ----------\nFrom: Bronwyn Castellano <bronwyncastell@mailbox-mock.example>\nSubject: Invoice 2026-9176\n\nHi,\n\nSending along invoice 2026-9176 for $18,068.64. Payment is due September 25. Please let me know if you need anything else from me.\n\nBronwyn Castellano",
+     "created_at": "2026-11-04T15:44:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41541,
+   "subject": "Quick favor on an open invoice",
+   "description": "Hi there,\n\nHope your week is going well! Liam here from Tallowridge Media. I wanted to reach out about invoice 89960. I know we're on your regular payment schedule and I'm not trying to rock the boat, but we've hit a bit of a cash-flow squeeze on our end this month. A couple of our own clients are running late and payroll is coming up fast.\n\nWould it be possible to pay this one early, ahead of the normal run? Even a few days sooner would really help us out. If it's not doable, no worries at all, I completely understand and we'll make it work.\n\nThanks so much for considering it, and thank you as always for being such a great client.\n\nBest,\nLiam Brightwater\nTallowridge Media",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900070,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "liam@tallowridgemedia.example",
+      "name": "Liam Brightwater"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T10:01:00Z",
+   "updated_at": "2026-11-06T10:01:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700097,
+     "author_id": 900070,
+     "public": true,
+     "body": "Hi there,\n\nHope your week is going well! Liam here from Tallowridge Media. I wanted to reach out about invoice 89960. I know we're on your regular payment schedule and I'm not trying to rock the boat, but we've hit a bit of a cash-flow squeeze on our end this month. A couple of our own clients are running late and payroll is coming up fast.\n\nWould it be possible to pay this one early, ahead of the normal run? Even a few days sooner would really help us out. If it's not doable, no worries at all, I completely understand and we'll make it work.\n\nThanks so much for considering it, and thank you as always for being such a great client.\n\nBest,\nLiam Brightwater\nTallowridge Media",
+     "created_at": "2026-11-06T10:01:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41550,
+   "subject": "Invoice payment status",
+   "description": "pls confirm if the attached invoice has been paid yet or when we can expect it. Our books close soon and i cant tell from our side. thanks\n\nDmitri Thackeray\nNinebark Surveys\nbilling@ninebarksurveys.example",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900071,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@ninebarksurveys.example",
+      "name": "Dmitri Thackeray"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T14:27:00Z",
+   "updated_at": "2026-11-11T14:27:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700098,
+     "author_id": 900071,
+     "public": true,
+     "body": "pls confirm if the attached invoice has been paid yet or when we can expect it. Our books close soon and i cant tell from our side. thanks\n\nDmitri Thackeray\nNinebark Surveys\nbilling@ninebarksurveys.example",
+     "created_at": "2026-11-11T14:27:00Z",
+     "attachments": [
+      {
+       "file_name": "INV-64448.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41555,
+   "subject": "Checking in on an invoice",
+   "description": "Hi there,\n\nHope your week is going well! It's Wendy over at Moss and Meridian. I was tidying up my books this morning (my favorite way to procrastinate) and realized I hadn't heard anything on invoice 2026-94655.\n\nCould you let me know if it's been paid yet, or if not, roughly when I should expect it? No rush at all, I just like to keep my records neat so I can plan around it.\n\nThanks so much, and happy Monday!\n\nWendy Stanhope\nMoss and Meridian LLC",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900072,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "wendy@mossandmeridianllc.example",
+      "name": "Wendy Stanhope"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-07T09:33:00Z",
+   "updated_at": "2026-11-07T09:33:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700099,
+     "author_id": 900072,
+     "public": true,
+     "body": "Hi there,\n\nHope your week is going well! It's Wendy over at Moss and Meridian. I was tidying up my books this morning (my favorite way to procrastinate) and realized I hadn't heard anything on invoice 2026-94655.\n\nCould you let me know if it's been paid yet, or if not, roughly when I should expect it? No rush at all, I just like to keep my records neat so I can plan around it.\n\nThanks so much, and happy Monday!\n\nWendy Stanhope\nMoss and Meridian LLC",
+     "created_at": "2026-11-07T09:33:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41560,
+   "subject": "HP93691 again",
+   "description": "Sent this on Monday but nothing back so asking again. Can you tell me where invoice HP93691 stands and when we should expect it to be paid? Our month end is coming up and I need to close this out on our side.\n\nPaula Lockhart\nHalcyon Pier Productions",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900073,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@halcyonpierproduct.example",
+      "name": "Paula Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T14:00:00Z",
+   "updated_at": "2026-11-13T14:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": [
+      3003
+     ]
+    }
+   ],
+   "comments": [
+    {
+     "id": 700100,
+     "author_id": 900073,
+     "public": true,
+     "body": "Sent this on Monday but nothing back so asking again. Can you tell me where invoice HP93691 stands and when we should expect it to be paid? Our month end is coming up and I need to close this out on our side.\n\nPaula Lockhart\nHalcyon Pier Productions",
+     "created_at": "2026-11-13T14:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41569,
+   "subject": "Your Kestrel Hollow Web verification code",
+   "description": "Kestrel Hollow Web Vendor Portal\n\nYour one-time passcode is:\n\n483921\n\nThis code expires in 10 minutes. Enter it on the sign-in page to continue.\n\nIf you did not try to sign in, you can ignore this message. Never share this code with anyone.\n\nThis is an automated message. Please do not reply.",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900074,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "notify@kestrelhollowweb.example",
+      "name": "Notifications"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T13:39:00Z",
+   "updated_at": "2026-11-10T13:39:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700103,
+     "author_id": 900074,
+     "public": true,
+     "body": "Kestrel Hollow Web Vendor Portal\n\nYour one-time passcode is:\n\n483921\n\nThis code expires in 10 minutes. Enter it on the sign-in page to continue.\n\nIf you did not try to sign in, you can ignore this message. Never share this code with anyone.\n\nThis is an automated message. Please do not reply.",
+     "created_at": "2026-11-10T13:39:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41574,
+   "subject": "Invoice payment status",
+   "description": "Hello,\n\nPlease confirm whether invoice 2026-26088 has been paid. If it has not, please advise when payment is expected.\n\nRegards,\nXavier Stanhope\nTin Lantern Video",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900075,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "xavier@tinlanternvideo.example",
+      "name": "Xavier Stanhope"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T11:25:00Z",
+   "updated_at": "2026-11-08T11:25:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700104,
+     "author_id": 900075,
+     "public": true,
+     "body": "Hello,\n\nPlease confirm whether invoice 2026-26088 has been paid. If it has not, please advise when payment is expected.\n\nRegards,\nXavier Stanhope\nTin Lantern Video",
+     "created_at": "2026-11-08T11:25:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41580,
+   "subject": "Invoice Reminder from Moss and Meridian LLC",
+   "description": "MOSS AND MERIDIAN LLC BILLING\n\nThis is an automated reminder. Please see the attached invoice for details.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Please do not reply to this message. For assistance, contact your Moss and Meridian LLC account representative.\n\nMoss and Meridian LLC Billing System",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900076,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@mossandmeridianllc.example",
+      "name": "Moss and Meridian LLC Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T10:49:00Z",
+   "updated_at": "2026-11-12T10:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700105,
+     "author_id": 900076,
+     "public": true,
+     "body": "MOSS AND MERIDIAN LLC BILLING\n\nThis is an automated reminder. Please see the attached invoice for details.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Please do not reply to this message. For assistance, contact your Moss and Meridian LLC account representative.\n\nMoss and Meridian LLC Billing System",
+     "created_at": "2026-11-12T10:49:00Z",
+     "attachments": [
+      {
+       "file_name": "2026-65244.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41581,
+   "subject": "Status of outstanding Larkspur Catering invoices",
+   "description": "Dear Accounts Payable team,\n\nI hope you are well. I am writing on behalf of Larkspur Catering Group to ask about the status of three invoices on our side: A-68339, A-87846 and A-23295.\n\nCould you please let me know where each of them currently stands in your process, and whether anything further is needed from us? We are happy to resend any documentation.\n\nThank you for your time and assistance.\n\nKind regards,\nUlla Calloway\nBilling, Larkspur Catering Group\nbilling@larkspurcateringgr.example",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900077,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@larkspurcateringgr.example",
+      "name": "Ulla Calloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T10:21:00Z",
+   "updated_at": "2026-11-06T10:21:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700106,
+     "author_id": 900077,
+     "public": true,
+     "body": "Dear Accounts Payable team,\n\nI hope you are well. I am writing on behalf of Larkspur Catering Group to ask about the status of three invoices on our side: A-68339, A-87846 and A-23295.\n\nCould you please let me know where each of them currently stands in your process, and whether anything further is needed from us? We are happy to resend any documentation.\n\nThank you for your time and assistance.\n\nKind regards,\nUlla Calloway\nBilling, Larkspur Catering Group\nbilling@larkspurcateringgr.example",
+     "created_at": "2026-11-06T10:21:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41588,
+   "subject": "Invoice payment inquiry",
+   "description": "Hello,\n\nPlease confirm the payment status of Oxbow Courier Service invoice 93717. If it has not been paid, please advise when payment is scheduled.\n\nRegards,\nLiam Fairbanks\nAccounts, Oxbow Courier Service",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900033,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@oxbowcourierservic.example",
+      "name": "Liam Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T13:58:00Z",
+   "updated_at": "2026-11-08T13:58:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700107,
+     "author_id": 900033,
+     "public": true,
+     "body": "Hello,\n\nPlease confirm the payment status of Oxbow Courier Service invoice 93717. If it has not been paid, please advise when payment is scheduled.\n\nRegards,\nLiam Fairbanks\nAccounts, Oxbow Courier Service",
+     "created_at": "2026-11-08T13:58:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41597,
+   "subject": "Payment details for invoice",
+   "description": "Hello,\n\nI am working for Copperleaf Events. Please can you send me the payment details for invoice CE54744. I need to see the details what you have on file for it. I am writing from my private email because my work email is not working today.\n\nThank you very much.\nYara Lockhart",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900078,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "yara60@freemail-mock.example",
+      "name": "Yara Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T12:11:00Z",
+   "updated_at": "2026-11-05T12:11:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700108,
+     "author_id": 900078,
+     "public": true,
+     "body": "Hello,\n\nI am working for Copperleaf Events. Please can you send me the payment details for invoice CE54744. I need to see the details what you have on file for it. I am writing from my private email because my work email is not working today.\n\nThank you very much.\nYara Lockhart",
+     "created_at": "2026-11-05T12:11:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41605,
+   "subject": "invoice A-71027 sent a few weeks back",
+   "description": "hi, victor from larkspur catering group. i sent over invoice A-71027 a few weeks ago and havent heard anything back. can you check you got it and let me know where it stands? thanks\n\nsent from my phone",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900079,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "victor@larkspurcateringgr.example",
+      "name": "Victor Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T11:05:00Z",
+   "updated_at": "2026-11-13T11:05:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700109,
+     "author_id": 900079,
+     "public": true,
+     "body": "hi, victor from larkspur catering group. i sent over invoice A-71027 a few weeks ago and havent heard anything back. can you check you got it and let me know where it stands? thanks\n\nsent from my phone",
+     "created_at": "2026-11-13T11:05:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41609,
+   "subject": "Open invoices - Kestrel Hollow Web",
+   "description": "Hello,\n\nI've attached our latest statement. Three items on it are still showing open on our side: 2026-27033, 2026-12638 and 2026-7271. Could you tell me where each of these stands? I'd rather not keep sending reminders, so a clear answer would be appreciated.\n\nRegards,\nSamir Jessup\nKestrel Hollow Web",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900044,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "samir@kestrelhollowweb.example",
+      "name": "Samir Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-09T09:33:00Z",
+   "updated_at": "2026-11-09T09:33:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700110,
+     "author_id": 900044,
+     "public": true,
+     "body": "Hello,\n\nI've attached our latest statement. Three items on it are still showing open on our side: 2026-27033, 2026-12638 and 2026-7271. Could you tell me where each of these stands? I'd rather not keep sending reminders, so a clear answer would be appreciated.\n\nRegards,\nSamir Jessup\nKestrel Hollow Web",
+     "created_at": "2026-11-09T09:33:00Z",
+     "attachments": [
+      {
+       "file_name": "statement.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41610,
+   "subject": "Still waiting on payment status",
+   "description": "Hello,\n\nThis is the second time I'm asking. Could you please tell me whether the attached invoice has been paid, and if not, when we should expect it? I'd appreciate a straight answer so I can update our books.\n\nThank you,\nWendy Jessup\nKestrel Hollow Web",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900045,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@kestrelhollowweb.example",
+      "name": "Wendy Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T16:34:00Z",
+   "updated_at": "2026-11-11T16:34:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700111,
+     "author_id": 900045,
+     "public": true,
+     "body": "Hello,\n\nThis is the second time I'm asking. Could you please tell me whether the attached invoice has been paid, and if not, when we should expect it? I'd appreciate a straight answer so I can update our books.\n\nThank you,\nWendy Jessup\nKestrel Hollow Web",
+     "created_at": "2026-11-11T16:34:00Z",
+     "attachments": [
+      {
+       "file_name": "2026-79016.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41615,
+   "subject": "Invoice CE75976 payment status",
+   "description": "Hello,\n\nCan you tell me when invoice CE75976 will be paid, or whether it already has been? The amount is $49,455.16 and it was due September 13, so we're a bit past that now.\n\nIf something is holding it up on your side, let me know what you need from us and we'll sort it out.\n\nRegards,\nCarla Thackeray\nAccounts Receivable, Copperleaf Events",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900080,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ar@copperleafevents.example",
+      "name": "Carla Thackeray"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T12:36:00Z",
+   "updated_at": "2026-11-04T12:36:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700112,
+     "author_id": 900080,
+     "public": true,
+     "body": "Hello,\n\nCan you tell me when invoice CE75976 will be paid, or whether it already has been? The amount is $49,455.16 and it was due September 13, so we're a bit past that now.\n\nIf something is holding it up on your side, let me know what you need from us and we'll sort it out.\n\nRegards,\nCarla Thackeray\nAccounts Receivable, Copperleaf Events",
+     "created_at": "2026-11-04T12:36:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41620,
+   "subject": "Harborlight Staging, INV-5819, where is it?",
+   "description": "Hi AP,\n\nHarborlight Staging has asked me twice now about this one, and I told them I'd check. Has it been paid yet, and if not, when is it going out?\n\nIt would be good to have a real answer I can pass along.\n\nThanks,\nQuinn Fairbanks",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900026,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.fairbanks@orchestra-mock.example",
+      "name": "Quinn Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T11:51:00Z",
+   "updated_at": "2026-11-12T11:51:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700113,
+     "author_id": 900026,
+     "public": true,
+     "body": "Hi AP,\n\nHarborlight Staging has asked me twice now about this one, and I told them I'd check. Has it been paid yet, and if not, when is it going out?\n\nIt would be good to have a real answer I can pass along.\n\nThanks,\nQuinn Fairbanks",
+     "created_at": "2026-11-12T11:51:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41624,
+   "subject": "Payment status inquiry",
+   "description": "Hello,\n\nI am following up on behalf of Desmond Achterberg regarding invoice INV-54357. Please confirm whether it has been paid. If it has not, please advise on the expected payment date.\n\nRegards,\nInes Merriweather",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900015,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "ines.merriweather@orchestra-mock.example",
+      "name": "Ines Merriweather"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T14:24:00Z",
+   "updated_at": "2026-11-12T14:24:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700114,
+     "author_id": 900015,
+     "public": true,
+     "body": "Hello,\n\nI am following up on behalf of Desmond Achterberg regarding invoice INV-54357. Please confirm whether it has been paid. If it has not, please advise on the expected payment date.\n\nRegards,\nInes Merriweather",
+     "created_at": "2026-11-12T14:24:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41629,
+   "subject": "CE75655 payment?",
+   "description": "need to know if CE75655 has been paid yet or when its going to be. our month end is close and im trying to clear it out. thx\n\nNadia J\nCopperleaf Events finance",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900056,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@copperleafevents.example",
+      "name": "Nadia Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T15:36:00Z",
+   "updated_at": "2026-11-12T15:36:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700115,
+     "author_id": 900056,
+     "public": true,
+     "body": "need to know if CE75655 has been paid yet or when its going to be. our month end is close and im trying to clear it out. thx\n\nNadia J\nCopperleaf Events finance",
+     "created_at": "2026-11-12T15:36:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41632,
+   "subject": "Re: payment confirmation",
+   "description": "Thanks for confirming the payment. Much appreciated.\n\nOmar Northcott\nBirchmere Logistics",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900081,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@birchmerelogistics.example",
+      "name": "Omar Northcott"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T15:07:00Z",
+   "updated_at": "2026-11-11T15:07:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700116,
+     "author_id": 900081,
+     "public": true,
+     "body": "Thanks for confirming the payment. Much appreciated.\n\nOmar Northcott\nBirchmere Logistics",
+     "created_at": "2026-11-11T15:07:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41639,
+   "subject": "Juniper Slate Analytics invoice",
+   "description": "Can you tell me if the attached Juniper Slate Analytics invoice has been paid yet? Their rep is chasing me and I dont have an answer. If its not paid whats the expected date?\n\nQuinn",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900026,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.fairbanks@orchestra-mock.example",
+      "name": "Quinn Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-06T12:25:00Z",
+   "updated_at": "2026-11-06T12:25:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700117,
+     "author_id": 900026,
+     "public": true,
+     "body": "Can you tell me if the attached Juniper Slate Analytics invoice has been paid yet? Their rep is chasing me and I dont have an answer. If its not paid whats the expected date?\n\nQuinn",
+     "created_at": "2026-11-06T12:25:00Z",
+     "attachments": [
+      {
+       "file_name": "67379.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41643,
+   "subject": "Tomasz Velarde invoice status",
+   "description": "Hi AP team,\n\nTomasz Velarde has emailed me again asking about invoice 2026-29455. I told him last time I'd look into it and I still don't have an answer for him. Can you tell me whether it's been paid, or if not, when it's expected to go out?\n\nI'd like to give him something definite this time so he stops chasing me.\n\nThanks,\nQuinn Brightwater",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900016,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.brightwater@orchestra-mock.example",
+      "name": "Quinn Brightwater"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T16:22:00Z",
+   "updated_at": "2026-11-12T16:22:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700118,
+     "author_id": 900016,
+     "public": true,
+     "body": "Hi AP team,\n\nTomasz Velarde has emailed me again asking about invoice 2026-29455. I told him last time I'd look into it and I still don't have an answer for him. Can you tell me whether it's been paid, or if not, when it's expected to go out?\n\nI'd like to give him something definite this time so he stops chasing me.\n\nThanks,\nQuinn Brightwater",
+     "created_at": "2026-11-12T16:22:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41644,
+   "subject": "Imani Okoye-Reed invoice",
+   "description": "Imani Okoye-Reed is asking about invoice 2026-7209, has it been paid or when will it be. she's been waiting a while and keeps emailng me. let me know asap pls\n\nNadia Lockhart",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900017,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "nadia.lockhart@orchestra-mock.example",
+      "name": "Nadia Lockhart"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T15:13:00Z",
+   "updated_at": "2026-11-08T15:13:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700119,
+     "author_id": 900017,
+     "public": true,
+     "body": "Imani Okoye-Reed is asking about invoice 2026-7209, has it been paid or when will it be. she's been waiting a while and keeps emailng me. let me know asap pls\n\nNadia Lockhart",
+     "created_at": "2026-11-08T15:13:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41653,
+   "subject": "Checking on INV-21296",
+   "description": "Hi folks,\n\nDmitri here from Ninebark Surveys. Hope the week's treating you kindly! I wanted to ask about invoice INV-21296 and whether it's been paid yet. If it's still in the queue, any idea on timing? Just trying to plan our cash a bit on this end.\n\nThanks a million, and have a great one!\n\nDmitri Thackeray\nNinebark Surveys",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900071,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@ninebarksurveys.example",
+      "name": "Dmitri Thackeray"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T14:18:00Z",
+   "updated_at": "2026-11-12T14:18:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700120,
+     "author_id": 900071,
+     "public": true,
+     "body": "Hi folks,\n\nDmitri here from Ninebark Surveys. Hope the week's treating you kindly! I wanted to ask about invoice INV-21296 and whether it's been paid yet. If it's still in the queue, any idea on timing? Just trying to plan our cash a bit on this end.\n\nThanks a million, and have a great one!\n\nDmitri Thackeray\nNinebark Surveys",
+     "created_at": "2026-11-12T14:18:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41656,
+   "subject": "Invoice Reminder from Ostrander Field Research",
+   "description": "OSTRANDER FIELD RESEARCH BILLING\n\nThis is an automated reminder. A copy of the invoice is attached to this message for your records.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Replies to this address will not be read. For questions, please contact your Ostrander Field Research account representative.\n\nOstrander Field Research Billing System",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900050,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@ostranderfieldrese.example",
+      "name": "Ostrander Field Research Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T14:57:00Z",
+   "updated_at": "2026-11-11T14:57:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700121,
+     "author_id": 900050,
+     "public": true,
+     "body": "OSTRANDER FIELD RESEARCH BILLING\n\nThis is an automated reminder. A copy of the invoice is attached to this message for your records.\n\nOur system shows this invoice as open. If you have already arranged payment, please disregard this message.\n\nThis mailbox is not monitored. Replies to this address will not be read. For questions, please contact your Ostrander Field Research account representative.\n\nOstrander Field Research Billing System",
+     "created_at": "2026-11-11T14:57:00Z",
+     "attachments": [
+      {
+       "file_name": "OF36563.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41661,
+   "subject": "Tallowridge Media invoice, has it been paid?",
+   "description": "Hello,\n\nTallowridge Media is asking me again about invoice 33602, which is attached. I've already checked with them that it is the right copy. Can you tell me whether it has been paid, and if not, when it is scheduled? It would save me a few more emails back and forth.\n\nThank you,\nGreta Northcott",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900024,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "greta.northcott@orchestra-mock.example",
+      "name": "Greta Northcott"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T02:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700122,
+     "author_id": 900024,
+     "public": true,
+     "body": "Hello,\n\nTallowridge Media is asking me again about invoice 33602, which is attached. I've already checked with them that it is the right copy. Can you tell me whether it has been paid, and if not, when it is scheduled? It would save me a few more emails back and forth.\n\nThank you,\nGreta Northcott",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": [
+      {
+       "file_name": "33602.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700123,
+     "author_id": 900003,
+     "public": true,
+     "body": "Received, thank you. Checking with the team.",
+     "created_at": "2026-11-11T09:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700124,
+     "author_id": 900024,
+     "public": true,
+     "body": "Following up on the below, please.",
+     "created_at": "2026-11-12T02:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41669,
+   "subject": "URGENT payment required today",
+   "description": "Invoice 2026-97174 is overdue. Imani Okoye-Reed requires payment today. Sign in here to pay: https://secure-pay.mailbox-mock-payments.example/login",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900082,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "accounts@mailbox-mock-payments.example",
+      "name": "Nadia Yarborough"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-09T13:59:00Z",
+   "updated_at": "2026-11-09T13:59:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700125,
+     "author_id": 900082,
+     "public": true,
+     "body": "Invoice 2026-97174 is overdue. Imani Okoye-Reed requires payment today. Sign in here to pay: https://secure-pay.mailbox-mock-payments.example/login",
+     "created_at": "2026-11-09T13:59:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41671,
+   "subject": "invoice status",
+   "description": "need an update on CE67678. has it been paid or when will it be? our month end is close and we're tryng to reconcile\n\nthanks\nNadia Jessup\nCopperleaf Events",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900056,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@copperleafevents.example",
+      "name": "Nadia Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T11:04:00Z",
+   "updated_at": "2026-11-12T11:04:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700126,
+     "author_id": 900056,
+     "public": true,
+     "body": "need an update on CE67678. has it been paid or when will it be? our month end is close and we're tryng to reconcile\n\nthanks\nNadia Jessup\nCopperleaf Events",
+     "created_at": "2026-11-12T11:04:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41678,
+   "subject": "Moss and Meridian - checking on a few invoices",
+   "description": "Hi AP team!\n\nHope you're all doing well. I'm tidying up our books and wanted to check where a few of our invoices stand. The ones I'm looking at are 2026-94267, 2026-39425 and 2026-53986. If you can tell me whether each of those is approved, scheduled or still waiting on something from us, that would be a huge help.\n\nThanks so much, and have a great week!\nWendy Stanhope\nMoss and Meridian LLC",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900072,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "wendy@mossandmeridianllc.example",
+      "name": "Wendy Stanhope"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-13T16:26:00Z",
+   "updated_at": "2026-11-13T16:26:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700127,
+     "author_id": 900072,
+     "public": true,
+     "body": "Hi AP team!\n\nHope you're all doing well. I'm tidying up our books and wanted to check where a few of our invoices stand. The ones I'm looking at are 2026-94267, 2026-39425 and 2026-53986. If you can tell me whether each of those is approved, scheduled or still waiting on something from us, that would be a huge help.\n\nThanks so much, and have a great week!\nWendy Stanhope\nMoss and Meridian LLC",
+     "created_at": "2026-11-13T16:26:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41683,
+   "subject": "Invoice 2026-33441 payment",
+   "description": "Dear Accounts Payable,\n\nI am writing from Ironbark Rentals. Please, can you inform me if the invoice 2026-33441 was already paid, or when the payment is planned? We want to update our records at our side.\n\nThank you very much for your kind help.\n\nBest regards,\nOmar Calloway\nIronbark Rentals",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900083,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "omar@ironbarkrentals.example",
+      "name": "Omar Calloway"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T12:01:00Z",
+   "updated_at": "2026-11-11T12:01:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700128,
+     "author_id": 900083,
+     "public": true,
+     "body": "Dear Accounts Payable,\n\nI am writing from Ironbark Rentals. Please, can you inform me if the invoice 2026-33441 was already paid, or when the payment is planned? We want to update our records at our side.\n\nThank you very much for your kind help.\n\nBest regards,\nOmar Calloway\nIronbark Rentals",
+     "created_at": "2026-11-11T12:01:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41685,
+   "subject": "Payment status on attached invoice",
+   "description": "Hello,\n\nPlease see the attached invoice. I'd like to find out whether it has been paid, and if not, when payment is planned. It has been a while and I'd appreciate a clear answer so I can update our records.\n\nThank you,\nNadia Jessup\nFinance, Copperleaf Events",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900056,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "finance@copperleafevents.example",
+      "name": "Nadia Jessup"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-08T11:37:00Z",
+   "updated_at": "2026-11-08T11:37:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700129,
+     "author_id": 900056,
+     "public": true,
+     "body": "Hello,\n\nPlease see the attached invoice. I'd like to find out whether it has been paid, and if not, when payment is planned. It has been a while and I'd appreciate a clear answer so I can update our records.\n\nThank you,\nNadia Jessup\nFinance, Copperleaf Events",
+     "created_at": "2026-11-08T11:37:00Z",
+     "attachments": [
+      {
+       "file_name": "CE44230.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41692,
+   "subject": "Invoice reminder from Foxglove Talent",
+   "description": "*** AUTOMATED MESSAGE ***\n\nDear Customer,\n\nThis is a reminder that invoice FT85160 is outstanding on your Foxglove Talent account.\n\nYou can view invoice details by signing in to the billing portal.\n\nThis mailbox is not monitored. Please do not reply to this message.\n\nFoxglove Talent Billing",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900084,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "no-reply@foxglovetalent.example",
+      "name": "Foxglove Talent Billing"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-04T13:17:00Z",
+   "updated_at": "2026-11-04T13:17:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700130,
+     "author_id": 900084,
+     "public": true,
+     "body": "*** AUTOMATED MESSAGE ***\n\nDear Customer,\n\nThis is a reminder that invoice FT85160 is outstanding on your Foxglove Talent account.\n\nYou can view invoice details by signing in to the billing portal.\n\nThis mailbox is not monitored. Please do not reply to this message.\n\nFoxglove Talent Billing",
+     "created_at": "2026-11-04T13:17:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41697,
+   "subject": "Inquiry regarding payment for Priya Halvorsen",
+   "description": "Dear Accounts Payable,\n\nI am contacting you on behalf of Priya Halvorsen concerning invoice 2026-49869. Could you please let me know whether it has been paid, or when payment might be expected?\n\nThank you very much for your assistance.\n\nSincerely,\nWendy Fairbanks",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900020,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "wendy.fairbanks@orchestra-mock.example",
+      "name": "Wendy Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-10T15:00:00Z",
+   "updated_at": "2026-11-12T23:00:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700131,
+     "author_id": 900020,
+     "public": true,
+     "body": "Dear Accounts Payable,\n\nI am contacting you on behalf of Priya Halvorsen concerning invoice 2026-49869. Could you please let me know whether it has been paid, or when payment might be expected?\n\nThank you very much for your assistance.\n\nSincerely,\nWendy Fairbanks",
+     "created_at": "2026-11-10T15:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700132,
+     "author_id": 900003,
+     "public": true,
+     "body": "Received, thank you. Checking with the team.",
+     "created_at": "2026-11-10T21:00:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700133,
+     "author_id": 900020,
+     "public": true,
+     "body": "Any update on this?",
+     "created_at": "2026-11-12T23:00:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41702,
+   "subject": "Foxglove Talent invoice",
+   "description": "Hi AP team,\n\nI hope you're all doing well and that the quarter-end rush hasn't been too much for you. I know things get hectic this time of year, and we've been swamped over here too with the offsite planning, the new hires, and the never-ending reshuffling of the seating chart on the third floor.\n\nAnyway, the reason I'm writing: Foxglove Talent did some staffing work for our group and sent invoice FT4287, which I've attached. Their contact has asked me twice now whether it's been paid, and I honestly don't know. Could you tell me whether it has been paid, and if not, when it's expected to go out?\n\nI appreciate it, and sorry for the long note. Happy to jump on a call if that's easier.\n\nBest,\nQuinn Fairbanks",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900026,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "quinn.fairbanks@orchestra-mock.example",
+      "name": "Quinn Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-05T10:49:00Z",
+   "updated_at": "2026-11-06T19:49:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700134,
+     "author_id": 900026,
+     "public": true,
+     "body": "Hi AP team,\n\nI hope you're all doing well and that the quarter-end rush hasn't been too much for you. I know things get hectic this time of year, and we've been swamped over here too with the offsite planning, the new hires, and the never-ending reshuffling of the seating chart on the third floor.\n\nAnyway, the reason I'm writing: Foxglove Talent did some staffing work for our group and sent invoice FT4287, which I've attached. Their contact has asked me twice now whether it's been paid, and I honestly don't know. Could you tell me whether it has been paid, and if not, when it's expected to go out?\n\nI appreciate it, and sorry for the long note. Happy to jump on a call if that's easier.\n\nBest,\nQuinn Fairbanks",
+     "created_at": "2026-11-05T10:49:00Z",
+     "attachments": [
+      {
+       "file_name": "Invoice_FT4287.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    },
+    {
+     "id": 700135,
+     "author_id": 900002,
+     "public": true,
+     "body": "Thanks for reaching out. We are looking into this and will follow up.",
+     "created_at": "2026-11-06T06:49:00Z",
+     "attachments": []
+    },
+    {
+     "id": 700136,
+     "author_id": 900026,
+     "public": true,
+     "body": "Checking in again. Thanks.",
+     "created_at": "2026-11-06T19:49:00Z",
+     "attachments": []
+    }
+   ]
+  },
+  {
+   "id": 41707,
+   "subject": "Invoice not acknowledged",
+   "description": "Invoice FT74137 was sent weeks ago, no word back. Statement attached. Please confirm you have it.\n\nSamir, Foxglove Talent",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900059,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@foxglovetalent.example",
+      "name": "Samir Oakhurst"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-11T13:23:00Z",
+   "updated_at": "2026-11-11T13:23:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700137,
+     "author_id": 900059,
+     "public": true,
+     "body": "Invoice FT74137 was sent weeks ago, no word back. Statement attached. Please confirm you have it.\n\nSamir, Foxglove Talent",
+     "created_at": "2026-11-11T13:23:00Z",
+     "attachments": [
+      {
+       "file_name": "statement.pdf",
+       "content_type": "application/pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 41716,
+   "subject": "Invoice 61172 - Verdigris Signage",
+   "description": "Hello to the Accounts Payable team,\n\nI hope this message finds you well and that the autumn season has been treating everyone kindly. We have been very pleased to work with your company on the signage installation this year, and our crew spoke highly of how smoothly the site access was arranged. Thank you for that.\n\nOn to the reason I am writing. Could you let me know whether invoice 61172 has been paid, and if not, when we can expect payment? Our bookkeeper is reconciling the quarter and has asked me to confirm it.\n\nOn a separate note, we are planning some new fabrication work for the winter and would love to hear if you have further projects. No rush on that at all.\n\nWith many thanks and best wishes,\nKeiko Fairbanks\nVerdigris Signage\nbilling@verdigrissignage.example",
+   "status": "open",
+   "group": "Accounts Payable",
+   "requester_id": 900085,
+   "email_cc_ids": [],
+   "via": {
+    "channel": "email",
+    "source": {
+     "from": {
+      "address": "billing@verdigrissignage.example",
+      "name": "Keiko Fairbanks"
+     },
+     "to": {
+      "address": "ap@orchestra-mock.example"
+     }
+    }
+   },
+   "tags": [],
+   "created_at": "2026-11-12T11:52:00Z",
+   "updated_at": "2026-11-12T11:52:00Z",
+   "custom_fields": [
+    {
+     "id": "linked_ticket_ids",
+     "value": []
+    }
+   ],
+   "comments": [
+    {
+     "id": 700138,
+     "author_id": 900085,
+     "public": true,
+     "body": "Hello to the Accounts Payable team,\n\nI hope this message finds you well and that the autumn season has been treating everyone kindly. We have been very pleased to work with your company on the signage installation this year, and our crew spoke highly of how smoothly the site access was arranged. Thank you for that.\n\nOn to the reason I am writing. Could you let me know whether invoice 61172 has been paid, and if not, when we can expect payment? Our bookkeeper is reconciling the quarter and has asked me to confirm it.\n\nOn a separate note, we are planning some new fabrication work for the winter and would love to hear if you have further projects. No rush on that at all.\n\nWith many thanks and best wishes,\nKeiko Fairbanks\nVerdigris Signage\nbilling@verdigrissignage.example",
+     "created_at": "2026-11-12T11:52:00Z",
+     "attachments": []
+    }
+   ]
+  }
+ ],
+ "users": [
+  {
+   "id": 900001,
+   "name": "Elena Lockhart",
+   "email": "elena.lockhart@orchestra-mock.example",
+   "role": "agent"
+  },
+  {
+   "id": 900002,
+   "name": "Ulla Abernathy",
+   "email": "ulla.abernathy@orchestra-mock.example",
+   "role": "agent"
+  },
+  {
+   "id": 900003,
+   "name": "Omar Calloway",
+   "email": "omar.calloway@orchestra-mock.example",
+   "role": "agent"
+  },
+  {
+   "id": 900015,
+   "name": "Ines Merriweather",
+   "email": "ines.merriweather@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900016,
+   "name": "Quinn Brightwater",
+   "email": "quinn.brightwater@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900017,
+   "name": "Nadia Lockhart",
+   "email": "nadia.lockhart@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900018,
+   "name": "Dmitri Jessup",
+   "email": "dmitri.jessup@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900019,
+   "name": "Ana Abernathy",
+   "email": "ana.abernathy@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900020,
+   "name": "Wendy Fairbanks",
+   "email": "wendy.fairbanks@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900021,
+   "name": "Carla Pemberton",
+   "email": "carla.pemberton@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900023,
+   "name": "Maya Kettering",
+   "email": "maya.kettering@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900024,
+   "name": "Greta Northcott",
+   "email": "greta.northcott@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900025,
+   "name": "Carla Stanhope",
+   "email": "carla.stanhope@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900026,
+   "name": "Quinn Fairbanks",
+   "email": "quinn.fairbanks@orchestra-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900030,
+   "name": "Zane Vandermeer",
+   "email": "billing@dovetaillaneprinti.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900031,
+   "name": "Ironbark Rentals Billing",
+   "email": "no-reply@ironbarkrentals.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900032,
+   "name": "Victor Galloway",
+   "email": "victor@copperleafevents.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900033,
+   "name": "Liam Fairbanks",
+   "email": "accounts@oxbowcourierservic.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900034,
+   "name": "Jamal Underhill",
+   "email": "ar@bramblewickprintco.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900035,
+   "name": "Jamal Jessup",
+   "email": "jamal@saltmarshcreative.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900036,
+   "name": "Lucia Fenwick-Oyelaran",
+   "email": "luciafenwickoy@mailbox-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900037,
+   "name": "Elena Yarborough",
+   "email": "elena@juniperslateanalyt.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900038,
+   "name": "Tomasz Velarde",
+   "email": "tomaszvelarde@mailbox-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900039,
+   "name": "Dmitri Winslow",
+   "email": "dmitri@wrenfielddatalabs.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900040,
+   "name": "Ana Winslow",
+   "email": "billing@quillfernstudio.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900041,
+   "name": "Ana Isherwood",
+   "email": "ap-desk@remit-platform-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900042,
+   "name": "Maya Calloway",
+   "email": "maya48@freemail-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900043,
+   "name": "Larkspur Catering Group Billing",
+   "email": "no-reply@larkspurcateringgr.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900044,
+   "name": "Samir Jessup",
+   "email": "samir@kestrelhollowweb.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900045,
+   "name": "Wendy Jessup",
+   "email": "finance@kestrelhollowweb.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900046,
+   "name": "Yara Oakhurst",
+   "email": "billing@juniperslateanalyt.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900047,
+   "name": "Greta Radcliffe",
+   "email": "ar@sablecresttranslat.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900048,
+   "name": "Rosa Underhill",
+   "email": "accounts@greywatersound.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900049,
+   "name": "Bronwyn Castellano",
+   "email": "bronwyncastell@mailbox-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900050,
+   "name": "Ostrander Field Research Billing",
+   "email": "no-reply@ostranderfieldrese.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900051,
+   "name": "Priya Halvorsen",
+   "email": "priyahalvorsen@mailbox-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900052,
+   "name": "Ben Merriweather",
+   "email": "ben@clientco7.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900053,
+   "name": "Keiko Galloway",
+   "email": "finance@thistledownstaffin.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900054,
+   "name": "Rosa Calloway",
+   "email": "finance@fernhollowphoto.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900055,
+   "name": "Greta Winslow",
+   "email": "greta@verdigrissignage.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900056,
+   "name": "Nadia Jessup",
+   "email": "finance@copperleafevents.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900057,
+   "name": "Carla Merriweather",
+   "email": "ar@foxglovetalent.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900058,
+   "name": "Tessa Winslow",
+   "email": "tessa@cobaltfinchdesign.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900059,
+   "name": "Samir Oakhurst",
+   "email": "billing@foxglovetalent.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900060,
+   "name": "Notifications",
+   "email": "notify@thistledownstaffin.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900061,
+   "name": "Birchmere Logistics Billing",
+   "email": "no-reply@birchmerelogistics.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900062,
+   "name": "Ines Radcliffe",
+   "email": "ar@birchmerelogistics.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900063,
+   "name": "Keiko Oakhurst",
+   "email": "finance@greywatersound.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900064,
+   "name": "Ana Lockhart",
+   "email": "ana@dovetaillaneprinti.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900065,
+   "name": "Farid Thackeray",
+   "email": "ar@pennywhistleaudio.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900066,
+   "name": "Zane Underhill",
+   "email": "ar@verdigrissignage.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900067,
+   "name": "Ben Lockhart",
+   "email": "ar@oxbowcourierservic.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900068,
+   "name": "Notifications",
+   "email": "notify@sablecresttranslat.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900069,
+   "name": "Nadia Ellsworth",
+   "email": "accounts@mossandmeridianllc.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900070,
+   "name": "Liam Brightwater",
+   "email": "liam@tallowridgemedia.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900071,
+   "name": "Dmitri Thackeray",
+   "email": "billing@ninebarksurveys.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900072,
+   "name": "Wendy Stanhope",
+   "email": "wendy@mossandmeridianllc.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900073,
+   "name": "Paula Lockhart",
+   "email": "finance@halcyonpierproduct.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900074,
+   "name": "Notifications",
+   "email": "notify@kestrelhollowweb.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900075,
+   "name": "Xavier Stanhope",
+   "email": "xavier@tinlanternvideo.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900076,
+   "name": "Moss and Meridian LLC Billing",
+   "email": "no-reply@mossandmeridianllc.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900077,
+   "name": "Ulla Calloway",
+   "email": "billing@larkspurcateringgr.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900078,
+   "name": "Yara Lockhart",
+   "email": "yara60@freemail-mock.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900079,
+   "name": "Victor Jessup",
+   "email": "victor@larkspurcateringgr.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900080,
+   "name": "Carla Thackeray",
+   "email": "ar@copperleafevents.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900081,
+   "name": "Omar Northcott",
+   "email": "accounts@birchmerelogistics.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900082,
+   "name": "Nadia Yarborough",
+   "email": "accounts@mailbox-mock-payments.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900083,
+   "name": "Omar Calloway",
+   "email": "omar@ironbarkrentals.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900084,
+   "name": "Foxglove Talent Billing",
+   "email": "no-reply@foxglovetalent.example",
+   "role": "end-user"
+  },
+  {
+   "id": 900085,
+   "name": "Keiko Fairbanks",
+   "email": "billing@verdigrissignage.example",
+   "role": "end-user"
+  }
+ ],
+ "count": 100
+}
