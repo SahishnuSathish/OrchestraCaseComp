@@ -14,6 +14,11 @@ MACHINE_LOCAL = re.compile(r"^(notify|notifications?|alerts?|mailer[-_.]?daemon|
                            r"bounce[s]?|automated|system|docusign|esign|echosign|calendar)([-_.+].*)?$", re.I)
 
 
+def redact_digits(s):
+    """Replace any run of 3+ digits so cue snippets never carry account numbers."""
+    return re.sub(r"\d[\d\s-]{2,}\d|\d{3,}", "[number withheld]", s)
+
+
 def _lev(a, b):
     if a == b:
         return 0
@@ -64,7 +69,7 @@ def fraud_screen(view, known_domains, cues=None):
     cues = cues if cues is not None else scan(text)
     reasons = []
     if cues.get("bank_change"):
-        reasons.append("bank-detail change language: " + "; ".join(repr(c[:60]) for c in cues["bank_change"][:2]))
+        reasons.append("bank-detail change language: " + "; ".join(repr(redact_digits(c[:60])) for c in cues["bank_change"][:2]))
     sender_domain = view.sender_email.split("@")[-1] if "@" in view.sender_email else ""
     la = lookalike_of(sender_domain, known_domains)
     if la:
