@@ -412,6 +412,7 @@ export function mount(root, { route }) {
     const busy = deciding || sending;
     const failed = sendError && sendError.id === r.ticket_id ? sendError.message : null;
     const status = failed ? h('span', { class: 'status-error', role: 'alert' }, icon('circle-alert', 'icon-sm'), `Could not send: ${failed}`)
+      : saveState === 'error' && editable ? h('span', { class: 'status-error' }, icon('circle-alert', 'icon-sm'), 'Could not save your edit', h('button', { class: 'link-btn', type: 'button', onclick: () => saveDraft() }, 'Retry'))
       : state === 'sent'
         ? h('span', null, icon('send', 'icon-sm'), `Sent ${relTime(rv.sent_at)}${mode === 'simulated' ? ' (simulated: saved to the outbox)' : ''}`)
         : resolved ? h('span', null, icon('check', 'icon-sm'), `${humanize(state)}${rv.decided_at ? ` · ${relTime(rv.decided_at)}` : ''}`)
