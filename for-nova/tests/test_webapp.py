@@ -1,0 +1,268 @@
+"""Tests for the AP Desk web app (webapp/). No Ollama needed: the model is never called.
+
+Run from for-nova/:  python -m unittest tests.test_webapp -v
+"""
+import json
+import sys
+import tempfile
+import time
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "webapp"))
+sys.path.insert(0, str(ROOT / "prototype"))
+sys.path.insert(0, str(ROOT))
+
+import db  # noqa: E402
+
+_TMP = tempfile.TemporaryDirectory()
+db.STATE_DIR = Path(_TMP.name)          # never touch the real webapp/state/app.db
+db.DB_PATH = db.STATE_DIR / "app.db"
+
+import runner  # noqa: E402
+import summarize  # noqa: E402
+import server  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+
+DATA = ROOT / "data"
+
+
+def facts_for(**over):
+    bundle = {
+        "ticket_id": 1, "stages": [
+            {"name": "sender", "summary": "vendor_contact, authorized=True: listed contact for V1"},
+            {"name": "extract_regex", "summary": "intent=status_request; refs=['INV-100']; cues=[]"},
+            {"name": "lookups", "summary": "1 item(s): [('INV-100', 'found')]; vendor=Acme Print"},
+            {"name": "draft_check", "summary": "passed"}],
+        "model": None, "advisory": None, "plan": {"skipped": False},
+        "trace": [{"seq": 1, "platform": "netsuite", "action": "find_bills_by_tranId", "endpoint": "/record/v1/vendorBill?tranId=INV-100",
+                   "key": "INV-100", "result_count": 1, "ms": 1},
+                  {"seq": 2, "platform": "payment_system", "action": "find_payments_for_bill", "endpoint": "/x", "key": "55",
+                   "result_count": 1, "ms": 1}],
+        "result": {"ticket_id": 1, "output_type": "draft_reply", "recipient": "ap@acme.example", "reason_tag": None, "priority": False,
+                   "flags": [], "text": "Hi Sam,\n\nInvoice INV-100 was paid on October 22, 2026 by ACH transfer, reference ACH578416.\n\nBest regards,\nAP"},
+        "decision": {"rule": "paid", "why": "Payment settled.", "act_by": None},
+    }
+    bundle.update(over)
+    return summarize.build_facts(bundle, {"subject": "Checking in on INV-100", "sender_name": "Sam"})
+
+
+class BriefTests(unittest.TestCase):
+    def test_facts_and_template_are_grounded(self):
+        f = facts_for()
+        self.assertEqual(f["invoice_refs"], ["INV-100"])
+        self.assertEqual(f["vendor"], "Acme Print")
+        bullets = summarize.template_bullets(f)
+        self.assertEqual([b["label"] for b in bullets], ["Issue", "Sources", "Reply", "Next"])
+        self.assertIn("NetSuite", bullets[1]["text"])
+        self.assertIn("Payment system", bullets[1]["text"])
+        self.assertNotIn("Zendesk", bullets[1]["text"])
+        # the template is for staff and may quote record values (it never goes to the model), so it is not run through validate()
+        self.assertIn("ACH578416", bullets[2]["text"])
+
+    def test_model_packet_withholds_references_and_addresses(self):
+        pkt = json.dumps(summarize.model_packet(facts_for()))
+        self.assertNotIn("ACH578416", pkt)
+        self.assertNotIn("ap@acme.example", pkt)
+
+    def test_validator_rejects_invented_facts(self):
+        f = facts_for()
+        ok = [{"label": "Issue", "text": "Acme Print asked about INV-100; it was paid October 22, 2026."},
+              {"label": "Sources", "text": "NetSuite bill and Payment system record. Retrieval: complete."},
+              {"label": "Reply", "text": "Draft says INV-100 settled."},
+              {"label": "Next", "text": "Review the draft and send it if correct."}]
+        self.assertEqual(summarize.validate(ok, f), [])
+        invented_id = [dict(b) for b in ok]; invented_id[0]["text"] = "Acme asked about INV-999."
+        self.assertTrue(summarize.validate(invented_id, f))
+        invented_money = [dict(b) for b in ok]; invented_money[2]["text"] = "Reply confirms $4,500 was paid."
+        self.assertTrue(summarize.validate(invented_money, f))
+        invented_system = [dict(b) for b in ok]; invented_system[1]["text"] = "NetSuite and Zendesk both confirm it."
+        self.assertTrue(summarize.validate(invented_system, f))
+        link = [dict(b) for b in ok]; link[2]["text"] = "See https://evil.example for details."
+        self.assertTrue(summarize.validate(link, f))
+        self.assertTrue(summarize.validate(ok[:3], f))      # too few bullets (Next is required)
+        wrong_next = [dict(b) for b in ok]; wrong_next[3]["text"] = "Close the ticket, no reply needed."
+        self.assertTrue(summarize.validate(wrong_next, f))  # the model may not change what kind of action is next
+
+    def test_fallback_to_template_when_model_unusable(self):
+        f = facts_for()
+
+        class Down:
+            def summarize(self, facts):
+                return None, {"source": "template", "error": "unreachable"}
+
+        class Liar:
+            def summarize(self, facts):
+                return [{"label": "Issue", "text": "Invoice INV-777 is late."}, {"label": "Sources", "text": "NetSuite."},
+                        {"label": "Reply", "text": "Nothing."}, {"label": "Next", "text": "Close it."}], {"source": "model", "error": None}
+
+        for summarizer in (None, Down(), Liar()):
+            bullets, source, info = summarize.make_brief(f, summarizer)
+            self.assertEqual(source, "template")
+            self.assertEqual([b["label"] for b in bullets], ["Issue", "Sources", "Reply", "Next"])
+
+    def test_good_model_output_is_used(self):
+        f = facts_for()
+
+        class Good:
+            def summarize(self, facts):
+                return [{"label": "Issue", "text": "Acme Print asked about INV-100, which is settled."},
+                        {"label": "Sources", "text": "NetSuite vendor bill and the Payment system record. Retrieval: complete."},
+                        {"label": "Reply", "text": "A draft tells them INV-100 was paid on October 22, 2026."},
+                        {"label": "Next", "text": "Review the draft and send it if correct."}], {"source": "model", "error": None}
+
+        _, source, _ = summarize.make_brief(f, Good())
+        self.assertEqual(source, "model")
+
+    def test_watch_bullet_for_fraud(self):
+        f = facts_for(result={"ticket_id": 1, "output_type": "internal_action_note", "recipient": None, "reason_tag": None,
+                              "priority": False, "flags": ["fraud"], "text": "INTERNAL ACTION NOTE"})
+        labels = [b["label"] for b in summarize.template_bullets(f)]
+        self.assertEqual(labels[-1], "Watch")
+
+    def test_non_local_model_host_is_refused(self):
+        s = summarize.OllamaSummarizer(url="http://example.com:11434")
+        bullets, info = s.summarize(facts_for())
+        self.assertIsNone(bullets)
+        self.assertIn("not local", info["error"])
+
+
+class DatasetTests(unittest.TestCase):
+    def test_validates_the_practice_dataset(self):
+        v = runner.validate_dataset(DATA)
+        self.assertTrue(v["ok"], v)
+        self.assertEqual(v["tickets"], 100)
+
+    def test_rejects_bad_paths_without_raising(self):
+        for p in ("", str(ROOT / "does-not-exist"), str(ROOT / "prototype")):
+            v = runner.validate_dataset(p)
+            self.assertFalse(v["ok"])
+            self.assertTrue(v.get("error"))
+
+
+class ApiTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.c = TestClient(server.app, base_url="http://localhost")
+        cls.h = {"x-ap-token": server.TOKEN}
+        r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False}, headers=cls.h)
+        assert r.status_code == 200, r.text
+        cls.rid = r.json()["run_id"]
+        for _ in range(240):
+            run = cls.c.get(f"/api/runs/{cls.rid}", headers=cls.h).json()
+            if run["status"] in ("done", "failed", "cancelled"):
+                break
+            time.sleep(0.5)
+        assert run["status"] == "done", run
+        cls.rows = cls.c.get(f"/api/runs/{cls.rid}/tickets", headers=cls.h).json()["rows"]
+
+    def test_run_processed_every_ticket_with_a_brief(self):
+        self.assertEqual(len(self.rows), 100)
+        self.assertFalse([r for r in self.rows if r["output_type"] == "error"])
+        d = self.c.get(f"/api/runs/{self.rid}/tickets/{self.rows[0]['ticket_id']}", headers=self.h).json()
+        self.assertGreaterEqual(len(d["brief"]["bullets"]), 3)
+        self.assertEqual(d["brief"]["source"], "template")
+        self.assertTrue(d["ticket"]["body"])
+
+    def test_token_and_host_guards(self):
+        self.assertEqual(self.c.get("/api/runs").status_code, 401)
+        self.assertEqual(self.c.get("/api/runs", headers={"x-ap-token": "nope"}).status_code, 401)
+        self.assertEqual(self.c.get("/api/runs", headers={**self.h, "host": "evil.example"}).status_code, 403)
+        self.assertEqual(self.c.post("/api/runs", json={"path": str(DATA)}, headers={**self.h, "origin": "http://evil.example"}).status_code, 403)
+
+    def test_fs_listing_is_directories_only(self):
+        r = self.c.get("/api/fs/list", params={"path": str(ROOT)}, headers=self.h).json()
+        names = {e["name"] for e in r["entries"]}
+        self.assertIn("data", names)
+        self.assertNotIn("README.md", names)
+        self.assertTrue(next(e for e in r["entries"] if e["name"] == "data")["has_tickets"])
+
+    def test_review_rules_and_export(self):
+        by_type = {}
+        for r in self.rows:
+            by_type.setdefault(r["output_type"], []).append(r)
+        reply = next(r for r in by_type["draft_reply"] if not r["flags"])
+        tid = reply["ticket_id"]
+        url = f"/api/runs/{self.rid}/review/{tid}"
+        # returning needs a reason; notes cannot be "approved"
+        self.assertEqual(self.c.put(url, json={"state": "returned"}, headers=self.h).status_code, 400)
+        self.assertEqual(self.c.put(url, json={"state": "closed"}, headers=self.h).status_code, 400)
+        note = by_type["internal_action_note"][0]
+        self.assertEqual(self.c.put(f"/api/runs/{self.rid}/review/{note['ticket_id']}", json={"state": "approved"}, headers=self.h).status_code, 400)
+        # approve with an edit
+        r = self.c.put(url, json={"state": "approved", "text": "Edited reply text."}, headers=self.h)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["review"]["state"], "approved")
+        self.assertTrue(r.json()["draft"]["edited"])
+        ex = self.c.get(f"/api/runs/{self.rid}/export", headers=self.h).json()
+        got = {x["ticket_id"]: x for x in ex["results"]}
+        self.assertEqual(got[tid]["text"], "Edited reply text.")
+        self.assertEqual(len(got), 1)
+        # undo
+        self.assertEqual(self.c.put(url, json={"state": "pending"}, headers=self.h).json()["review"]["state"], "pending")
+        self.assertEqual(self.c.get(f"/api/runs/{self.rid}/export", headers=self.h).json()["results"], [])
+
+    def test_flagged_ticket_cannot_be_approved(self):
+        flagged = [r for r in self.rows if r["flags"]]
+        self.assertTrue(flagged, "the practice data has fraud-flagged tickets")
+        row = next((r for r in flagged if r["output_type"] == "draft_reply"), None)
+        if row is None:  # fraud tickets normally come back as internal notes; check the guard directly
+            from fastapi import HTTPException
+            tid = flagged[0]["ticket_id"]
+            rec = db.get_ticket(self.rid, tid)
+            rec["row"]["output_type"] = "draft_reply"
+            orig = db.get_ticket
+            db.get_ticket = lambda run_id, t: rec if (run_id, t) == (self.rid, tid) else orig(run_id, t)
+            try:
+                with self.assertRaises(HTTPException) as cm:
+                    server._apply_review(self.rid, tid, "approved")
+                self.assertEqual(cm.exception.status_code, 409)
+            finally:
+                db.get_ticket = orig
+        else:
+            r = self.c.put(f"/api/runs/{self.rid}/review/{row['ticket_id']}", json={"state": "approved"}, headers=self.h)
+            self.assertEqual(r.status_code, 409)
+
+    def test_bulk_approve_skips_invalid(self):
+        replies = [r["ticket_id"] for r in self.rows if r["output_type"] == "draft_reply" and not r["flags"]][:3]
+        notes = [r["ticket_id"] for r in self.rows if r["output_type"] == "internal_action_note"][:1]
+        res = self.c.post(f"/api/runs/{self.rid}/review/bulk", json={"ids": replies + notes, "state": "approved"}, headers=self.h).json()
+        self.assertEqual(sorted(res["done"]), sorted(replies))
+        self.assertEqual([s["ticket_id"] for s in res["skipped"]], notes)
+        self.c.post(f"/api/runs/{self.rid}/review/bulk", json={"ids": replies, "state": "pending"}, headers=self.h)
+
+    def test_edit_that_adds_unsafe_content_is_blocked_by_the_egress_gate(self):
+        row = next(r for r in self.rows if r["output_type"] == "draft_reply" and not r["flags"] and r["recipient"])
+        tid, url = row["ticket_id"], f"/api/runs/{self.rid}/review/{row['ticket_id']}"
+        original = self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["draft"]["original_text"]
+        bad_edits = {"link": original + "\n\nPay via https://pay.evil.example now.",
+                     "bank wording": original + "\n\nOur new routing number is on file.",
+                     "other address": original + "\n\nWrite to someone.else@evil.example."}
+        for name, text in bad_edits.items():
+            r = self.c.put(url, json={"state": "approved", "text": text}, headers=self.h)
+            self.assertEqual(r.status_code, 422, name)
+            self.assertEqual(self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["review"]["state"], "pending", name)
+        ok = self.c.put(url, json={"state": "approved", "text": original + "\n\nThanks for your patience."}, headers=self.h)
+        self.assertEqual(ok.status_code, 200, ok.text)
+        self.c.put(url, json={"state": "pending", "text": original}, headers=self.h)
+
+    def test_crashed_ticket_can_be_reviewed_as_a_note_or_close(self):
+        bundle = {"ticket_id": 999001, "stages": [], "model": None, "trace": [], "api_calls": 0, "ms": 0, "error": "ValueError: boom",
+                  "result": {"ticket_id": 999001, "output_type": "internal_action_note", "recipient": None, "reason_tag": None,
+                             "priority": False, "flags": [], "text": "A person should review it."},
+                  "decision": {"rule": "pipeline_error", "why": "ValueError: boom", "act_by": None}}
+        row = runner.row_from_bundle(bundle, {"subject": "Crashed"}, 999)
+        db.save_ticket(self.rid, 999001, 999, bundle, {"id": 999001, "subject": "Crashed", "body": "x"}, row)
+        r = self.c.put(f"/api/runs/{self.rid}/review/999001", json={"state": "acknowledged"}, headers=self.h)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.c.put(f"/api/runs/{self.rid}/review/999001", json={"state": "pending"}, headers=self.h)  # leave no decisions behind
+
+    def test_index_injects_token(self):
+        html = self.c.get("/").text
+        self.assertIn(server.TOKEN, html)
+        self.assertNotIn("__AP_TOKEN__", html)
+
+
+if __name__ == "__main__":
+    unittest.main()

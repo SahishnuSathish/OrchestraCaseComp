@@ -17,6 +17,8 @@ FAMILIES = {
         r"\bpayments?\s+(should|must|will|need to|needs to)\s+(now\s+)?(be\s+)?(directed|sent|made|wired|remitted|paid|routed|deposited)\s+(to|into)\b",
         r"\b(please|kindly)\s+(use|update|note|record)\s+(the|our)\s+new\s+(bank|banking|account|details|remit|payment details)\b",
         r"\b(old|previous|former|existing)\s+(bank\s+)?account\b" + _W + r"\b(not valid|closed|no longer|inactive|invalid)\b",
+        r"\b(bank(ing)?\s+(details|information|info|instructions|account)|account\s+(details|information)|remit(tance)?\s+(details|information|instructions))\s+(has |have |had |was |were |is |are )?(been |recently |just )?(chang|updat|switch|mov|replac|revis)(e|ed|es)\b",
+        r"\b(to|into)\s+(the|our|a|this)\s+new\s+(bank\s+)?account\b",
         r"\b(routing|aba|iban|swift|bic|sort code)\b[^\n]{0,25}\d{4,}",
         r"\baccount\s*(number|no\.?|#)\s*[:#]?\s*\d{4,}",
     ],
@@ -58,6 +60,15 @@ FAMILIES = {
         r"\blet (me|us) know\b", r"\bstatus\b", r"\bwhen (will|is|can|should|does|do)\b", r"\b(has|have) (it|this|they|these) been\b",
         r"\b(need|want|like) to (know|find out|confirm|check)\b", r"\bwondering\b", r"\bchecking (in|on)\b", r"\bfollowing up\b",
         r"\bfollow[\s-]?up\b", r"\bany update\b", r"\basking (about|for|me)\b", r"\bwhere (is|are|does)\b", r"\bpls\b",
+    ],
+    # ---- text aimed at an automated reader (prompt injection) ------------
+    "injection": [
+        r"\bignore\s+(all\s+|any\s+|the\s+|your\s+)?(previous|prior|above|earlier|preceding)\s+(instructions?|messages?|rules|guidelines)\b",
+        r"\b(disregard|forget|override)\s+(all\s+|any\s+|your\s+|the\s+)?(previous|prior|above|earlier|system)?\s*(instructions?|rules|guidelines|prompt)\b",
+        r"\bsystem prompt\b", r"\byou are (now )?(an? |the )?(ai|assistant|language model|chatbot|llm)\b",
+        r"\bnew instructions?\s*:", r"\b(reveal|print|output|repeat) (your|the) (prompt|instructions|system)\b",
+        r"\bmark (this|it) as (safe|legitimate|approved|verified)\b", r"\bdo not (flag|escalate)\b",
+        r"\bbypass\b[^.\n]{0,20}\b(check|verification|control|review)s?\b",
     ],
     # ---- intents with their own rule ------------------------------------
     "not_received": [

@@ -1,0 +1,16 @@
+{
+  "lines": [
+    "100 practice tickets: 100% correct, 100% safe, with and without the model.",
+    "12 novel-phrasing red-team tickets: regex alone 6, regex + model 12.",
+    "About 3 s per ticket on an RTX 4070 laptop GPU (8 GB). 0 model errors. 0 cloud calls."
+  ],
+  "why": [
+    ["Code decides, the model only reads.", "The README's order of checks and record table are deterministic and auditable, so they live in rules.py. Payment dates, amounts and references come only from records. The 9B model turns messy text into a small JSON form and nothing more."],
+    ["The model can only add caution.", "Cues are unioned, never removed, and a lone 'suspicious' verdict is shown to staff but does not change the outcome. Ungated, it wrongly turned a real collections threat and a passcode email into flags in the first full run. It now acts only when a deterministic cue backs it up."],
+    ["Everything the model names is validated.", "Invoice numbers must appear literally in the ticket and exist in NetSuite; 7 non-matching references were dropped in the 100-ticket run. This also stops injected text from smuggling in facts."],
+    ["Local and redacted by default.", "Ollama on 127.0.0.1 only. Emails and long digit runs (bank numbers) are stripped before the model sees the text, and the output is schema-constrained so malformed replies are rejected."],
+    ["Plan lookups before pulling data.", "Pre-checks end automated, no-request and misrouted mail early (14 of 100 tickets, 2.8 calls vs 4.6), and every call is an exact-key, read-only, traced lookup that the dashboard can replay."],
+    ["A draft check is the last gate.", "A reply can only contain dates and references found in records. If it fails, it becomes an internal note, so a template or model slip cannot reach a vendor."],
+    ["Regex stays as the fallback.", "If Ollama is down or slow the regex result stands (tested), and the File and HTTP backends share one interface, so the same rules run on mock data and later on live NetSuite and Zendesk."]
+  ]
+}

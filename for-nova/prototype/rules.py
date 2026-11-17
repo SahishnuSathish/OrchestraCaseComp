@@ -158,8 +158,13 @@ def decide(ctx):
     if tag:
         return _dec("no_draft", tag, reason_tag=tag, why=why), []
 
+    # 2b text that tries to instruct the automated reader, or a model safety flag: a person looks first
+    mf = ctx.get("model_flag")
+    if mf:
+        return _dec("internal_action_note", mf["rule"], why=mf["why"]), []
+
     # 3 unresolved account
-    amb = [i for i in items if i["status"] == "ambiguous"]
+    amb =[i for i in items if i["status"] == "ambiguous"]
     vid, vname, vhow = ctx["vendor"]
     if amb:
         return _dec("no_draft", "unresolved_account", reason_tag="unresolved_account",
