@@ -35,7 +35,7 @@ The app is then at http://127.0.0.1:8790/ (the default). Options:
 
 ## Local model
 
-The local model is an optional second reader. In a run that has the model option turned on, it reads each ticket alongside the built-in regex reader. It also rewrites the brief shown on a ticket. It talks to an Ollama server.
+The local model is an optional second reader. In a run that has the model option turned on, it reads the tickets the built-in regex reader is unsure about (a gate skips the model where regex is already confident, and earlier answers are cached), and it can only add caution to what the regex reader found. It also writes and rewrites the brief shown on a ticket, and every brief is checked against the records before it is shown. It talks to an Ollama server.
 
 Settings are resolved per key in this order:
 
