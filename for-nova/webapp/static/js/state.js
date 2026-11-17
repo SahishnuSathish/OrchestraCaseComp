@@ -1,16 +1,29 @@
-// App state: the active run, its ticket rows, live progress (server-sent events), and the model status.
-import { api } from './api.js';
+// App state: the active run, its ticket rows, live progress (server-sent events), the model status and connection health.
+import { api, onApiState } from './api.js';
 import { ls } from './lib.js';
 
 const listeners = new Set();
 export const S = {
-  runId: null, run: null, rows: [], byId: new Map(), model: null,
+  runId: null, run: null, rows: [], byId: new Map(), model: null, settings: null,
+  conn: 'ok', // ok | offline | expired
   progress: { status: 'idle', total: 0, done: 0, working: null, elapsed: 0, warnings: [], error: null },
   es: null,
 };
 
 export function on(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 export function emit(kind, data) { for (const fn of [...listeners]) fn(kind, data); }
+
+onApiState((s) => { S.conn = s === 'online' ? 'ok' : s; emit('conn'); });
+
+export const isActive = (run) => !!run && (run.status === 'starting' || run.status === 'running');
+
+// Per-run, per-view memory that survives leaving a page: { query (route query object), scrollTop, ticketId }.
+const memory = new Map();
+const blank = () => ({ query: {}, scrollTop: 0, ticketId: null });
+export const viewState = {
+  get: (runId, view) => ({ ...blank(), ...memory.get(`${runId}:${view}`) }),
+  set: (runId, view, patch) => { memory.set(`${runId}:${view}`, { ...blank(), ...memory.get(`${runId}:${view}`), ...patch }); },
+};
 
 function setRows(rows) {
   S.rows = rows;
@@ -41,12 +54,16 @@ function closeStream() { if (S.es) { S.es.close(); S.es = null; } }
 
 function progressFromRun(run) {
   const elapsed = run.finished_at && run.started_at ? run.finished_at - run.started_at : 0;
-  S.progress = { status: run.status, total: run.total || 0, done: run.done || 0, working: null, elapsed, warnings: [], error: run.error || null, useModel: !!run.use_model };
+  S.progress = { status: run.status, total: run.total || 0, done: run.done || 0, working: null, elapsed, warnings: run.warnings || [], error: run.error || null, useModel: !!run.use_model };
 }
 
+let loadSeq = 0;
+// Rejects with the ApiError (status 404 = no such run). Returns null when a newer loadRun superseded this one.
 export async function loadRun(id) {
-  closeStream();
+  const seq = ++loadSeq;
   const [run, t] = await Promise.all([api.run(id), api.tickets(id)]);
+  if (seq !== loadSeq) return null;
+  closeStream();
   S.runId = id;
   S.run = run;
   setRows(t.rows);
@@ -55,7 +72,7 @@ export async function loadRun(id) {
   connect(id);
   emit('run');
   // Opening an older run: upgrade template briefs to local-model briefs in the background when the model is up.
-  if (run.status !== 'running' && run.status !== 'starting' && S.model?.usable && t.rows.some((r) => r.brief_source !== 'model')) {
+  if (!isActive(run) && S.model?.usable && t.rows.some((r) => r.brief_source !== 'model')) {
     api.upgradeBriefs(id).catch(() => {});
   }
   return run;
@@ -67,6 +84,7 @@ export async function refreshRun() {
 }
 
 export function forgetRun() {
+  loadSeq++;
   closeStream();
   S.runId = null; S.run = null; setRows([]);
   S.progress = { status: 'idle', total: 0, done: 0, working: null, elapsed: 0, warnings: [], error: null };
@@ -74,10 +92,18 @@ export function forgetRun() {
   emit('run');
 }
 
+// When the event stream breaks, ask the server once whether it is still there so the shell can show the right banner.
+let healthTimer = 0;
+function probeHealth() {
+  clearTimeout(healthTimer);
+  healthTimer = setTimeout(() => { api.health().catch(() => {}); }, 1500);
+}
+
 function connect(id) {
   const es = api.events(id);
   S.es = es;
   const parse = (e) => { try { return JSON.parse(e.data); } catch { return {}; } };
+  es.addEventListener('error', probeHealth);
   es.addEventListener('start', (e) => {
     const d = parse(e);
     S.progress = { status: 'running', total: d.total, done: 0, working: null, elapsed: 0, warnings: S.progress.warnings || [], error: null, useModel: d.use_model };
@@ -105,11 +131,24 @@ function connect(id) {
     patchRow(d.ticket_id, { brief_source: d.source });
     emit('brief', d);
   });
+  // Another tab (or this one) changed a review decision.
+  es.addEventListener('review', (e) => {
+    const d = parse(e);
+    if (d.ticket_id == null) return;
+    patchRow(d.ticket_id, { review_state: d.state });
+    emit('review', d);
+  });
 }
 
+// ---------------------------------------------------------------------------- model + settings
 let modelTimer = null;
 export async function refreshModel(force = false) {
-  try { S.model = await api.modelStatus(force); } catch { S.model = { reachable: false, usable: false, model: '', error: 'unreachable' }; }
+  try {
+    S.model = await api.modelStatus(force);
+  } catch (e) {
+    // A connection problem says nothing about the model: keep what we knew. The shell shows the banner.
+    if (!S.model || e.kind === 'http') S.model = { state: 'unreachable', reachable: false, usable: false, model: '', error: e.message };
+  }
   emit('model');
   return S.model;
 }
@@ -117,4 +156,10 @@ export function pollModel() {
   clearInterval(modelTimer);
   modelTimer = setInterval(() => { if (!document.hidden) refreshModel(); }, 20000);
   return refreshModel();
+}
+
+export async function refreshSettings() {
+  S.settings = await api.settings();
+  emit('settings');
+  return S.settings;
 }
