@@ -10,7 +10,7 @@ import re
 import extract_regex
 from trace import NullTrace
 
-UNUSUAL = re.compile(r"\b(clause|terms?|rights?|agency|solicitor|statutory|accru\w*|surcharge|queue|exception|one-off|recover\w*)\b", re.I)
+UNUSUAL = re.compile(r"\b(clause|terms?|rights?|agency|solicitor|statutory|accru\w*|surcharge|queue|exception|one-off|recover\w*|receivables?)\b", re.I)
 LONG_BODY = 1200
 BENIGN = {"request", "gratitude"}  # ordinary politeness is not a risk signal
 
