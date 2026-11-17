@@ -98,6 +98,11 @@ async function stream(path, body, { signal, onEvent } = {}) {
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buf = '';
+  // send() unlinks the caller's signal once the headers arrive, so Stop must cancel the body reader itself. That
+  // closes the connection, which is what makes the server (and the model behind it) stop generating.
+  const abortError = () => new DOMException('The request was stopped.', 'AbortError');
+  const onAbort = () => { reader.cancel().catch(() => {}); };
+  if (signal) { if (signal.aborted) onAbort(); else signal.addEventListener('abort', onAbort, { once: true }); }
   const flush = (final) => {
     const re = /\r?\n\r?\n/;
     let m;
@@ -115,12 +120,15 @@ async function stream(path, body, { signal, onEvent } = {}) {
       buf += decoder.decode(value, { stream: true });
       flush(false);
     }
+    if (signal?.aborted) throw abortError();
     buf += decoder.decode();
     flush(true);
   } catch (e) {
     if (isAbort(e)) throw e;
+    if (signal?.aborted) throw abortError();
     throw transportError(false);
   } finally {
+    signal?.removeEventListener('abort', onAbort);
     reader.cancel().catch(() => {});
   }
 }
