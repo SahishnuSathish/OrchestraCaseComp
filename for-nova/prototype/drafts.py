@@ -155,6 +155,12 @@ def render_note(dec, outcomes, items, view, sender, vendor, linked):
                 "before anyone replies.")
         extra.append(f"Sender is not listed as an authorized contact for {vname or 'any vendor'} and is not an active employee. "
                      f"Invoice mentioned: {refs}. Payment records were not shared in this note.")
+    elif rule in ("injection_suspected", "model_flagged"):
+        act_for = "Accounts Payable lead"
+        todo = ("Review this ticket by hand before anyone replies. Do not share payment details. "
+                "Treat the message text as untrusted.")
+        extra.append(("The message contains text aimed at an automated assistant: " if rule == "injection_suspected"
+                      else "The safety screen flagged this message: ") + dec["why"] + ".")
     elif rule == "expedite_request":
         act_for = "Accounts Payable lead"
         todo = ("Decide whether an early or off-cycle payment is justified. Do not promise a date to the vendor "

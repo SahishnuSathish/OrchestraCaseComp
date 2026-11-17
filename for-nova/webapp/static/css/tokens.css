@@ -1,0 +1,88 @@
+/* AP Desk design tokens. Semantic names only: components never use raw hex. Light theme only. */
+:root {
+  color-scheme: light;
+
+  /* surfaces */
+  --bg: #f4f9f8;
+  --surface: #ffffff;
+  --surface-2: #f9fbfb;
+  --surface-hover: #f1f7f6;
+  --border: #dce7e5;
+  --border-strong: #c3d3d0;
+
+  /* text (all >= 4.5:1 on --surface and --bg) */
+  --text: #0f2a27;
+  --text-2: #43605c;
+  --text-3: #587370;
+  --text-on-accent: #ffffff;
+
+  /* accent: teal. #0f766e is AA for text on white; --ring is for focus and large graphics only */
+  --accent: #0f766e;
+  --accent-hover: #0b5f58;
+  --accent-press: #094e48;
+  --accent-tint: #e6f5f2;
+  --accent-border: #a9d9d2;
+  --ring: #0d9488;
+
+  /* status: always paired with an icon and text, never color alone */
+  --success: #3b7a1d;
+  --success-tint: #f0f8e8;
+  --success-border: #cfe5b8;
+  --warning: #b54708;
+  --warning-tint: #fffaeb;
+  --warning-border: #f3d9a4;
+  --danger: #b42318;
+  --danger-tint: #fef3f2;
+  --danger-border: #f4c7c3;
+  --neutral-tint: #eef3f2;
+
+  /* shape: deliberately square-ish. No pills. */
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 8px;
+
+  /* type */
+  --font-sans: Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 28px;
+
+  /* 4/8 spacing */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  /* layout */
+  --rail-w: 220px;
+  --topbar-h: 52px;
+  --queue-w: 320px;
+  --original-w: 380px;
+  --detail-w: 560px;
+
+  /* elevation: borders do the work; one faint shadow for floating layers only */
+  --shadow-float: 0 8px 24px rgb(15 42 39 / 0.12), 0 1px 2px rgb(15 42 39 / 0.08);
+  --scrim: rgb(15 42 39 / 0.45);
+
+  /* z-index scale */
+  --z-sticky: 10;
+  --z-rail: 20;
+  --z-toast: 60;
+  --z-modal: 100;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --t-press: 120ms;
+  --t-hover: 150ms;
+  --t-pop: 160ms;
+  --t-modal: 200ms;
+}
