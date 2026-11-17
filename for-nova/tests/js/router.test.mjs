@@ -236,3 +236,22 @@ describe('crumbs', () => {
     );
   });
 });
+
+describe('crumbs keep the list state when going up from a ticket', () => {
+  const run = { id: 'ab12cd34', label: 'practice data' };
+  const parentHref = (route) => { const c = crumbs(route, run); return c[c.length - 2].href; };
+
+  it('tickets: filters carry over, "from" does not', () => {
+    const route = parse('#/runs/ab12cd34/tickets/41259?output=draft_reply&q=acme&from=review');
+    assert.equal(parentHref(route), '#/runs/ab12cd34/tickets?output=draft_reply&q=acme');
+  });
+
+  it('review: the tab carries over', () => {
+    const route = parse('#/runs/ab12cd34/review/41262?tab=notes&from=tickets');
+    assert.equal(parentHref(route), '#/runs/ab12cd34/review?tab=notes');
+  });
+
+  it('no query means a plain list link', () => {
+    assert.equal(parentHref(parse('#/runs/ab12cd34/tickets/41259')), '#/runs/ab12cd34/tickets');
+  });
+});

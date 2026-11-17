@@ -122,11 +122,19 @@ All paths are under `/api`, and every call needs the `x-ap-token` header. `GET /
 
 ## Tests
 
-From `for-nova/`:
+From `for-nova/`. None of these need Ollama.
 
 ```
-python -m unittest discover -s tests -p "test_*.py"
+python -m unittest discover -s tests -p "test_*.py"   # backend, pipeline and the local-model API
+node --test tests/js/router.test.mjs                  # route parsing, links and breadcrumbs (Node only)
+node tests/ui/smoke.mjs                               # browser walk-through (needs Playwright + Chromium)
 ```
+
+`tests/ui/smoke.mjs` starts its own server and stand-in model on free ports with a temporary state folder, then checks
+deep links, history and back controls, remembered filters, the phone drawer, the connection banners, the review and
+send workflow, and the local-model settings and test console at 360, 768, 1280 and 1920 px. It prints one line per
+test and exits non-zero on any failure; pass a regular expression to run only some tests. It skips itself, with a
+message, when Playwright is not installed.
 
 `tests/fake_ollama.py` is a test stand-in for Ollama that performs no inference; its replies are canned. For manual UI checks, run it by hand:
 

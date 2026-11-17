@@ -111,7 +111,9 @@ export function crumbs(route, run) {
     case 'tickets':
     case 'review': {
       const section = route.name === 'tickets' ? 'Tickets' : 'Review';
-      const list = { label: section, href: route.ticketId ? href(route.name, { runId: route.runId }) : null };
+      // Going up from a ticket keeps the list's filters / tab ("from" only says where the ticket was opened from).
+      const { from, ...listQuery } = route.query || {};
+      const list = { label: section, href: route.ticketId ? href(route.name, { runId: route.runId, query: listQuery }) : null };
       return route.ticketId ? [runs, runCrumb, list, { label: `#${route.ticketId}`, href: null }] : [runs, runCrumb, list];
     }
     case 'settings': return [{ label: 'Settings', href: null }];

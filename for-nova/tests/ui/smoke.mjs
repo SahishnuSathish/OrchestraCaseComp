@@ -34,6 +34,8 @@
  *   `--fail http500`: every /api/chat answers HTTP 500, no reading is ever produced and nothing is cached. The model
  *   selection is still observable (run.model, the overview header and the `model` of every /api/chat request).
  *
+ * Optional: `node tests/ui/smoke.mjs "<regex>"` runs only the tests whose name matches (handy while debugging).
+ *
  * Exit code: 0 when every test passed (or the suite was skipped), 1 otherwise.
  */
 import { createRequire } from 'node:module';
@@ -144,21 +146,30 @@ const cleanEnv = () => {
   return env;
 };
 
-async function cleanup() {
-  try { await browser?.close(); } catch { /* ignore */ }
-  await Promise.all([...children].map(stopChild));
-  if (stateDir) fs.rmSync(stateDir, { recursive: true, force: true });
+let cleanupPromise = null;
+let shuttingDown = false;
+// Idempotent: the signal handler and the normal exit path share one run.
+function cleanup() {
+  cleanupPromise ||= (async () => {
+    try { await Promise.race([browser?.close(), sleep(5000)]); } catch { /* ignore */ }
+    await Promise.all([...children].map(stopChild));
+    if (stateDir) fs.rmSync(stateDir, { recursive: true, force: true });
+  })();
+  return cleanupPromise;
 }
-let cleaning = false;
 for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, () => {
-    if (cleaning) return;
-    cleaning = true;
+    if (shuttingDown) return;
+    shuttingDown = true;
     console.log(`\n${sig}: cleaning up`);
     cleanup().finally(() => process.exit(sig === 'SIGINT' ? 130 : 143));
   });
 }
-process.on('exit', () => { for (const c of children) { try { c.kill('SIGKILL'); } catch { /* gone */ } } });
+// Last resort, synchronous: whatever path ends the process, no child and no temp dir is left behind.
+process.on('exit', () => {
+  for (const c of children) { try { c.kill('SIGKILL'); } catch { /* gone */ } }
+  if (stateDir) { try { fs.rmSync(stateDir, { recursive: true, force: true }); } catch { /* ignore */ } }
+});
 
 // ------------------------------------------------------------------------------------------------ app + api helpers
 const A = { port: 0, token: '', runId: '', rows: [], fake: null, modelDeadPort: 0 };
@@ -339,7 +350,7 @@ for (const vp of ALL_WIDTHS) {
         const h1 = page.locator('main h1');
         assert.equal(await h1.count(), 1, `${r.name} (${pass}): expected exactly one <h1> in <main>`);
         assert.ok((await h1.innerText()).trim().length > 0, `${r.name} (${pass}): <h1> is empty`);
-        if (!['tickets', 'review'].includes(r.name)) assert.ok(await h1.isVisible(), `${r.name} (${pass}): <h1> not visible`);
+        assert.ok(await h1.isVisible(), `${r.name} (${pass}): <h1> not visible`);
         await waitTitle(page);
         await assertNoOverflow(page, `${r.name} ${pass}`);
       }
@@ -458,11 +469,13 @@ test('3 narrow screens show a back link to the parent instead of the breadcrumb 
   await page.locator('.detail-head h2').waitFor();
   const back = page.locator('a.crumb-back');
   await back.waitFor({ state: 'visible' });
-  assert.equal(await back.getAttribute('href'), `#/runs/${run}/tickets`, 'the back link points at the parent crumb');
+  const parentHref = await crumbsNav(page).locator('li a').last().getAttribute('href'); // the parent crumb, hidden at this width
+  assert.ok(parentHref && parentHref.startsWith(`#/runs/${run}/tickets`), `unexpected parent crumb ${parentHref}`);
+  assert.equal(await back.getAttribute('href'), parentHref, 'the back link points at the parent crumb');
   const shown = (await crumbsNav(page).innerText()).trim();
   assert.equal(shown, '#41259', `only the current page title is shown, got "${shown}"`);
   await back.click();
-  await waitForHash(page, `#/runs/${run}/tickets`);
+  await waitForHash(page, new RegExp(`^#/runs/${run}/tickets(\\?|$)`));
 });
 
 // ---------------------------------------------------------------------------------------------- 4. history is not polluted
@@ -559,6 +572,26 @@ for (const vp of [VP.phone, VP.tablet]) {
     await page.locator('.tbl tbody tr[data-id]').first().waitFor();
     assert.deepEqual(await rowIds(page), ids, 'same filtered rows after Back');
     await poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - y) <= 5, { message: `scroll restored to ${y}` });
+
+    // Same again, but leaving through an in-app control instead of browser Back (the browser's own scroll restoration
+    // does not apply to a new history entry, so this exercises the app's list memory).
+    await page.evaluate(() => window.scrollTo(0, 1500));
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const y2 = await page.evaluate(() => window.scrollY);
+    assert.ok(y2 > y + 100, `the list did not scroll further (${y} -> ${y2})`);
+    const id2 = await page.evaluate(() => [...document.querySelectorAll('.tbl tbody tr[data-id]')].find((tr) => tr.getBoundingClientRect().top > 120).dataset.id);
+    await page.locator(`tbody tr[data-id="${id2}"] a`).click();
+    await page.locator('.detail-head h2').waitFor();
+    if (vp.width > 640) {
+      await page.getByRole('link', { name: 'All tickets', exact: true }).click(); // the in-pane control keeps the filters
+    } else {
+      await page.locator('#menu-btn').click(); // on a phone the sidebar's Tickets link carries the remembered filters
+      await sidebar(page).getByRole('link', { name: 'Tickets', exact: true }).click();
+    }
+    await waitForHash(page, list);
+    await page.locator('.tbl tbody tr[data-id]').first().waitFor();
+    assert.deepEqual(await rowIds(page), ids, 'same filtered rows after returning through the app');
+    await poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - y2) <= 5, { message: `scroll restored to ${y2} after an in-app return` });
   });
 }
 
@@ -593,6 +626,15 @@ test('5 filters and list scroll survive leaving through the sidebar; reload and 
   await second.goto(`${BASE()}${list}`);
   await second.locator('.tbl tbody tr[data-id]').first().waitFor();
   assert.deepEqual(await rowIds(second), ids, 'the same URL in a second page shows the same rows');
+
+  // combined filters come straight from the URL (the flagged tickets of the practice data are internal notes)
+  await second.goto(`${BASE()}#/runs/${run}/tickets?output=internal_action_note&flagged=1`);
+  await second.locator('.tbl tbody tr[data-id]').first().waitFor();
+  const expected = A.rows.filter((r) => r.output_type === 'internal_action_note' && (r.flags || []).length).map((r) => r.ticket_id).sort();
+  assert.ok(expected.length > 0);
+  assert.deepEqual((await rowIds(second)).sort(), expected);
+  await second.goto(`${BASE()}#/runs/${run}/tickets?output=draft_reply&flagged=1`);
+  await second.getByRole('heading', { name: 'No tickets match' }).waitFor();
 });
 
 test('5 Review remembers its tab when you leave and come back through the sidebar', async (t) => {
@@ -653,6 +695,29 @@ test('6 "All tickets" returns to the list with the same query even on a direct v
   await waitForHash(page, `#/runs/${run}/tickets?output=draft_reply`);
   await page.locator('.tbl tbody tr[data-id]').first().waitFor();
   assert.equal((await rowIds(page)).length, A.rows.filter(isDraft).length);
+});
+
+// On a phone the in-pane "All tickets" / "Queue" controls are hidden and the topbar chevron is the way back: it must
+// not forget the filters or the tab the person came from (SPEC section 1: back controls return to "the list with the
+// current filters" / "the review list (same tab)").
+test('6 on a phone the back chevron of a filtered ticket returns to the same filtered list @360', async (t) => {
+  const run = A.runId;
+  const page = await t.newPage(VP.phone);
+  await gotoRoute(page, `#/runs/${run}/tickets/41259?output=draft_reply`);
+  await page.locator('.detail-head h2').waitFor();
+  await page.locator('a.crumb-back').click();
+  await waitForHash(page, `#/runs/${run}/tickets?output=draft_reply`);
+});
+
+test('6 on a phone the back chevron of a note opened from the Notes tab returns to the Notes tab @360', async (t) => {
+  const run = A.runId;
+  const note = A.rows.find((r) => r.output_type === 'internal_action_note').ticket_id;
+  const page = await t.newPage(VP.phone);
+  await gotoRoute(page, `#/runs/${run}/review/${note}?tab=notes`);
+  await page.locator('.center-head h2').waitFor();
+  await page.locator('a.crumb-back').click();
+  await waitForHash(page, `#/runs/${run}/review?tab=notes`);
+  assert.equal(await page.getByRole('tab', { name: /^Notes/ }).getAttribute('aria-selected'), 'true');
 });
 
 // ---------------------------------------------------------------------------------------------- 7. drawer
@@ -846,7 +911,7 @@ test('11 review workflow: tab in the URL, approve, undo, send (simulated outbox)
   const run = await createRun();
   try {
     const rows = await ticketRows(run);
-    const [first, second] = rows.filter(isClean).map((r) => r.ticket_id);
+    const first = rows.find(isClean).ticket_id;
     const page = await t.newPage(VP.desktop);
     await gotoRoute(page, `#/runs/${run}/review`);
     await page.locator('a.q-item').first().waitFor();
@@ -886,7 +951,6 @@ test('11 review workflow: tab in the URL, approve, undo, send (simulated outbox)
     const emls = fs.readdirSync(outboxDir).filter((f) => f.endsWith('.eml'));
     assert.equal(emls.length - emlBefore, 1, 'exactly one .eml was written');
     assert.ok(emls.some((f) => f.startsWith(`ticket-${first}-`)), `an outbox file for ticket ${first} exists (${emls})`);
-    void second;
   } finally { await removeRun(run).catch(() => {}); }
 });
 
@@ -1181,7 +1245,7 @@ for (const vp of [VP.desktop, VP.phone]) {
       if (!(await page.evaluate(() => document.activeElement === document.querySelector('main')))) report(r.name, 'Enter on the skip link did not focus <main>');
     }
     const lines = [...problems].map(([text, routes]) => `[${routes.join(', ')}] ${text}`);
-    assert.equal(lines.length, 0, `accessibility problems:\n        ${lines.join('\n        ')}`);
+    assert.ok(lines.length === 0, `accessibility problems:\n        ${lines.join('\n        ')}`);
   });
 }
 
@@ -1251,7 +1315,9 @@ async function main() {
       console.log(`skipped: Chromium could not be launched (${String(e.message).split('\n')[0]})`);
       return 0;
     }
-    for (const t of tests) {
+    const only = process.argv[2] ? new RegExp(process.argv[2], 'i') : null;
+    for (const t of tests.filter((x) => !only || only.test(x.name))) {
+      if (shuttingDown) break;
       const r = await runOne(t);
       results.push({ name: t.name, ...r });
       console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${t.name}  (${(r.ms / 1000).toFixed(1)}s)`);
