@@ -516,3 +516,76 @@ class CancelTests(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BriefQueueTests(unittest.TestCase):
+    """Asking to rewrite one ticket's brief must not wait behind the background upgrade of a whole run."""
+
+    def test_explicit_rewrite_jumps_ahead_of_background_upgrades(self):
+        order = []
+        done = threading.Event()
+        gate, started = threading.Event(), threading.Event()
+
+        class Recorder(runner.BriefWorker):
+            def _one(self, run_id, tid, force):
+                started.set()
+                gate.wait(5)          # hold the first item so the rest are queued behind it
+                order.append((tid, force))
+                if len(order) == 5:
+                    done.set()
+
+        w = Recorder(runner.Manager(summarizer_factory=lambda: None))
+        self.assertTrue(w.enqueue("r", 1))
+        self.assertTrue(started.wait(5))                     # ticket 1 is now running, held at the gate
+        for tid in (2, 3, 4):
+            self.assertTrue(w.enqueue("r", tid))             # background upgrade of a run
+        self.assertTrue(w.enqueue("r", 4, force=True))      # the person rewrites ticket 4, already queued
+        gate.set()
+        self.assertTrue(done.wait(5))
+        # ticket 1 was already running; the forced rewrite of 4 goes before 2 and 3
+        self.assertEqual([t for t, _ in order[:2]], [1, 4])
+        self.assertTrue(order[1][1])
+
+
+class FailedRewriteTests(Base):
+    """A rewrite that the validator rejects must not turn a valid model-written brief into a 'template' one."""
+
+    def start_run(self, **kw):
+        return ModelSelectionTests.start_run(self, **kw)
+
+    def test_rejected_rewrite_keeps_the_existing_model_brief(self):
+        rid, _ = self.start_run(use_model=False, limit=2)      # model not configured yet: no background upgrade
+        tid = db.list_rows(rid)[0]["ticket_id"]
+        self.point_at_fake()
+        self.fake.fail = "garbage"                              # the model answers, but not in a usable form
+        mgr = server.get_manager()
+        rec = db.get_ticket(rid, tid)
+        h = summarize.facts_hash(mgr.facts_for(rid, rec))
+        good = [{"label": "Issue", "text": "Model-written issue."}, {"label": "Sources", "text": "x"},
+                {"label": "Reply", "text": "y"}, {"label": "Next", "text": "z"}]
+        db.save_brief(rid, tid, h, good, "model", {"model": A})
+        events = []
+        mgr.emit = lambda run_id, kind, data=None: events.append((kind, data))   # capture instead of streaming
+        try:
+            mgr.briefs._one(rid, tid, True)
+        finally:
+            del mgr.emit
+        cur = db.get_brief(rid, tid)
+        self.assertEqual(cur["source"], "model")                    # still labelled for what it is
+        self.assertEqual(cur["bullets"], good)                      # and the text is untouched
+        kind, data = events[-1]
+        self.assertEqual((kind, data["source"], data["kept"]), ("brief", "model", True))
+        self.assertTrue(data["error"])
+
+    def test_rejected_first_rewrite_stores_records_only_bullets(self):
+        rid, _ = self.start_run(use_model=False, limit=2)
+        tid = db.list_rows(rid)[0]["ticket_id"]
+        self.point_at_fake()
+        self.fake.fail = "garbage"
+        mgr = server.get_manager()
+        before = db.get_brief(rid, tid)
+        self.assertEqual(before["source"], "template")
+        mgr.briefs._one(rid, tid, True)
+        after = db.get_brief(rid, tid)
+        self.assertEqual(after["source"], "template")
+        self.assertEqual(after["bullets"], before["bullets"])      # deterministic, from the facts

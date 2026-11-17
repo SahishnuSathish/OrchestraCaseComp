@@ -368,7 +368,8 @@ export function mount(root, { route }) {
     const id = d.ticket_id;
     if (!briefBusy.has(id)) { if (id === selected && d.source === 'model') loadDetail(id, { refresh: true }); return; }
     clearTimeout(briefBusy.get(id)); briefBusy.delete(id);
-    if (d.source === 'model') briefNote.delete(id);
+    if (d.kept) briefNote.set(id, `The model's new version was not used (${d.error || 'no reason given'}). The earlier brief written by the model is kept.`);
+    else if (d.source === 'model') briefNote.delete(id);
     else briefNote.set(id, `The local model's version was not used (${d.error || 'no reason given'}). This brief is generated from the records.`);
     if (id === selected) { if (d.source === 'model') loadDetail(id, { refresh: true }); else paintBrief(); }
   }

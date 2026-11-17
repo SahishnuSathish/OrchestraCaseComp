@@ -6,6 +6,7 @@ so the UI can stream results and the employee can start reviewing while the run 
 """
 import csv
 import inspect
+import itertools
 import json
 import queue
 import re
@@ -387,7 +388,8 @@ class BriefWorker:
 
     def __init__(self, manager):
         self.m = manager
-        self.q = queue.Queue()
+        self.q = queue.PriorityQueue()   # (priority, order, key, force): explicit rewrites run before background upgrades
+        self._order = itertools.count()
         self.pending = set()
         self.lock = threading.Lock()
         self.thread = None
@@ -407,10 +409,11 @@ class BriefWorker:
     def enqueue(self, run_id, ticket_id, force=False):
         key = (run_id, int(ticket_id))
         with self.lock:
-            if key in self.pending:
+            if key in self.pending and not force:
                 return False
             self.pending.add(key)
-        self.q.put((key, force))
+        # A person asking to rewrite the ticket in front of them must not wait behind the upgrade of a whole run.
+        self.q.put((0 if force else 1, next(self._order), key, force))
         self._ensure_thread()
         return True
 
@@ -433,7 +436,7 @@ class BriefWorker:
     def _loop(self):
         while True:
             try:
-                (run_id, tid), force = self.q.get(timeout=300)
+                _, _, (run_id, tid), force = self.q.get(timeout=300)
             except queue.Empty:
                 return
             try:
@@ -457,8 +460,12 @@ class BriefWorker:
             self.m.emit(run_id, "brief", {"ticket_id": tid, "source": "template", "error": "model unavailable"})
             return
         bullets, source, info = summarize.make_brief(facts, self._summarizer())
+        kept = False
         if source == "model":
             db.save_brief(run_id, tid, h, bullets, "model", info)
-        else:  # keep the template bullets but remember why the model version was not used
-            db.save_brief(run_id, tid, h, (cur or {}).get("bullets") or bullets, "template", info)
-        self.m.emit(run_id, "brief", {"ticket_id": tid, "source": source, "error": info.get("error")})
+        elif cur and cur["source"] == "model" and cur["bundle_hash"] == h:
+            kept = True  # this attempt failed, but the model-written brief we already have is still valid: leave it alone
+        else:  # the records-only brief for the current facts, and why the model version was not used
+            db.save_brief(run_id, tid, h, bullets, "template", info)
+        self.m.emit(run_id, "brief", {"ticket_id": tid, "source": "model" if kept else source, "kept": kept,
+                                      "error": info.get("error")})

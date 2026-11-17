@@ -610,7 +610,8 @@ export function mount(root, { route }) {
       const id = d.ticket_id;
       const waiting = briefBusy.has(id);
       endBriefWait(id);
-      if (d.source === 'model') briefNotes.delete(id);
+      if (d.kept) { if (waiting) briefNotes.set(id, `The model's new version was not used${d.error ? ` (${d.error})` : ''}. The earlier brief written by the model is kept.`); }
+      else if (d.source === 'model') briefNotes.delete(id);
       else if (waiting) briefNotes.set(id, `The local model's version was not used${d.error ? ` (${d.error})` : ''}. This brief is generated from the records.`);
       cache.delete(id);
       if (id === selected && detail && (d.source === 'model' || waiting)) {
