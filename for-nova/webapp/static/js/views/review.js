@@ -1,9 +1,10 @@
 // Review view: the employee's approval queue for drafted replies. Three panes: queue | brief + draft | original ticket.
 // The draft is always editable (autosaved). Approving records a decision; Send hands the approved reply to the mail
 // adapter on the server (simulated outbox by default, Orchestra's SMTP relay when configured).
-import { h, icon, mount as fill, go, isTyping, fmtInt, domainOf, humanize, relTime, ls } from '../lib.js';
+import { h, icon, mount as fill, isTyping, fmtInt, domainOf, humanize, relTime, ls } from '../lib.js';
 import { api } from '../api.js';
 import { S, on, patchRow, emit } from '../state.js';
+import { href, navigate } from '../router.js';
 import { briefCard, originalTicket, outputBadge, flagBadges, reviewBadge, emptyState, toast, confirmDialog, openDialog } from '../ui.js';
 
 const TABS = [['todo', 'To review'], ['approved', 'Approved'], ['returned', 'Returned'], ['notes', 'Notes']];
@@ -18,17 +19,13 @@ function tabOf(r) {
 const rank = (r) => ((r.flags || []).length ? 0 : r.priority ? 1 : 2);
 const isClean = (r) => r.output_type === 'draft_reply' && r.review_state === 'pending' && !(r.flags || []).length && !r.priority && !r.act_by;
 
-export function mount(root, params) {
-  if (!S.runId) {
-    fill(root, h('div', { class: 'page' }, emptyState({
-      iconName: 'review', title: 'No run open', text: 'Run the pipeline on a dataset, or open a recent run, to review its drafted replies.',
-      action: h('button', { class: 'btn btn-primary', type: 'button', onclick: () => go('#/run') }, icon('run'), 'Go to Run'),
-    })));
-    return {};
-  }
+export function mount(root, { route }) {
+  const runId = route.runId;
+  const toTicket = (id, opts) => navigate(href('review', { runId, ticketId: id }), opts);
+  const toQueue = () => navigate(href('review', { runId }));
 
   let tab = 'todo';
-  let selected = params.id;
+  let selected = route.ticketId ?? null;
   let detail = null;          // current ticket detail (also the cache entry, so local edits survive switching tickets)
   let returning = false;
   let loadToken = 0;
@@ -94,7 +91,7 @@ export function mount(root, params) {
 
     const rows = queueRows();
     const top = listEl.scrollTop;
-    fill(listEl, rows.length ? rows.map((r) => h('button', { class: 'q-item', type: 'button', role: 'option', dataset: { id: r.ticket_id }, 'aria-selected': String(r.ticket_id === selected), 'aria-current': String(r.ticket_id === selected), onclick: () => go(`#/review/${r.ticket_id}`) },
+    fill(listEl, rows.length ? rows.map((r) => h('button', { class: 'q-item', type: 'button', role: 'option', dataset: { id: r.ticket_id }, 'aria-selected': String(r.ticket_id === selected), 'aria-current': String(r.ticket_id === selected), onclick: () => toTicket(r.ticket_id) },
       h('span', { class: 'q-top' }, h('span', { class: 'id' }, `#${r.ticket_id}`), h('span', { class: 'badges' }, flagBadges(r), tab === 'notes' || tab === 'approved' ? reviewBadge(r) : null)),
       h('span', { class: 'q-subject truncate' }, r.subject || '(no subject)'),
       h('span', { class: 'q-sub truncate' }, r.output_type === 'draft_reply' ? `To ${domainOf(r.recipient) || r.sender_name || 'requester'}${r.reason_tag ? ` · ${humanize(r.reason_tag)}` : ''}` : `${humanize(r.rule)}${r.act_by ? ` · for ${r.act_by.split('@')[0]}` : ''}`))) :
@@ -108,7 +105,7 @@ export function mount(root, params) {
 
   function selectFirst() {
     const rows = queueRows();
-    if (rows.length && !NARROW()) go(`#/review/${rows[0].ticket_id}`);
+    if (rows.length && !NARROW()) toTicket(rows[0].ticket_id, { replace: true });
     else if (!rows.length) { selected = null; detail = null; renderCenter(); }
   }
 
@@ -116,7 +113,7 @@ export function mount(root, params) {
     const rows = queueRows();
     const i = rows.findIndex((r) => r.ticket_id === selected);
     const next = rows[i < 0 ? 0 : i + delta];
-    if (next) { flushDraft(); go(`#/review/${next.ticket_id}`); }
+    if (next) { flushDraft(); toTicket(next.ticket_id, { replace: true }); }
   }
 
   // ------------------------------------------------------------------ detail loading
@@ -198,7 +195,7 @@ export function mount(root, params) {
 
     fill(centerScroll, h('div', { class: 'center-inner' },
       h('div', { class: 'center-head' },
-        h('button', { class: 'btn btn-sm btn-icon back-narrow', type: 'button', 'aria-label': 'Back to queue', onclick: () => { flushDraft(); go('#/review'); } }, icon('chev-left')),
+        h('button', { class: 'btn btn-sm btn-icon back-narrow', type: 'button', 'aria-label': 'Back to queue', onclick: () => { flushDraft(); toQueue(); } }, icon('chev-left')),
         h('div', { class: 'titles' },
           h('h2', null, t.subject || '(no subject)'),
           h('div', { class: 'meta' }, h('span', { class: 'mono' }, `#${r.ticket_id}`), outputBadge(r.output_type), flagBadges(r), reviewBadge(r), h('span', null, [t.sender_name, r.vendor && `· ${r.vendor}`].filter(Boolean).join(' ')))),
@@ -217,7 +214,7 @@ export function mount(root, params) {
       h('div', { class: 'original-scroll' },
         h('div', { class: 'subject' }, t.subject),
         originalTicket(t, { asSection: false }),
-        h('a', { href: `#/tickets/${r.ticket_id}`, class: 'row', style: { fontWeight: 550 } }, icon('database', 'icon-sm'), 'See the data trail and pipeline timeline', icon('chev-right', 'icon-sm'))));
+        h('a', { href: href('tickets', { runId, ticketId: r.ticket_id }), class: 'row', style: { fontWeight: 550 } }, icon('database', 'icon-sm'), 'See the data trail and pipeline timeline', icon('chev-right', 'icon-sm'))));
 
     renderActions();
     renderReturnBox();
@@ -369,8 +366,8 @@ export function mount(root, params) {
   function advanceFrom(id) {
     const rows = queueRows();
     const next = rows.find((r) => r.seq > (S.byId.get(id)?.seq ?? 0)) || rows[rows.length - 1];
-    if (next && !NARROW()) go(`#/review/${next.ticket_id}`);
-    else { selected = null; detail = null; if (NARROW()) go('#/review'); renderCenter(); renderQueue(); }
+    if (next && !NARROW()) toTicket(next.ticket_id, { replace: true });
+    else { selected = null; detail = null; if (NARROW()) navigate(href('review', { runId }), { replace: true }); renderCenter(); renderQueue(); }
   }
 
   async function undoLast() {
@@ -384,7 +381,7 @@ export function mount(root, params) {
       emit('review');
       const first = last.ids[0];
       { const nt = tabOf(S.byId.get(first)); if (nt) tab = nt; }
-      if (first !== selected) go(`#/review/${first}`); else { detail = cache.get(first); renderCenter(); }
+      if (first !== selected) toTicket(first, { replace: true }); else { detail = cache.get(first); renderCenter(); }
       renderQueue();
     } catch (e) { toast({ message: e.message }); }
   }
@@ -495,8 +492,9 @@ export function mount(root, params) {
   else renderCenter();
 
   return {
-    update({ id }) {
+    update({ route: next }) {
       flushDraft();
+      const id = next.ticketId ?? null;
       selected = id;
       review.classList.toggle('has-detail', !!id);
       renderQueue();

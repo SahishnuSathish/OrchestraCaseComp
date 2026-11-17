@@ -24,7 +24,6 @@ function append(el, children) {
   }
 }
 
-export const go = (path) => { location.hash = path; };
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 

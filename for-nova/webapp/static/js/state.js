@@ -71,11 +71,18 @@ export async function loadRun(id) {
   ls('ap.run', id);
   connect(id);
   emit('run');
-  // Opening an older run: upgrade template briefs to local-model briefs in the background when the model is up.
-  if (!isActive(run) && S.model?.usable && t.rows.some((r) => r.brief_source !== 'model')) {
-    api.upgradeBriefs(id).catch(() => {});
-  }
+  maybeUpgradeBriefs();
   return run;
+}
+
+// Opening an older run: upgrade template briefs to local-model briefs in the background once the model is known to be up.
+// Tried once per run per page load; also called after each model check because the shell does not wait for the first one.
+const upgradeTried = new Set();
+function maybeUpgradeBriefs() {
+  if (!S.runId || !S.model?.usable || isActive(S.run) || upgradeTried.has(S.runId)) return;
+  if (!S.rows.some((r) => r.brief_source !== 'model')) return;
+  upgradeTried.add(S.runId);
+  api.upgradeBriefs(S.runId).catch(() => {});
 }
 
 export async function refreshRun() {
@@ -150,6 +157,7 @@ export async function refreshModel(force = false) {
     if (!S.model || e.kind === 'http') S.model = { state: 'unreachable', reachable: false, usable: false, model: '', error: e.message };
   }
   emit('model');
+  maybeUpgradeBriefs();
   return S.model;
 }
 export function pollModel() {

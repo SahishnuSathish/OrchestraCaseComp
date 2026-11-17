@@ -36,6 +36,12 @@
   --danger-border: #f4c7c3;
   --neutral-tint: #eef3f2;
 
+  /* outcome chart colors: marks and swatches only (>= 3:1 on white, separable for colour-blind viewers), never text */
+  --viz-reply: #0d9488;
+  --viz-note: #5b5bd6;
+  --viz-none: #b98400;
+  --viz-failed: #c4321f;
+
   /* shape: deliberately square-ish. No pills. */
   --r-sm: 3px;
   --r-md: 4px;
@@ -62,8 +68,10 @@
   --s-7: 48px;
 
   /* layout */
-  --rail-w: 220px;
-  --topbar-h: 52px;
+  --rail-w: 232px;
+  --topbar-h: 56px;
+  --page-max: 1200px;
+  --banner-h: 0px; /* set by the shell while a global banner is showing */
   --queue-w: 320px;
   --original-w: 380px;
   --detail-w: 560px;
@@ -75,7 +83,10 @@
   /* z-index scale */
   --z-sticky: 10;
   --z-rail: 20;
+  --z-scrim: 40;
+  --z-drawer: 45;
   --z-toast: 60;
+  --z-menu: 90;
   --z-modal: 100;
 
   /* motion */

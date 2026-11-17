@@ -1,7 +1,8 @@
 // Tickets view: every processed ticket with its brief, data trail, decision and pipeline timeline.
-import { h, icon, mount as fill, go, debounce, isTyping, fmtInt, fmtDate, domainOf, humanize } from '../lib.js';
+import { h, icon, mount as fill, debounce, isTyping, fmtInt, fmtDate, domainOf, humanize } from '../lib.js';
 import { api } from '../api.js';
 import { S, on } from '../state.js';
+import { href, navigate } from '../router.js';
 import { briefCard, originalTicket, dataTrail, decisionBlock, pipelineTimeline, outputBadge, flagBadges, reviewBadge, emptyState, toast } from '../ui.js';
 
 const PAGE = 200;
@@ -15,19 +16,15 @@ const SORTS = {
 };
 const OUTPUTS = [['all', 'All'], ['draft_reply', 'Reply'], ['internal_action_note', 'Internal note'], ['no_draft', 'No reply']];
 
-export function mount(root, params) {
-  if (!S.runId) {
-    fill(root, h('div', { class: 'page' }, emptyState({
-      iconName: 'tickets', title: 'No run open', text: 'Run the pipeline on a dataset, or open a recent run, to see its tickets here.',
-      action: h('button', { class: 'btn btn-primary', type: 'button', onclick: () => go('#/run') }, icon('run'), 'Go to Run'),
-    })));
-    return {};
-  }
+export function mount(root, { route }) {
+  const runId = route.runId;
+  const toTicket = (id) => href('tickets', { runId, ticketId: id });
+  const toList = () => href('tickets', { runId });
 
   const f = { q: '', output: 'all', flagged: false, priority: false, review: 'all' };
   const sort = { key: 'seq', dir: 1 };
   let limit = PAGE;
-  let selected = params.id;
+  let selected = route.ticketId ?? null;
   const cache = new Map();
   let detailToken = 0;
   const off = [];
@@ -90,8 +87,8 @@ export function mount(root, params) {
   function renderTable() {
     const rows = filtered();
     const shown = rows.slice(0, limit);
-    fill(tbody, shown.map((r) => h('tr', { dataset: { id: r.ticket_id }, 'aria-selected': String(r.ticket_id === selected), onclick: (e) => { if (!e.target.closest('a')) go(`#/tickets/${r.ticket_id}`); } },
-      h('td', { class: 'id' }, h('a', { href: `#/tickets/${r.ticket_id}`, 'aria-label': `Open ticket ${r.ticket_id}` }, `#${r.ticket_id}`)),
+    fill(tbody, shown.map((r) => h('tr', { dataset: { id: r.ticket_id }, 'aria-selected': String(r.ticket_id === selected), onclick: (e) => { if (!e.target.closest('a')) navigate(toTicket(r.ticket_id)); } },
+      h('td', { class: 'id' }, h('a', { href: toTicket(r.ticket_id), 'aria-label': `Open ticket ${r.ticket_id}` }, `#${r.ticket_id}`)),
       h('td', { class: 'col-subject' }, h('div', { class: 'cell-2' }, h('span', { class: 'a truncate' }, r.subject || '(no subject)'), h('span', { class: 'b truncate' }, r.sender_name || r.sender_email || ''))),
       h('td', { class: 'hide-md' }, h('span', { class: 'truncate', style: { display: 'block', maxWidth: '180px' } }, r.vendor || h('span', { class: 'faint' }, '–'))),
       h('td', { class: 'hide-md' }, h('div', { class: 'cell-2' }, h('span', { class: 'rule' }, r.rule), r.reason_tag && h('span', { class: 'b' }, humanize(r.reason_tag)))),
@@ -137,19 +134,19 @@ export function mount(root, params) {
     brief.dataset.slot = 'brief';
     fill(detailPane, h('div', { class: 'detail-inner' },
       h('div', { class: 'detail-nav' },
-        h('button', { class: 'btn btn-sm back-only', type: 'button', onclick: () => go('#/tickets') }, icon('chev-left'), 'All tickets'),
+        h('button', { class: 'btn btn-sm back-only', type: 'button', onclick: () => navigate(toList()) }, icon('chev-left'), 'All tickets'),
         h('span', { style: { flex: 1 } }),
         h('span', { class: 'pager' }, idx >= 0 ? `${idx + 1} of ${rows.length}` : ''),
         h('button', { class: 'btn btn-sm btn-icon', type: 'button', 'aria-label': 'Previous ticket', disabled: idx <= 0, onclick: () => step(-1) }, icon('chev-up')),
         h('button', { class: 'btn btn-sm btn-icon', type: 'button', 'aria-label': 'Next ticket', disabled: idx < 0 || idx >= rows.length - 1, onclick: () => step(1) }, icon('chev-down')),
-        h('button', { class: 'btn btn-sm btn-icon hide-narrow', type: 'button', 'aria-label': 'Close detail', onclick: () => go('#/tickets') }, icon('x'))),
+        h('button', { class: 'btn btn-sm btn-icon hide-narrow', type: 'button', 'aria-label': 'Close detail', onclick: () => navigate(toList()) }, icon('x'))),
       h('div', { class: 'detail-head' },
         h('div', { class: 'meta' }, h('span', { class: 'mono' }, `#${r.ticket_id}`), outputBadge(r.output_type), flagBadges(r), reviewBadge(r)),
         h('h2', null, t.subject || '(no subject)'),
         h('div', { class: 'meta' }, [t.sender_name, r.vendor && `· ${r.vendor}`, t.received_at && `· ${fmtDate(t.received_at)}`].filter(Boolean).join(' '))),
       brief,
       d.draft.output_type === 'draft_reply' || d.draft.output_type === 'internal_action_note'
-        ? h('div', { class: 'row-wrap' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => go(`#/review/${r.ticket_id}`) }, icon('review'), d.draft.output_type === 'draft_reply' ? 'Open draft in Review' : 'Open note in Review')) : null,
+        ? h('div', { class: 'row-wrap' }, h('button', { class: 'btn btn-sm', type: 'button', onclick: () => navigate(href('review', { runId, ticketId: r.ticket_id })) }, icon('review'), d.draft.output_type === 'draft_reply' ? 'Open draft in Review' : 'Open note in Review')) : null,
       originalTicket(t), dataTrail(d.bundle.trace), decisionBlock(d), pipelineTimeline(d.bundle.stages)));
     detailPane.scrollTop = 0;
   }
@@ -158,7 +155,7 @@ export function mount(root, params) {
     const rows = filtered();
     const i = rows.findIndex((x) => x.ticket_id === selected);
     const next = rows[i < 0 ? (delta > 0 ? 0 : rows.length - 1) : i + delta];
-    if (next) go(`#/tickets/${next.ticket_id}`);
+    if (next) navigate(toTicket(next.ticket_id), { replace: true });
   }
 
   // ------------------------------------------------------------------ events
@@ -175,7 +172,7 @@ export function mount(root, params) {
     if (isTyping(e.target)) { if (e.key === 'Escape') e.target.blur(); return; }
     if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); step(1); }
     else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
-    else if (e.key === 'Escape' && selected) go('#/tickets');
+    else if (e.key === 'Escape' && selected) navigate(toList());
   };
   document.addEventListener('keydown', onKey);
 
@@ -183,8 +180,8 @@ export function mount(root, params) {
   if (selected) loadDetail(selected);
 
   return {
-    update({ id }) {
-      selected = id;
+    update({ route: next }) {
+      selected = next.ticketId ?? null;
       setSplit();
       for (const tr of tbody.querySelectorAll('tr[data-id]')) tr.setAttribute('aria-selected', String(Number(tr.dataset.id) === selected));
       tbody.querySelector('tr[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
