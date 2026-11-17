@@ -141,6 +141,58 @@ class DatasetTests(unittest.TestCase):
             self.assertTrue(v.get("error"))
 
 
+class MailerTests(unittest.TestCase):
+    def msg(self, **kw):
+        import mailer
+        base = dict(sender="ap@orchestra.example", to="vendor@acme.example", subject="Re: Invoice", body="Hello.", ticket_id=7)
+        base.update(kw)
+        return mailer.Message(**base)
+
+    def test_outbox_writes_an_eml_and_sends_nothing(self):
+        import mailer
+        with tempfile.TemporaryDirectory() as d:
+            info = mailer.OutboxMailer(d).send(self.msg(subject="Re: Hi\r\nBcc: spy@evil.example"))
+            text = Path(info["path"]).read_text(encoding="utf-8")
+            self.assertEqual(info["mode"], "simulated")
+            self.assertIn("To: vendor@acme.example", text)
+            self.assertNotIn("\nBcc:", text)            # a newline in the subject cannot start a new header
+            self.assertIn("Subject: Re: Hi Bcc: spy@evil.example", text)
+
+    def test_rejects_bad_addresses_and_empty_bodies(self):
+        import mailer
+        for bad in (self.msg(to="not-an-address"), self.msg(to="a@b.example, c@d.example"), self.msg(body="  ")):
+            with self.assertRaises(mailer.MailError):
+                mailer.OutboxMailer(tempfile.gettempdir()).send(bad)
+
+    def test_smtp_mode_is_opt_in_and_uses_env_only(self):
+        import mailer
+        self.assertIsInstance(mailer.get_mailer({}), mailer.OutboxMailer)
+        self.assertIsInstance(mailer.get_mailer({"ORCHESTRA_MAIL_MODE": "smtp"}), mailer.OutboxMailer)   # no host: stay safe
+        m = mailer.get_mailer({"ORCHESTRA_MAIL_MODE": "smtp", "ORCHESTRA_SMTP_HOST": "smtp.orchestra.example", "ORCHESTRA_SMTP_USER": "u", "ORCHESTRA_SMTP_PASSWORD": "p"})
+        self.assertIsInstance(m, mailer.SmtpMailer)
+        self.assertEqual(mailer.default_sender("ap@in.example", {}), "ap@in.example")
+        self.assertEqual(mailer.default_sender("ap@in.example", {"ORCHESTRA_MAIL_FROM": "ap@out.example"}), "ap@out.example")
+
+    def test_smtp_send_and_failures(self):
+        import smtplib
+        from unittest import mock
+        import mailer
+        m = mailer.SmtpMailer("smtp.orchestra.example", 587, "u", "p")
+        with mock.patch("smtplib.SMTP") as smtp:
+            conn = smtp.return_value.__enter__.return_value
+            conn.send_message.return_value = {}
+            info = m.send(self.msg())
+            conn.starttls.assert_called_once()
+            conn.login.assert_called_once_with("u", "p")
+            self.assertEqual(info["mode"], "smtp")
+            conn.send_message.return_value = {"vendor@acme.example": (550, b"no")}
+            with self.assertRaises(mailer.MailError):
+                m.send(self.msg())
+        with mock.patch("smtplib.SMTP", side_effect=smtplib.SMTPConnectError(421, "busy")):
+            with self.assertRaises(mailer.MailError):
+                m.send(self.msg())
+
+
 class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -257,6 +309,90 @@ class ApiTests(unittest.TestCase):
         r = self.c.put(f"/api/runs/{self.rid}/review/999001", json={"state": "acknowledged"}, headers=self.h)
         self.assertEqual(r.status_code, 200, r.text)
         self.c.put(f"/api/runs/{self.rid}/review/999001", json={"state": "pending"}, headers=self.h)  # leave no decisions behind
+
+    # ------------------------------------------------------------------ editing and sending
+    def _plain_reply(self, skip=()):
+        return next(r for r in self.rows if r["output_type"] == "draft_reply" and not r["flags"] and r["recipient"] and r["ticket_id"] not in skip)
+
+    def test_draft_autosave_keeps_state_and_reports_problems(self):
+        row = self._plain_reply()
+        tid, base = row["ticket_id"], f"/api/runs/{self.rid}/review/{row['ticket_id']}"
+        orig = self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["draft"]
+        ok = self.c.put(base + "/draft", json={"text": orig["original_text"] + "\n\nThanks!", "subject": "Re: custom subject"}, headers=self.h).json()
+        self.assertEqual((ok["saved"], ok["edited"], ok["subject_edited"], ok["problems"]), (True, True, True, []))
+        d = self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()
+        self.assertEqual(d["review"]["state"], "pending")            # autosave never decides anything
+        self.assertEqual(d["draft"]["subject"], "Re: custom subject")
+        self.assertTrue(d["draft"]["text"].endswith("Thanks!"))
+        bad = self.c.put(base + "/draft", json={"text": orig["original_text"] + "\nSee https://x.example"}, headers=self.h).json()
+        self.assertTrue(bad["problems"])
+        # newlines in the subject are flattened (no header injection)
+        self.c.put(base + "/draft", json={"text": orig["original_text"], "subject": "A\r\nBcc: x@evil.example"}, headers=self.h)
+        self.assertNotIn("\n", self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["draft"]["subject"])
+        # back to the original: nothing is stored as an edit
+        back = self.c.put(base + "/draft", json={"text": orig["original_text"], "subject": orig["default_subject"]}, headers=self.h).json()
+        self.assertEqual((back["edited"], back["subject_edited"]), (False, False))
+
+    def test_zz_send_requires_approval_and_goes_out_once(self):  # runs last: a sent reply can't be reset
+        import mailer
+        row = self._plain_reply(skip=[r["ticket_id"] for r in self.rows if r["review_state"] != "pending"])
+        tid = row["ticket_id"]
+        base = f"/api/runs/{self.rid}/review/{tid}"
+        send = f"/api/runs/{self.rid}/tickets/{tid}/send"
+        with tempfile.TemporaryDirectory() as outbox:
+            original_get = mailer.get_mailer
+            mailer.get_mailer = lambda env=None: mailer.OutboxMailer(outbox)
+            try:
+                self.assertEqual(self.c.post(send, headers=self.h).status_code, 409)           # not approved yet
+                orig = self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["draft"]
+                self.c.put(base + "/draft", json={"text": orig["original_text"] + "\n\nAdded by me.", "subject": "Re: my subject"}, headers=self.h)
+                self.assertEqual(self.c.put(base, json={"state": "approved"}, headers=self.h).status_code, 200)
+                # editing is closed once approved
+                self.assertEqual(self.c.put(base + "/draft", json={"text": "x"}, headers=self.h).status_code, 409)
+                r = self.c.post(send, headers=self.h)
+                self.assertEqual(r.status_code, 200, r.text)
+                body = r.json()
+                self.assertEqual(body["review"]["state"], "sent")
+                self.assertTrue(body["review"]["message_id"])
+                self.assertEqual(body["mail"]["mode"], "simulated")
+                files = list(Path(outbox).glob("*.eml"))
+                self.assertEqual(len(files), 1)
+                eml = files[0].read_text(encoding="utf-8")
+                self.assertIn(f"To: {row['recipient']}", eml)
+                self.assertIn("Subject: Re: my subject", eml)
+                self.assertIn("Added by me.", eml)
+                # exactly once, and a sent reply can't be changed or reopened
+                self.assertEqual(self.c.post(send, headers=self.h).status_code, 409)
+                self.assertEqual(self.c.put(base, json={"state": "pending"}, headers=self.h).status_code, 409)
+                self.assertEqual(len(list(Path(outbox).glob("*.eml"))), 1)
+                ex = {x["ticket_id"]: x for x in self.c.get(f"/api/runs/{self.rid}/export", headers=self.h).json()["results"]}
+                self.assertIn("Added by me.", ex[tid]["text"])
+            finally:
+                mailer.get_mailer = original_get
+
+    def test_flagged_ticket_cannot_be_sent_and_mail_failure_keeps_it_approved(self):
+        import mailer
+        flagged = next(r for r in self.rows if r["flags"])
+        self.assertIn(self.c.post(f"/api/runs/{self.rid}/tickets/{flagged['ticket_id']}/send", headers=self.h).status_code, (400, 409))
+        row = self._plain_reply(skip=[r["ticket_id"] for r in self.rows if r["review_state"] != "pending"])
+        tid, base = row["ticket_id"], f"/api/runs/{self.rid}/review/{row['ticket_id']}"
+        self.c.put(base, json={"state": "approved"}, headers=self.h)
+
+        class Down:
+            mode, label = "smtp", "Sent through down.example"
+
+            def send(self, msg):
+                raise mailer.MailError("The mail server did not accept the message (SMTPException). Nothing was sent.")
+
+        original_get = mailer.get_mailer
+        mailer.get_mailer = lambda env=None: Down()
+        try:
+            r = self.c.post(f"/api/runs/{self.rid}/tickets/{tid}/send", headers=self.h)
+            self.assertEqual(r.status_code, 502)
+            self.assertEqual(self.c.get(f"/api/runs/{self.rid}/tickets/{tid}", headers=self.h).json()["review"]["state"], "approved")
+        finally:
+            mailer.get_mailer = original_get
+            self.c.put(base, json={"state": "pending"}, headers=self.h)
 
     def test_index_injects_token(self):
         html = self.c.get("/").text
