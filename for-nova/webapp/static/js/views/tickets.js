@@ -17,7 +17,7 @@ const SORTS = {
 };
 const SORT_LABELS = { seq: 'Ticket', subject: 'Subject', vendor: 'Vendor', rule: 'Rule', output: 'Output', review: 'Review' };
 const OUTPUTS = [['all', 'All'], ['draft_reply', 'Reply'], ['internal_action_note', 'Internal note'], ['no_draft', 'No reply'], ['error', 'Failed']];
-const REVIEWS = [['all', 'Any review state'], ['pending', 'To review'], ['approved', 'Approved'], ['sent', 'Sent'], ['returned', 'Returned'], ['acknowledged', 'Acknowledged'], ['closed', 'Closed']];
+const REVIEWS = [['all', 'All states'], ['pending', 'To review'], ['approved', 'Approved'], ['sent', 'Sent'], ['returned', 'Returned'], ['acknowledged', 'Acknowledged'], ['closed', 'Closed']];
 const REVIEW_TEXT = { pending: 'To review', approved: 'Approved', sent: 'Sent', returned: 'Returned', acknowledged: 'Acknowledged', closed: 'Closed' };
 
 const mqNarrow = window.matchMedia('(max-width: 900px)'); // window scrolls
