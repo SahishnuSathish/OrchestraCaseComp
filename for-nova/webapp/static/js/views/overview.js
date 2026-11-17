@@ -147,6 +147,7 @@ export function mount(root) {
   });
   const progressSlot = h('div');
   let liveSeeded = false;
+  const liveIds = new Set();
   let lastStatus = null;
   let elapsedBase = { v: 0, at: 0, done: -1 };
 
@@ -158,7 +159,7 @@ export function mount(root) {
   }
 
   function liveRowEl(r, animate = true) {
-    return h('a', { class: 'live-row', href: href('tickets', { runId, ticketId: r.ticket_id }), style: animate ? null : { animation: 'none' } },
+    return h('a', { class: 'live-row', dataset: { tid: r.ticket_id }, href: href('tickets', { runId, ticketId: r.ticket_id }), style: animate ? null : { animation: 'none' } },
       h('span', { class: 'mono faint' }, `#${r.ticket_id}`),
       h('span', { class: 'truncate', title: r.subject || null }, r.subject || ''),
       h('span', { class: 'rule mono faint truncate' }, r.rule || ''),
@@ -175,7 +176,7 @@ export function mount(root) {
     const partial = ['failed', 'cancelled', 'interrupted'].includes(st) && p.total > 0 && p.done > 0 && p.done < p.total;
     if (!act) stopping = false;
     if (!(act || partial)) {
-      if (progressSlot.firstChild) { progressSlot.replaceChildren(); liveSeeded = false; clear(liveList); }
+      if (progressSlot.firstChild) { progressSlot.replaceChildren(); liveSeeded = false; liveIds.clear(); clear(liveList); }
       if (lastStatus && lastStatus !== st) announceStatus(st);
       lastStatus = st;
       return;
@@ -183,8 +184,8 @@ export function mount(root) {
     if (!progressSlot.firstChild) progressSlot.append(progressPanel);
     if (!liveSeeded) {
       liveSeeded = true;
-      clear(liveList);
-      for (const x of [...S.rows].reverse().slice(0, 100)) liveList.append(liveRowEl(x, false));
+      clear(liveList); liveIds.clear();
+      for (const x of [...S.rows].reverse().slice(0, 100)) { liveIds.add(x.ticket_id); liveList.append(liveRowEl(x, false)); }
     }
     if (lastStatus !== st) { if (lastStatus) announceStatus(st); lastStatus = st; }
     const frac = p.total ? Math.min(1, p.done / p.total) : 0;
@@ -222,7 +223,7 @@ export function mount(root) {
       const eta = p.done >= 3 ? ` · about ${fmtDuration(per * (p.total - p.done))} left` : '';
       small.textContent = `${fmtDuration(elapsed)} elapsed${per ? ` · ${per.toFixed(1)} s per ticket` : ''}${eta}`;
     } else if (st === 'starting') small.textContent = 'Starting…';
-    else small.textContent = p.elapsed ? `${fmtDuration(p.elapsed)} elapsed` : '';
+    else small.textContent = p.elapsed >= 1 ? `${fmtDuration(p.elapsed)} elapsed` : '';
   }
   const clock = setInterval(() => { if (alive && active()) renderProgressText(); }, 1000);
 
@@ -416,9 +417,10 @@ export function mount(root) {
   off.push(on((kind, data) => {
     if (!alive || !run()) return;
     if (kind === 'ticket') {
-      if (liveSeeded && data) {
+      if (liveSeeded && data && !liveIds.has(data.ticket_id)) {
+        liveIds.add(data.ticket_id);
         liveList.prepend(liveRowEl(data));
-        while (liveList.children.length > 100) liveList.lastChild.remove();
+        while (liveList.children.length > 100) { const last = liveList.lastChild; liveIds.delete(Number(last.dataset.tid)); last.remove(); }
         liveList.hidden = false;
       }
       scheduleRender();
