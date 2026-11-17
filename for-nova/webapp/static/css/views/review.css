@@ -116,3 +116,5 @@
 }
 /* The topbar has its own back chevron to the queue on phones. */
 @media (max-width: 640px) { .nav-queue { display: none; } }
+
+@media (pointer: coarse) { .doc-meta .input { min-height: 44px; } }

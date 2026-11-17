@@ -86,7 +86,7 @@ export function mount(root, { route }) {
   const originalEl = h('aside', { class: 'pane original', 'aria-label': 'Original ticket' });
   const review = h('div', { class: `review${originalOpen ? '' : ' orig-closed'}` }, queue, center, originalEl);
   review.dataset.pane = 'draft';
-  fill(root, review);
+  fill(root, h('h1', { class: 'sr-only' }, 'Review'), review);
 
   function openShortcuts() { shortcutsDialog('Keyboard shortcuts', SHORTCUTS); }
 

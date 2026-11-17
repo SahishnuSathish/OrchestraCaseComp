@@ -21,7 +21,7 @@
 .btn-icon.btn-sm { width: 28px; }
 .btn-lg { min-height: 44px; padding: 0 var(--s-5); font-size: var(--fs-lg); }
 .btn .kbd { margin-left: var(--s-1); }
-.btn-primary .kbd { background: rgb(255 255 255 / 0.18); border-color: rgb(255 255 255 / 0.35); color: var(--text-on-accent); }
+.btn-primary .kbd { background: rgb(0 0 0 / 0.22); border-color: rgb(255 255 255 / 0.35); color: var(--text-on-accent); }
 .link-btn { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 550; cursor: pointer; }
 .link-btn:hover { text-decoration: underline; }
 
@@ -304,3 +304,15 @@ a.stat-tile { text-decoration: none; transition: background-color var(--t-hover)
 .shortcut-list dt { display: flex; gap: var(--s-1); }
 .copy-icon { display: inline-flex; }
 .page-grid > :empty { display: none; }
+
+/* ---- touch targets ----------------------------------------------------------------------------
+   Kept at the END of the shared sheet on purpose: it must come after every control's own size rule
+   (same specificity, later wins). Pages' own sheets load after this one and must not shrink controls. */
+@media (pointer: coarse) {
+  .btn, .chip, .tab, .nav-link, .menu-item, .back-link, .status-chip, .input, .select { min-height: 44px; }
+  .doc-meta .input { min-height: 44px; }
+  .btn-sm { min-height: 36px; }
+  .btn-icon { width: 44px; }
+  .btn-icon.btn-sm { width: 36px; }
+  .rail-toggle { width: 44px; height: 44px; }
+}

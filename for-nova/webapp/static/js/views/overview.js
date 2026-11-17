@@ -238,8 +238,7 @@ export function mount(root) {
     failed: statTile({ label: 'Failed', value: '0', icon: 'circle-alert', tone: 'danger', href: href('tickets', { runId, query: { output: 'error' } }) }),
   };
   const val = (t) => t.querySelector('.stat-value');
-  const statGrid = h('div', { class: 'stat-grid', role: 'list', 'aria-label': 'Ticket counts' }, Object.values(tiles));
-  for (const t of Object.values(tiles)) t.setAttribute('role', 'listitem');
+  const statGrid = h('div', { class: 'stat-grid', role: 'group', 'aria-label': 'Ticket counts' }, Object.values(tiles));
 
   // ------------------------------------------------------------------ outcomes panel
   const segEls = SEGMENTS.map(([, label, cls]) => h('span', { class: `seg ${cls}` }));

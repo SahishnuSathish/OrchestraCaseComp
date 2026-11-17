@@ -165,13 +165,6 @@ main { flex: 1; min-width: 0; }
 }
 
 /* ---- accessibility + motion baselines ----------------------------------------------------------- */
-@media (pointer: coarse) {
-  .btn, .chip, .tab, .nav-link, .menu-item, .back-link, .status-chip { min-height: 44px; }
-  .btn-sm { min-height: 36px; }
-  .btn-icon { width: 44px; }
-  .btn-icon.btn-sm { width: 36px; }
-  .rail-toggle { width: 44px; height: 44px; }
-}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

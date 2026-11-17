@@ -117,7 +117,7 @@ export function mount(root, { route }) {
   const listPane = h('div', { class: 'list-pane' }, toolbar, tableWrap, foot);
   const detailPane = h('aside', { class: 'detail-pane', 'aria-label': 'Ticket detail' });
   const split = h('div', { class: 'split' }, listPane, detailPane);
-  fill(root, split);
+  fill(root, h('h1', { class: 'sr-only' }, 'Tickets'), split);
 
   const rowEls = new Map();
 
