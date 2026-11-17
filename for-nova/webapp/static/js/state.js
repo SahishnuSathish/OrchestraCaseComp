@@ -117,7 +117,13 @@ function connect(id) {
     emit('progress');
   });
   es.addEventListener('working', (e) => { S.progress.working = parse(e); emit('progress'); });
-  es.addEventListener('warning', (e) => { S.progress.warnings = [...(S.progress.warnings || []), parse(e).message]; emit('progress'); });
+  // The stream replays past events on connect and the run record already carries its warnings: never list one twice.
+  es.addEventListener('warning', (e) => {
+    const msg = parse(e).message;
+    if (!msg || (S.progress.warnings || []).includes(msg)) return;
+    S.progress.warnings = [...(S.progress.warnings || []), msg];
+    emit('progress');
+  });
   es.addEventListener('ticket', (e) => {
     const d = parse(e);
     upsertRow(d.row);
