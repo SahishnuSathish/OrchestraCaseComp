@@ -19,6 +19,7 @@ import db  # noqa: E402
 _TMP = tempfile.TemporaryDirectory()
 db.STATE_DIR = Path(_TMP.name)          # never touch the real webapp/state/app.db
 db.DB_PATH = db.STATE_DIR / "app.db"
+db.init()                               # (also when another test module already imported server)
 
 import runner  # noqa: E402
 import summarize  # noqa: E402

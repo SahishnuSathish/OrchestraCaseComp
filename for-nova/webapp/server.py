@@ -11,10 +11,12 @@ import argparse
 import asyncio
 import json
 import os
+import queue
 import re
 import secrets
 import string
 import sys
+import threading
 import time
 from collections import Counter
 from pathlib import Path
@@ -26,9 +28,10 @@ sys.path.insert(0, str(HERE))
 from fastapi import Depends, FastAPI, HTTPException, Request  # noqa: E402
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
-from pydantic import BaseModel  # noqa: E402
+from pydantic import BaseModel, Field  # noqa: E402
 
 import db  # noqa: E402
+import local_model  # noqa: E402
 import mailer  # noqa: E402
 import runner  # noqa: E402
 
@@ -95,9 +98,96 @@ if STATIC.is_dir():
 
 
 # ---------------------------------------------------------------------------- environment
+@app.get("/api/health", dependencies=api)
+def api_health():
+    return {"ok": True}
+
+
+def _status_payload(force=False):
+    v = dict(runner.model_status(force=force))
+    v["briefs_pending"] = get_manager().briefs.pending_count()
+    return v
+
+
 @app.get("/api/model/status", dependencies=api)
 def api_model_status(force: bool = False):
-    return runner.model_status(force=force)
+    return _status_payload(force)
+
+
+def _settings_payload():
+    out = local_model.settings_payload()
+    m = mailer.get_mailer()
+    out["mail"] = {"mode": m.mode, "label": m.label, "from": mailer.default_sender(None)}
+    return out
+
+
+@app.get("/api/settings", dependencies=api)
+def api_settings():
+    return _settings_payload()
+
+
+class ModelSettingsBody(BaseModel):
+    url: Optional[str] = None
+    model: Optional[str] = None
+    timeout_s: Optional[int] = None
+
+
+@app.put("/api/settings/model", dependencies=api)
+def api_save_model_settings(body: ModelSettingsBody):
+    given = {k: getattr(body, k) for k in body.model_fields_set if k in ("url", "model", "timeout_s")}
+    try:
+        local_model.set_config(**given)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"settings": _settings_payload(), "status": _status_payload(force=True)}
+
+
+class ModelTestBody(BaseModel):
+    text: str = Field(min_length=1, max_length=8000)
+    model: Optional[str] = Field(default=None, max_length=120, pattern=r"^[A-Za-z0-9._:/-]+$")
+
+
+def _sse(event, data):
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+@app.post("/api/model/test", dependencies=api)
+async def api_model_test(body: ModelTestBody, request: Request):
+    """Stream one reading from the local model. A worker thread does the blocking read and feeds a queue; this
+    coroutine relays it and, if the browser goes away, closes the upstream connection so Ollama stops generating."""
+    cancel, upstream, q = threading.Event(), local_model.Upstream(), queue.Queue()
+
+    def work():
+        try:
+            for ev in local_model.stream_reading(body.text, body.model, cancel, upstream):
+                q.put(ev)
+                if cancel.is_set():
+                    break
+        except Exception as e:  # never leave the stream hanging
+            q.put(("error", {"kind": "http", "message": f"The test could not be completed ({type(e).__name__})."}))
+        finally:
+            q.put(None)
+
+    threading.Thread(target=work, daemon=True, name="model-test").start()
+
+    async def gen():
+        try:
+            while True:
+                try:
+                    item = q.get_nowait()
+                except queue.Empty:
+                    if await request.is_disconnected():
+                        return
+                    await asyncio.sleep(0.1)
+                    continue
+                if item is None:
+                    return
+                yield _sse(*item)
+        finally:
+            cancel.set()
+            upstream.close()
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"X-Accel-Buffering": "no"})
 
 
 @app.get("/api/fs/list", dependencies=api)
@@ -198,8 +288,8 @@ def _run_payload(r):
 
 
 @app.get("/api/runs", dependencies=api)
-def api_runs():
-    return {"runs": [_run_payload(r) for r in db.list_runs(15)], "importable": runner.list_importable(),
+def api_runs(limit: int = 50):
+    return {"runs": [_run_payload(r) for r in db.list_runs(max(1, min(limit, 200)))], "importable": runner.list_importable(),
             "active": get_manager().running_run()}
 
 
@@ -232,6 +322,16 @@ def _run_or_404(run_id):
 @app.get("/api/runs/{run_id}", dependencies=api)
 def api_run(run_id: str):
     return _run_payload(_run_or_404(run_id))
+
+
+@app.delete("/api/runs/{run_id}", dependencies=api)
+def api_delete_run(run_id: str):
+    _run_or_404(run_id)
+    try:
+        get_manager().delete_run(run_id)
+    except RuntimeError as e:
+        raise HTTPException(409, str(e))
+    return {"deleted": True}
 
 
 @app.post("/api/runs/{run_id}/cancel", dependencies=api)

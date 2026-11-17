@@ -13,12 +13,11 @@ import sys
 import threading
 import time
 import traceback
-import urllib.error
-import urllib.request
 import uuid
 from pathlib import Path
 
 import db
+import local_model
 import summarize
 
 FOR_NOVA = Path(__file__).resolve().parents[1]
@@ -102,32 +101,8 @@ def list_importable():
 
 
 # ---------------------------------------------------------------------------- model status
-_status_cache = {"t": 0, "v": None}
-
-
 def model_status(force=False):
-    if not force and time.time() - _status_cache["t"] < 5 and _status_cache["v"]:
-        return _status_cache["v"]
-    _proto_on_path()
-    url, model, local = "http://127.0.0.1:11434", "qwen3.5:9b", True
-    try:
-        import extract_model
-        url, model, local = extract_model.OLLAMA_URL, extract_model.MODEL, extract_model.is_local(extract_model.OLLAMA_URL)
-    except Exception:
-        pass
-    v = {"reachable": False, "installed": False, "model": model, "local": local, "host": re.sub(r"^https?://", "", url)}
-    if local:
-        try:
-            with urllib.request.urlopen(url.rstrip("/") + "/api/tags", timeout=1.5) as r:
-                names = [m.get("name") for m in json.loads(r.read().decode()).get("models", [])]
-            v.update(reachable=True, installed=model in names)
-        except Exception as e:
-            v["error"] = str(e)[:80]
-    else:
-        v["error"] = "model host is not local; the web app will not use it"
-    v["usable"] = v["reachable"] and v["installed"] and v["local"]
-    _status_cache.update(t=time.time(), v=v)
-    return v
+    return local_model.status(force=force)
 
 
 # ---------------------------------------------------------------------------- per-ticket shaping
@@ -212,7 +187,8 @@ class Manager:
         self.live = {}
         self.lock = threading.Lock()
         self.briefs = BriefWorker(self)
-        self.summarizer_factory = summarizer_factory or (lambda: summarize.OllamaSummarizer())
+        self.custom_summarizer = summarizer_factory is not None
+        self.summarizer_factory = summarizer_factory or local_model.make_summarizer
         self.extractor_factory = extractor_factory
         self._stores = {}
         self._stores_lock = threading.Lock()
@@ -260,20 +236,23 @@ class Manager:
             store = Store(backend)
             extractor = None
             used_model = False
+            model_name = None
             if use_model:
-                if model_status(force=True)["usable"]:
+                st = model_status(force=True)
+                if st["usable"]:
                     try:
                         factory = self.extractor_factory or _default_extractor
                         extractor = factory(store) if _takes_arg(factory) else factory()
                         used_model = True
+                        model_name = st["model"]
                     except Exception as e:
-                        live.emit("warning", {"message": f"Could not start the local model: {e}"})
+                        self._warn(live, f"Could not start the local model: {e}")
                 else:
-                    live.emit("warning", {"message": "Local model is not available: running with the regex reader only."})
+                    self._warn(live, "The local model was requested but was not available, so this run used the regex reader only.")
             tickets = backend.list_tickets()
             if limit:
                 tickets = tickets[:limit]
-            db.update_run(run_id, status="running", total=len(tickets), use_model=int(used_model), started_at=time.time())
+            db.update_run(run_id, status="running", total=len(tickets), use_model=int(used_model), model=model_name, started_at=time.time())
             live.emit("start", {"total": len(tickets), "use_model": used_model})
             t_run = time.perf_counter()
             for n, t in enumerate(tickets, 1):
@@ -303,6 +282,20 @@ class Manager:
             live.emit("failed", {"message": f"{type(e).__name__}: {e}"})
         finally:
             live.finished = True
+
+    @staticmethod
+    def _warn(live, message):
+        db.add_run_warning(live.id, message)
+        live.emit("warning", {"message": message})
+
+    def delete_run(self, run_id):
+        """Forget a run and its tickets, briefs and reviews. Refuses while the run is still being processed."""
+        with self.lock:
+            live = self.live.get(run_id)
+            if live and not live.finished:
+                raise RuntimeError("This run is still in progress. Stop it before deleting it.")
+            self.live.pop(run_id, None)
+        db.delete_run(run_id)
 
     def _store_ticket(self, run_id, seq, bundle, ctx, ticket=None, store=None):
         facts = summarize.build_facts(bundle, ctx, store=store, raw=ticket)
@@ -361,7 +354,14 @@ class Manager:
         users = {u["id"]: u for u in tf.get("users", [])}
         run_id = uuid.uuid4().hex[:8]
         used_model = any(b.get("model") for b in bundles)
-        db.create_run(run_id, ds, "import", used_model, None, len(bundles), label=label or f"{bp.parent.name} (saved)", status="done")
+        model_name = None
+        for b in bundles:
+            info = (b.get("model") or {}).get("info") or {}
+            if info.get("model") and not info.get("gated"):
+                model_name = info["model"]
+                break
+        db.create_run(run_id, ds, "import", used_model, None, len(bundles), label=label or f"{bp.parent.name} (saved)",
+                      status="done", model=model_name)
         store = self.store_for(ds)
         for n, b in enumerate(bundles, 1):
             ticket = by_id.get(b.get("ticket_id")) or {"id": b.get("ticket_id"), "subject": f"Ticket {b.get('ticket_id')}"}
@@ -375,16 +375,10 @@ class Manager:
 
 
 def _default_extractor(store=None):
-    """Local model reader. With a store it is wrapped as CachedExtractor(GatedExtractor(...)), so runs started
-    from the UI skip the model where regex is confident and re-runs cost nothing."""
+    """Local model reader for the CURRENT selection. With a store it is wrapped as CachedExtractor(GatedExtractor(...)),
+    so runs started from the UI skip the model where regex is confident and re-runs cost nothing."""
     _proto_on_path()
-    from extract_model import OllamaExtractor
-    ex = OllamaExtractor()
-    if store is not None:
-        from cache import CachedExtractor
-        from gate import GatedExtractor
-        ex = CachedExtractor(GatedExtractor(ex, store))
-    return ex
+    return local_model.make_extractor(store)
 
 
 # ---------------------------------------------------------------------------- brief worker
@@ -398,6 +392,11 @@ class BriefWorker:
         self.lock = threading.Lock()
         self.thread = None
         self._summ = None
+        self._summ_sig = None
+
+    def pending_count(self):
+        with self.lock:
+            return len(self.pending)
 
     def _ensure_thread(self):
         with self.lock:
@@ -425,8 +424,10 @@ class BriefWorker:
         return n
 
     def _summarizer(self):
-        if self._summ is None:
+        sig = None if self.m.custom_summarizer else local_model.config_signature()
+        if self._summ is None or sig != self._summ_sig:
             self._summ = self.m.summarizer_factory()
+            self._summ_sig = sig
         return self._summ
 
     def _loop(self):

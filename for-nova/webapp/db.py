@@ -4,12 +4,13 @@ One short-lived connection per call, guarded by a lock, so the pipeline thread, 
 and the request threads never share a connection. Nothing in here touches the prototype.
 """
 import json
+import os
 import sqlite3
 import threading
 import time
 from pathlib import Path
 
-STATE_DIR = Path(__file__).resolve().parent / "state"
+STATE_DIR = Path(os.environ.get("AP_DESK_STATE_DIR") or (Path(__file__).resolve().parent / "state"))
 DB_PATH = STATE_DIR / "app.db"
 _LOCK = threading.RLock()
 
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   edited_subject TEXT, sent_at REAL, message_id TEXT, send_info TEXT,
   PRIMARY KEY (run_id, ticket_id)
 );
+CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
 """
 
 
@@ -50,6 +52,10 @@ def init():
         for col, typ in (("edited_subject", "TEXT"), ("sent_at", "REAL"), ("message_id", "TEXT"), ("send_info", "TEXT")):
             if col not in have:
                 con.execute(f"ALTER TABLE reviews ADD COLUMN {col} {typ}")
+        have = {r["name"] for r in con.execute("PRAGMA table_info(runs)")}
+        for col, typ in (("model", "TEXT"), ("warnings", "TEXT")):
+            if col not in have:
+                con.execute(f"ALTER TABLE runs ADD COLUMN {col} {typ}")
         # A run that was mid-flight when the server stopped can never finish: mark it interrupted.
         con.execute("UPDATE runs SET status='interrupted' WHERE status IN ('running','starting')")
 
@@ -79,25 +85,78 @@ def _one(sql, args=()):
 
 
 # ------------------------------------------------------------------ runs
-def create_run(run_id, dataset_path, source, use_model, limit_n, total, label=None, status="starting"):
-    _exec("INSERT INTO runs (id, created_at, dataset_path, source, use_model, limit_n, status, total, done, label, started_at)"
-          " VALUES (?,?,?,?,?,?,?,?,0,?,?)",
-          (run_id, time.time(), str(dataset_path), source, int(bool(use_model)), limit_n, status, total, label, time.time()))
+def create_run(run_id, dataset_path, source, use_model, limit_n, total, label=None, status="starting", model=None, warnings=None):
+    _exec("INSERT INTO runs (id, created_at, dataset_path, source, use_model, limit_n, status, total, done, label, started_at,"
+          " model, warnings) VALUES (?,?,?,?,?,?,?,?,0,?,?,?,?)",
+          (run_id, time.time(), str(dataset_path), source, int(bool(use_model)), limit_n, status, total, label, time.time(),
+           model, json.dumps(list(warnings or []))))
 
 
 def update_run(run_id, **fields):
     if not fields:
         return
+    if "warnings" in fields and not isinstance(fields["warnings"], (str, type(None))):
+        fields["warnings"] = json.dumps(list(fields["warnings"]))
     cols = ", ".join(f"{k}=?" for k in fields)
     _exec(f"UPDATE runs SET {cols} WHERE id=?", (*fields.values(), run_id))
 
 
+def _run_out(r):
+    if r is not None:
+        try:
+            w = json.loads(r.get("warnings") or "[]")
+        except ValueError:
+            w = []
+        r["warnings"] = [str(x) for x in w] if isinstance(w, list) else []
+    return r
+
+
 def get_run(run_id):
-    return _one("SELECT * FROM runs WHERE id=?", (run_id,))
+    return _run_out(_one("SELECT * FROM runs WHERE id=?", (run_id,)))
 
 
-def list_runs(limit=20):
-    return _all("SELECT * FROM runs ORDER BY created_at DESC LIMIT ?", (limit,))
+def list_runs(limit=50):
+    return [_run_out(r) for r in _all("SELECT * FROM runs ORDER BY created_at DESC LIMIT ?", (limit,))]
+
+
+def add_run_warning(run_id, message):
+    with _LOCK:
+        r = get_run(run_id)
+        if r is not None and message not in r["warnings"]:
+            update_run(run_id, warnings=r["warnings"] + [message])
+
+
+def delete_run(run_id):
+    """Remove a run and everything stored for it, in one transaction."""
+    with _LOCK:
+        con = _connect()
+        try:
+            with con:
+                for table in ("reviews", "briefs", "tickets", "runs"):
+                    col = "id" if table == "runs" else "run_id"
+                    con.execute(f"DELETE FROM {table} WHERE {col}=?", (run_id,))
+        finally:
+            con.close()
+
+
+# ------------------------------------------------------------------ settings
+def get_setting(key, default=None):
+    r = _one("SELECT value FROM settings WHERE key=?", (key,))
+    if not r:
+        return default
+    try:
+        return json.loads(r["value"])
+    except (TypeError, ValueError):
+        return default
+
+
+def set_setting(key, value):
+    _exec("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+          (key, json.dumps(value)))
+
+
+def delete_setting(key):
+    _exec("DELETE FROM settings WHERE key=?", (key,))
 
 
 # ------------------------------------------------------------------ tickets

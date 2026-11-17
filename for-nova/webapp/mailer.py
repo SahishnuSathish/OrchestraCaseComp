@@ -26,7 +26,7 @@ from email.message import EmailMessage
 from email.utils import formatdate, make_msgid
 from pathlib import Path
 
-OUTBOX_DIR = Path(__file__).resolve().parent / "state" / "outbox"
+OUTBOX_DIR = Path(os.environ.get("AP_DESK_STATE_DIR") or (Path(__file__).resolve().parent / "state")) / "outbox"
 _EMAIL = re.compile(r"^[^@\s,;<>]+@[^@\s,;<>]+\.[^@\s,;<>]+$")
 
 
