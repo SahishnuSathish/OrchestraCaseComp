@@ -1,0 +1,14 @@
+{
+ "tickets": 100,
+ "model_enabled": true,
+ "gated": 0,
+ "cache_hits": 0,
+ "model_calls": 100,
+ "gate_skip_rate": 0.0,
+ "cache_hit_rate": 0.0,
+ "model_calls_per_ticket": 1.0,
+ "mean_ms": 3072,
+ "p95_ms": 3882,
+ "mean_model_ms": 3059,
+ "crashes": 0
+}

@@ -1,0 +1,6 @@
+
+
+tickets 100  correct 100.0%  safe 100.0%
+
+lookups: 431 total, 4.3 per ticket
+

@@ -1,0 +1,1 @@
+{"intent":"not_received","invoice_refs":[],"vendor_names":[],"mentioned_ticket_ids":[],"risk_cues":[],"asks_about_multiple_invoices":false,"needs_platforms":[],"safety":"suspicious","safety_reason":"The text contains a link to an external login page and demands immediate payment, which are indicators of potential phishing or fraud."}

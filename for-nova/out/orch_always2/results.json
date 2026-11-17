@@ -1,0 +1,911 @@
+{
+ "team": "orchestra-prototype",
+ "results": [
+  {
+   "ticket_id": 41249,
+   "output_type": "draft_reply",
+   "recipient": "billing@dovetaillaneprinti.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Zane,\n\nThank you for checking in. Invoice INV-21529 was paid on October 22, 2026 by ACH transfer, reference ACH578416. The payment settled on October 27, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41252,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@ironbarkrentals.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41259,
+   "output_type": "draft_reply",
+   "recipient": "victor@copperleafevents.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Victor,\n\nThank you for checking in. Payment for invoice CE96524 was released on November 12, 2026 by wire transfer (reference WIR21265), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41262,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Rosa Dunmore (rosa.dunmore@orchestra-mock.example)\nWhat to do: Approve or reject invoice 26390 (Oxbow Courier Service), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50230 / invoice 26390 (Oxbow Courier Service): Pending Approval, Pending Approval.\nTicket #41262 from Liam Fairbanks <accounts@oxbowcourierservic.example> (listed vendor contact). Invoice reference(s): 26390."
+  },
+  {
+   "ticket_id": 41267,
+   "output_type": "draft_reply",
+   "recipient": "ar@bramblewickprintco.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Jamal,\n\nWe could not find invoice 58577 in our system. Could you please send a PDF copy of the invoice to this address so we can get it entered?\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41268,
+   "output_type": "draft_reply",
+   "recipient": "maya.kettering@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Maya,\n\nThank you for checking in. Invoice 3325 from Saltmarsh Creative is approved and included in our payment run on Thursday, November 19, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41271,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Elena Fairbanks (elena.fairbanks@orchestra-mock.example)\nWhat to do: Approve or reject invoice 88061 (Saltmarsh Creative), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50224 / invoice 88061 (Saltmarsh Creative): Pending Approval, Pending Approval.\nTicket #41271 from Jamal Jessup <jamal@saltmarshcreative.example> (listed vendor contact). Invoice reference(s): 88061."
+  },
+  {
+   "ticket_id": 41276,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The sender says the money has not arrived, but the payment record shows it settled. Verify with the bank (trace the payment) before replying.\nRecords: bill 50239 / invoice INV-37787 (Lucia Fenwick-Oyelaran): Paid In Full, Approved; payment BP-80132 Settled on 2026-11-12; run completed 2026-11-12.\nPayment to trace for INV-37787: Check reference 29323, settled 2026-11-12.\nTicket #41276 from Lucia Fenwick-Oyelaran <luciafenwickoy@mailbox-mock.example> (listed vendor contact). Invoice reference(s): INV-37787."
+  },
+  {
+   "ticket_id": 41277,
+   "output_type": "draft_reply",
+   "recipient": "luciafenwickoy@mailbox-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Lucia,\n\nThank you for checking in. Invoice INV-58125 was paid on November 5, 2026 by ACH transfer, reference ACH721131. The payment settled on November 10, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41278,
+   "output_type": "draft_reply",
+   "recipient": "dmitri.jessup@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Dmitri,\n\nThank you for checking in. Invoice INV-26340 from Ninebark Surveys was paid on October 15, 2026 by ACH transfer, reference ACH939654. The payment settled on October 19, 2026.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41286,
+   "output_type": "draft_reply",
+   "recipient": "elena@juniperslateanalyt.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Elena,\n\nThank you for checking in. Invoice 43812 was paid on October 22, 2026 by ACH transfer, reference ACH973133. The payment settled on October 23, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41294,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Decide whether an early or off-cycle payment is justified. Do not promise a date to the vendor until that decision is made.\nRequest: pay early or outside the normal payment run.\nRecords: bill 50297 / invoice 2026-47566 (Tomasz Velarde): Open, Approved; run scheduled.\nTicket #41294 from Tomasz Velarde <tomaszvelarde@mailbox-mock.example> (listed vendor contact). Invoice reference(s): 2026-47566."
+  },
+  {
+   "ticket_id": 41303,
+   "output_type": "draft_reply",
+   "recipient": "dmitri@wrenfielddatalabs.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Dmitri,\n\nThank you for checking in. Invoice A-95058 is approved and included in our payment run on Wednesday, November 25, 2026. We will confirm the payment details once that run completes.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41305,
+   "output_type": "draft_reply",
+   "recipient": "dmitri.jessup@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Dmitri,\n\nThank you for checking in. Invoice 35423 from Juniper Slate Analytics was paid on November 5, 2026 by ACH transfer, reference ACH256063. The payment settled on November 9, 2026.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41312,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: Invoice INV-16995 is not entered yet. Linked ticket #3001 holds the invoice (open: Received. Waiting on coding before entry.). Finish coding and entry from ticket #3001, then reply to the requester.\nTicket #41312 from Ana Winslow <billing@quillfernstudio.example> (listed vendor contact). Invoice reference(s): INV-16995."
+  },
+  {
+   "ticket_id": 41319,
+   "output_type": "draft_reply",
+   "recipient": "billing@dovetaillaneprinti.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Zane,\n\nThank you for checking in. Invoice INV-10498 is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41323,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "misrouted",
+   "priority": false,
+   "flags": [],
+   "text": "HR or payroll request ('pay stub'); belongs with HR/Payroll, not AP."
+  },
+  {
+   "ticket_id": 41327,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Elena Fairbanks (elena.fairbanks@orchestra-mock.example)\nWhat to do: Approve or reject invoice CE24599 (Copperleaf Events), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50229 / invoice CE24599 (Copperleaf Events): Pending Approval, Pending Approval.\nTicket #41327 from Quinn Brightwater <quinn.brightwater@orchestra-mock.example> (employee). Invoice reference(s): CE24599."
+  },
+  {
+   "ticket_id": 41333,
+   "output_type": "draft_reply",
+   "recipient": "carla.pemberton@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Carla,\n\nThank you for checking in. Invoice INV-18779 from Ninebark Surveys is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41340,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "unresolved_account",
+   "priority": false,
+   "flags": [],
+   "text": "Invoice INV-13835 matches 2 vendors and the sender does not say which."
+  },
+  {
+   "ticket_id": 41343,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@ironbarkrentals.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41344,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: Do not share payment details. Verify the requester through the vendor's contact on record before anyone replies.\nSender is not listed as an authorized contact for Fernhollow Photo and is not an active employee. Invoice mentioned: INV-28477. Payment records were not shared in this note.\nTicket #41344 from Maya Calloway <maya48@freemail-mock.example> (unverified sender). Invoice reference(s): INV-28477."
+  },
+  {
+   "ticket_id": 41348,
+   "output_type": "draft_reply",
+   "recipient": "nadia.lockhart@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Nadia,\n\nThank you for checking in. Invoice A-36257 from Cobalt Finch Design is approved and included in our payment run on Wednesday, November 25, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41349,
+   "output_type": "draft_reply",
+   "recipient": "ines.merriweather@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ines,\n\nThank you for checking in. Invoice 27453 from Oluwaseun Lindqvist was paid on November 12, 2026 by ACH transfer, reference ACH464351.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41351,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@larkspurcateringgr.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41352,
+   "output_type": "draft_reply",
+   "recipient": "samir@kestrelhollowweb.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Samir,\n\nThank you for checking in. Invoice 2026-23754 is approved and included in our payment run on Wednesday, November 25, 2026. We will confirm the payment details once that run completes.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41353,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "duplicate",
+   "priority": false,
+   "flags": [],
+   "text": "Linked ticket #3005 (solved) already answered this invoice."
+  },
+  {
+   "ticket_id": 41355,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The sender says the money has not arrived, but the payment record shows it settled. Verify with the bank (trace the payment) before replying.\nRecords: bill 50236 / invoice 80234 (Juniper Slate Analytics): Paid In Full, Approved; payment BP-80129 Settled on 2026-10-22; run completed 2026-10-22.\nPayment to trace for 80234: ACH reference ACH540233, settled 2026-10-23.\nTicket #41355 from Yara Oakhurst <billing@juniperslateanalyt.example> (listed vendor contact). Invoice reference(s): 80234."
+  },
+  {
+   "ticket_id": 41358,
+   "output_type": "draft_reply",
+   "recipient": "ar@sablecresttranslat.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Greta,\n\nThank you for checking in. Invoice 4827 is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41361,
+   "output_type": "draft_reply",
+   "recipient": "accounts@greywatersound.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Rosa,\n\nThank you for checking in. Here is where each invoice stands:\n\n- 2026-78947: paid on October 15, 2026 by wire transfer, reference WIR39870.\n- 2026-13278: approved and included in our payment run on Wednesday, November 25, 2026.\n- 2026-89527: pending internal approval. We can't give a payment timeline yet and will follow up once it is approved.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41370,
+   "output_type": "draft_reply",
+   "recipient": "carla.stanhope@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Carla,\n\nThank you for checking in. Invoice 2026-49417 from Priya Halvorsen was paid on November 12, 2026 by check, reference 29741.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41373,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Rosa Dunmore (rosa.dunmore@orchestra-mock.example)\nWhat to do: Approve or reject invoice 63162 (Tallowridge Media), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50226 / invoice 63162 (Tallowridge Media): Pending Approval, Pending Approval.\nTicket #41373 from Greta Northcott <greta.northcott@orchestra-mock.example> (employee). Invoice reference(s): 63162."
+  },
+  {
+   "ticket_id": 41377,
+   "output_type": "draft_reply",
+   "recipient": "ana.abernathy@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ana,\n\nThank you for checking in. Invoice A-96728 from Marrowgate Consulting is approved and included in our payment run on Thursday, November 19, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41380,
+   "output_type": "draft_reply",
+   "recipient": "bronwyncastell@mailbox-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Bronwyn,\n\nWe could not find invoice 2026-10858 in our system. Could you please send a PDF copy of the invoice to this address so we can get it entered?\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41382,
+   "output_type": "draft_reply",
+   "recipient": "jamal@saltmarshcreative.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Jamal,\n\nThank you for checking in. Invoice 69225 is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41384,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@ostranderfieldrese.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41389,
+   "output_type": "draft_reply",
+   "recipient": "carla.pemberton@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Carla,\n\nThank you for checking in. Invoice 2026-54516 from Ironbark Rentals was paid on November 12, 2026 by ACH transfer, reference ACH381631.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41391,
+   "output_type": "draft_reply",
+   "recipient": "greta.northcott@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Greta,\n\nThank you for checking in. Invoice OF44613 from Ostrander Field Research is approved and included in our payment run on Thursday, November 19, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41393,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Review the late fee claim against the vendor's terms on file before anyone responds. Do not accept the fee or promise a payment date in the reply.\nRequest: vendor says a late fee applies.\nRecords: bill 50300 / invoice 2026-87149 (Priya Halvorsen): Open, Approved.\nTicket #41393 from Priya Halvorsen <priyahalvorsen@mailbox-mock.example> (listed vendor contact). Invoice reference(s): 2026-87149."
+  },
+  {
+   "ticket_id": 41401,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "misrouted",
+   "priority": false,
+   "flags": [],
+   "text": "Client telling us they paid an invoice Orchestra issued ('invoice you guys issued us'); this is Accounts Receivable mail."
+  },
+  {
+   "ticket_id": 41405,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Ben Merriweather (ben.merriweather@orchestra-mock.example)\nWhat to do: Approve or reject invoice INV-5536 (Harborlight Staging), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50223 / invoice INV-5536 (Harborlight Staging): Pending Approval, Pending Approval.\nTicket #41405 from Greta Northcott <greta.northcott@orchestra-mock.example> (employee). Invoice reference(s): INV-5536."
+  },
+  {
+   "ticket_id": 41411,
+   "output_type": "draft_reply",
+   "recipient": "finance@thistledownstaffin.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Keiko,\n\nThank you for checking in. Invoice INV-72923 was paid on October 29, 2026 by check, reference 29370. The payment settled on November 2, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41414,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: Invoice INV-65031 is not entered yet. Linked ticket #3002 holds the invoice (open: Received. Waiting on coding before entry.). Finish coding and entry from ticket #3002, then reply to the requester.\nTicket #41414 from Rosa Calloway <finance@fernhollowphoto.example> (listed vendor contact). Invoice reference(s): INV-65031."
+  },
+  {
+   "ticket_id": 41420,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The sender says the money has not arrived, but the payment record shows it settled. Verify with the bank (trace the payment) before replying.\nRecords: bill 50240 / invoice 30707 (Verdigris Signage): Paid In Full, Approved; payment BP-80133 Settled on 2026-10-29; run completed 2026-10-29.\nPayment to trace for 30707: Check reference 25419, settled 2026-11-02.\nTicket #41420 from Greta Winslow <greta@verdigrissignage.example> (listed vendor contact). Invoice reference(s): 30707."
+  },
+  {
+   "ticket_id": 41425,
+   "output_type": "draft_reply",
+   "recipient": "finance@copperleafevents.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Nadia,\n\nWe could not find invoice CE92485 in our system. Could you please send a PDF copy of the invoice to this address so we can get it entered?\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41434,
+   "output_type": "draft_reply",
+   "recipient": "tomaszvelarde@mailbox-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Tomasz,\n\nThank you for checking in. Invoice 2026-75433 was paid on November 9, 2026 by card, reference VC-9761.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41440,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The sender says the money has not arrived, but the payment record shows it settled. Verify with the bank (trace the payment) before replying.\nRecords: bill 50237 / invoice FT63863 (Foxglove Talent): Paid In Full, Approved; payment BP-80130 Settled on 2026-10-29; run completed 2026-10-29.\nPayment to trace for FT63863: ACH reference ACH427965, settled 2026-11-02.\nTicket #41440 from Carla Merriweather <ar@foxglovetalent.example> (listed vendor contact). Invoice reference(s): FT63863."
+  },
+  {
+   "ticket_id": 41448,
+   "output_type": "draft_reply",
+   "recipient": "tessa@cobaltfinchdesign.example",
+   "reason_tag": null,
+   "priority": true,
+   "flags": [],
+   "text": "Hi Tessa,\n\nThank you for your message about invoice A-17829. We have escalated it to our Accounts Payable lead, who is reviewing it now. We will send you an update by November 17, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41449,
+   "output_type": "draft_reply",
+   "recipient": "billing@foxglovetalent.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Samir,\n\nThank you for checking in. Payment for invoice FT60664 was released on November 12, 2026 by wire transfer (reference WIR26871), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41455,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "machine_notice",
+   "priority": false,
+   "flags": [],
+   "text": "Automated notice with no request ('webinar')."
+  },
+  {
+   "ticket_id": 41458,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Ana Underhill (ana.underhill@orchestra-mock.example)\nWhat to do: Approve or reject invoice OF45660 (Ostrander Field Research), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50227 / invoice OF45660 (Ostrander Field Research): Pending Approval, Pending Approval.\nTicket #41458 from Maya Kettering <maya.kettering@orchestra-mock.example> (employee). Invoice reference(s): OF45660."
+  },
+  {
+   "ticket_id": 41464,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@birchmerelogistics.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41467,
+   "output_type": "draft_reply",
+   "recipient": "ar@birchmerelogistics.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ines,\n\nThank you for checking in. Invoice 2026-6346 was paid on November 12, 2026 by check, reference 23525. The payment settled on November 13, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41476,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [
+    "fraud"
+   ],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Treat as possible fraud. Do not reply with payment details and do not change any vendor banking. Verify by a callback to Greywater Sound using the phone or contact details already on file in NetSuite, never details from this email.\nFraud cues: bank-detail change language: 'change of bank'; 'changed banks'.\nAny bank or account numbers in the email are withheld from this note on purpose.\nTicket #41476 from Keiko Oakhurst <finance@greywatersound.example> (listed vendor contact). Invoice reference(s): 2026-23291."
+  },
+  {
+   "ticket_id": 41478,
+   "output_type": "draft_reply",
+   "recipient": "accounts@greywatersound.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Rosa,\n\nThank you for checking in. Here is where each invoice stands:\n\n- 2026-67322: paid on October 15, 2026 by check, reference 25007.\n- 2026-24816: approved and included in our payment run on Wednesday, November 25, 2026.\n- 2026-80973: pending internal approval. We can't give a payment timeline yet and will follow up once it is approved.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41484,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Yara Merriweather (yara.merriweather@orchestra-mock.example)\nWhat to do: Approve or reject invoice A-32216 (Cobalt Finch Design), currently Pending PO. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50232 / invoice A-32216 (Cobalt Finch Design): Pending PO, Pending Approval.\nTicket #41484 from Ines Merriweather <ines.merriweather@orchestra-mock.example> (employee). Invoice reference(s): A-32216."
+  },
+  {
+   "ticket_id": 41490,
+   "output_type": "draft_reply",
+   "recipient": "ana@dovetaillaneprinti.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ana,\n\nThank you for checking in. Payment for invoice INV-38064 was released on November 12, 2026 by ACH transfer (reference ACH337738), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41491,
+   "output_type": "draft_reply",
+   "recipient": "quinn.brightwater@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Quinn,\n\nThank you for checking in. Invoice A-92855 from Wrenfield Data Labs is approved and included in our payment run on Thursday, November 19, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41500,
+   "output_type": "draft_reply",
+   "recipient": "ar@bramblewickprintco.example",
+   "reason_tag": null,
+   "priority": true,
+   "flags": [],
+   "text": "Hi Jamal,\n\nThank you for your message about invoice 61787. We have escalated it to our Accounts Payable lead, who is reviewing it now. We will send you an update by November 17, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41502,
+   "output_type": "draft_reply",
+   "recipient": "ar@pennywhistleaudio.example",
+   "reason_tag": null,
+   "priority": true,
+   "flags": [],
+   "text": "Hi Farid,\n\nThank you for your message about invoice INV-48997. We have escalated it to our Accounts Payable lead, who is reviewing it now. We will send you an update by November 17, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41508,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [
+    "fraud"
+   ],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Treat as possible fraud. Do not reply with payment details and do not change any vendor banking. Verify by a callback to Verdigris Signage using the phone or contact details already on file in NetSuite, never details from this email.\nFraud cues: bank-detail change language: 'change our bank'; 'please use the new details'.\nAny bank or account numbers in the email are withheld from this note on purpose.\nTicket #41508 from Zane Underhill <ar@verdigrissignage.example> (listed vendor contact). Invoice reference(s): 20007."
+  },
+  {
+   "ticket_id": 41513,
+   "output_type": "draft_reply",
+   "recipient": "ar@oxbowcourierservic.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ben,\n\nThank you for checking in. Invoice 53983 was paid on October 22, 2026 by ACH transfer, reference ACH603298. The payment settled on October 26, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41518,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "machine_notice",
+   "priority": false,
+   "flags": [],
+   "text": "Automated notice with no request ('one-time passcode')."
+  },
+  {
+   "ticket_id": 41523,
+   "output_type": "draft_reply",
+   "recipient": "accounts@mossandmeridianllc.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Nadia,\n\nThank you for checking in. Invoice 2026-98192 was paid on November 5, 2026 by ACH transfer, reference ACH607556. The payment settled on November 6, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41529,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "unresolved_account",
+   "priority": false,
+   "flags": [],
+   "text": "Invoice 62964 matches 2 vendors and the sender does not say which."
+  },
+  {
+   "ticket_id": 41536,
+   "output_type": "draft_reply",
+   "recipient": "bronwyncastell@mailbox-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Bronwyn,\n\nThank you for checking in. Invoice 2026-9176 was paid on November 12, 2026 by wire transfer, reference WIR79815.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41541,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Decide whether an early or off-cycle payment is justified. Do not promise a date to the vendor until that decision is made.\nRequest: pay early or outside the normal payment run.\nRecords: bill 50298 / invoice 89960 (Tallowridge Media): Open, Approved; run scheduled.\nTicket #41541 from Liam Brightwater <liam@tallowridgemedia.example> (listed vendor contact). Invoice reference(s): 89960."
+  },
+  {
+   "ticket_id": 41550,
+   "output_type": "draft_reply",
+   "recipient": "billing@ninebarksurveys.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Dmitri,\n\nThank you for checking in. Invoice INV-64448 is approved and included in our payment run on Wednesday, November 25, 2026. We will confirm the payment details once that run completes.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41555,
+   "output_type": "draft_reply",
+   "recipient": "wendy@mossandmeridianllc.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Wendy,\n\nThank you for checking in. Invoice 2026-94655 was paid on November 9, 2026 by card, reference VC-9838.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41560,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "duplicate",
+   "priority": false,
+   "flags": [],
+   "text": "Linked ticket #3003 (solved) already answered this invoice."
+  },
+  {
+   "ticket_id": 41569,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "machine_notice",
+   "priority": false,
+   "flags": [],
+   "text": "Automated notice with no request ('one-time passcode')."
+  },
+  {
+   "ticket_id": 41574,
+   "output_type": "draft_reply",
+   "recipient": "xavier@tinlanternvideo.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Xavier,\n\nThank you for checking in. Invoice 2026-26088 was paid on November 5, 2026 by ACH transfer, reference ACH850802. The payment settled on November 9, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41580,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@mossandmeridianllc.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41581,
+   "output_type": "draft_reply",
+   "recipient": "billing@larkspurcateringgr.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Ulla,\n\nThank you for checking in. Here is where each invoice stands:\n\n- A-68339: paid on November 5, 2026 by check, reference 22453.\n- A-87846: approved and included in our payment run on Wednesday, November 25, 2026.\n- A-23295: pending internal approval. We can't give a payment timeline yet and will follow up once it is approved.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41588,
+   "output_type": "draft_reply",
+   "recipient": "accounts@oxbowcourierservic.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Liam,\n\nThank you for checking in. Invoice 93717 was paid on October 29, 2026 by wire transfer, reference WIR18924. The payment settled on October 30, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41597,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: Do not share payment details. Verify the requester through the vendor's contact on record before anyone replies.\nSender is not listed as an authorized contact for Copperleaf Events and is not an active employee. Invoice mentioned: CE54744. Payment records were not shared in this note.\nTicket #41597 from Yara Lockhart <yara60@freemail-mock.example> (unverified sender). Invoice reference(s): CE54744."
+  },
+  {
+   "ticket_id": 41605,
+   "output_type": "draft_reply",
+   "recipient": "victor@larkspurcateringgr.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Victor,\n\nWe could not find invoice A-71027 in our system. Could you please send a PDF copy of the invoice to this address so we can get it entered?\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41609,
+   "output_type": "draft_reply",
+   "recipient": "samir@kestrelhollowweb.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Samir,\n\nThank you for checking in. Here is where each invoice stands:\n\n- 2026-27033: paid on October 22, 2026 by wire transfer, reference WIR39882.\n- 2026-12638: approved and included in our payment run on Thursday, November 19, 2026.\n- 2026-7271: pending internal approval. We can't give a payment timeline yet and will follow up once it is approved.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41610,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Ben Merriweather (ben.merriweather@orchestra-mock.example)\nWhat to do: Approve or reject invoice 2026-79016 (Kestrel Hollow Web), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50222 / invoice 2026-79016 (Kestrel Hollow Web): Pending Approval, Pending Approval.\nTicket #41610 from Wendy Jessup <finance@kestrelhollowweb.example> (listed vendor contact). Invoice reference(s): 2026-79016."
+  },
+  {
+   "ticket_id": 41615,
+   "output_type": "draft_reply",
+   "recipient": "ar@copperleafevents.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Carla,\n\nThank you for checking in. Invoice CE75976 was paid on November 12, 2026 by ACH transfer, reference ACH223466.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41620,
+   "output_type": "draft_reply",
+   "recipient": "quinn.fairbanks@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Quinn,\n\nThank you for checking in. Invoice INV-5819 from Harborlight Staging was paid on October 29, 2026 by wire transfer, reference WIR60466. The payment settled on October 30, 2026.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41624,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Elena Fairbanks (elena.fairbanks@orchestra-mock.example)\nWhat to do: Approve or reject invoice INV-54357 (Desmond Achterberg), currently Pending PO. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nRecords: bill 50233 / invoice INV-54357 (Desmond Achterberg): Pending PO, Pending Approval.\nTicket #41624 from Ines Merriweather <ines.merriweather@orchestra-mock.example> (employee). Invoice reference(s): INV-54357."
+  },
+  {
+   "ticket_id": 41629,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The payment for invoice CE75655 was returned (R04 invalid account). Confirm the vendor's banking through contact details already on file, then arrange a new payment. Do not share the returned payment's reference.\nRecords: bill 50259 Open; payment BP-80140 Returned.\nTicket #41629 from Nadia Jessup <finance@copperleafevents.example> (listed vendor contact). Invoice reference(s): CE75655."
+  },
+  {
+   "ticket_id": 41632,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_request",
+   "priority": false,
+   "flags": [],
+   "text": "Message asks for nothing (thank-you or acknowledgement)."
+  },
+  {
+   "ticket_id": 41639,
+   "output_type": "draft_reply",
+   "recipient": "quinn.fairbanks@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Quinn,\n\nThank you for checking in. Payment for invoice 67379 from Juniper Slate Analytics was released on November 12, 2026 by wire transfer (reference WIR48348), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41643,
+   "output_type": "draft_reply",
+   "recipient": "quinn.brightwater@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Quinn,\n\nThank you for checking in. Invoice 2026-29455 from Tomasz Velarde is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41644,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: Resolve the conflict in NetSuite before anyone replies: bill shows Paid In Full but no payment record is applied to it.\nRecords: bill 50263 / invoice 2026-7209 (Imani Okoye-Reed): Paid In Full, Approved.\nTicket #41644 from Nadia Lockhart <nadia.lockhart@orchestra-mock.example> (employee). Invoice reference(s): 2026-7209."
+  },
+  {
+   "ticket_id": 41653,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Liam Pemberton (liam.pemberton@orchestra-mock.example)\nWhat to do: Approve or reject invoice INV-21296 (Ninebark Surveys), currently Pending Approval. Once it is approved, AP can reply to the requester. No payment date should be given before then.\nThe next approver on the bill, Tessa Holloway (tessa.holloway@orchestra-mock.example), is inactive, so this goes to their delegate.\nRecords: bill 50235 / invoice INV-21296 (Ninebark Surveys): Pending Approval, Pending Approval.\nTicket #41653 from Dmitri Thackeray <billing@ninebarksurveys.example> (listed vendor contact). Invoice reference(s): INV-21296."
+  },
+  {
+   "ticket_id": 41656,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@ostranderfieldrese.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41661,
+   "output_type": "draft_reply",
+   "recipient": "greta.northcott@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Greta,\n\nThank you for checking in. Invoice 33602 from Tallowridge Media is approved and included in our payment run on Wednesday, November 25, 2026. We will confirm the payment details once that run completes.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41669,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [
+    "fraud"
+   ],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable lead\nWhat to do: Treat as possible fraud. Do not reply with payment details and do not change any vendor banking. Verify by a callback to Imani Okoye-Reed using the phone or contact details already on file in NetSuite, never details from this email.\nFraud cues: sender domain mailbox-mock-payments.example imitates known domain mailbox-mock.example; link host mailbox-mock-payments.example imitates known domain mailbox-mock.example; sign-in link in a payment email (mailbox-mock-payments.example).\nAny bank or account numbers in the email are withheld from this note on purpose.\nTicket #41669 from Nadia Yarborough <accounts@mailbox-mock-payments.example> (unverified sender). Invoice reference(s): 2026-97174."
+  },
+  {
+   "ticket_id": 41671,
+   "output_type": "draft_reply",
+   "recipient": "finance@copperleafevents.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Nadia,\n\nThank you for checking in. Payment for invoice CE67678 was released on November 12, 2026 by ACH transfer (reference ACH653896), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41678,
+   "output_type": "draft_reply",
+   "recipient": "wendy@mossandmeridianllc.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Wendy,\n\nThank you for checking in. Here is where each invoice stands:\n\n- 2026-94267: paid on October 29, 2026 by check, reference 28043.\n- 2026-39425: approved and included in our payment run on Thursday, November 19, 2026.\n- 2026-53986: pending internal approval. We can't give a payment timeline yet and will follow up once it is approved.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41683,
+   "output_type": "draft_reply",
+   "recipient": "omar@ironbarkrentals.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Omar,\n\nThank you for checking in. Invoice 2026-33441 is approved and in the queue for payment. Approved invoices are normally paid within 5 to 10 business days.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41685,
+   "output_type": "draft_reply",
+   "recipient": "finance@copperleafevents.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Nadia,\n\nThank you for checking in. Invoice CE44230 was paid on November 5, 2026 by wire transfer, reference WIR13482. The payment settled on November 9, 2026.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41692,
+   "output_type": "no_draft",
+   "recipient": null,
+   "reason_tag": "no_reply_sender",
+   "priority": false,
+   "flags": [],
+   "text": "Sender no-reply@foxglovetalent.example is a no-reply address."
+  },
+  {
+   "ticket_id": 41697,
+   "output_type": "draft_reply",
+   "recipient": "wendy.fairbanks@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Wendy,\n\nThank you for checking in. Invoice 2026-49869 from Priya Halvorsen was paid on October 15, 2026 by ACH transfer, reference ACH630274. The payment settled on October 16, 2026.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41702,
+   "output_type": "draft_reply",
+   "recipient": "quinn.fairbanks@orchestra-mock.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Quinn,\n\nThank you for checking in. Payment for invoice FT4287 from Foxglove Talent was released on November 12, 2026 by ACH transfer (reference ACH237301), so the funds have left our bank. Depending on the receiving bank it can take a few business days to show in the account.\n\nYou're welcome to pass this on to the vendor.\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41707,
+   "output_type": "draft_reply",
+   "recipient": "billing@foxglovetalent.example",
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "Hi Samir,\n\nWe could not find invoice FT74137 in our system. Could you please send a PDF copy of the invoice to this address so we can get it entered?\n\nBest regards,\nOrchestra Accounts Payable"
+  },
+  {
+   "ticket_id": 41716,
+   "output_type": "internal_action_note",
+   "recipient": null,
+   "reason_tag": null,
+   "priority": false,
+   "flags": [],
+   "text": "INTERNAL ACTION NOTE (review only, nothing has been sent)\nAction for: Accounts Payable team\nWhat to do: The payment for invoice 61172 was returned (Returned by receiving bank). Confirm the vendor's banking through contact details already on file, then arrange a new payment. Do not share the returned payment's reference.\nRecords: bill 50261 Open; payment BP-80142 Returned.\nTicket #41716 from Keiko Fairbanks <billing@verdigrissignage.example> (listed vendor contact). Invoice reference(s): 61172."
+  }
+ ]
+}

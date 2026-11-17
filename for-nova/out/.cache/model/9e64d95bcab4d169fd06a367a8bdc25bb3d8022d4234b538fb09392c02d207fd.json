@@ -1,0 +1,1 @@
+{"intent":"legal_or_collections_threat","invoice_refs":["61787"],"vendor_names":["Bramblewick Print Co"],"mentioned_ticket_ids":[],"risk_cues":["late_fee","not_received"],"asks_about_multiple_invoices":false,"needs_platforms":["netsuite","payment_system","zendesk"],"safety":"safe","safety_reason":""}

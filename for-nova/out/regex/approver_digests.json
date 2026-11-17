@@ -1,0 +1,181 @@
+{
+ "digests": [
+  {
+   "act_by": "rosa.dunmore@orchestra-mock.example",
+   "approver_name": "Rosa Dunmore",
+   "bills": [
+    {
+     "tranId": "26390",
+     "vendor": "Oxbow Courier Service",
+     "amount": "18325.62",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-09",
+     "days_pending": 35,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41262
+     ]
+    },
+    {
+     "tranId": "63162",
+     "vendor": "Tallowridge Media",
+     "amount": "22649.06",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-18",
+     "days_pending": 26,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41373
+     ]
+    }
+   ],
+   "delegate_note": null,
+   "text": "Approvals waiting on Rosa Dunmore (2)\n- 26390 Oxbow Courier Service: Pending Approval, entered October 9, 2026, 35 days (stuck over 14 days), tickets 41262\n- 63162 Tallowridge Media: Pending Approval, entered October 18, 2026, 26 days (stuck over 14 days), tickets 41373",
+   "egress_problems": []
+  },
+  {
+   "act_by": "elena.fairbanks@orchestra-mock.example",
+   "approver_name": "Elena Fairbanks",
+   "bills": [
+    {
+     "tranId": "88061",
+     "vendor": "Saltmarsh Creative",
+     "amount": "894.6",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-29",
+     "days_pending": 15,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41271
+     ]
+    },
+    {
+     "tranId": "CE24599",
+     "vendor": "Copperleaf Events",
+     "amount": "388.03",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-31",
+     "days_pending": 13,
+     "stuck_over_14_days": false,
+     "ticket_ids": [
+      41327
+     ]
+    },
+    {
+     "tranId": "INV-54357",
+     "vendor": "Desmond Achterberg",
+     "amount": "13383.63",
+     "status": "Pending PO",
+     "bill_date": "2026-11-01",
+     "days_pending": 12,
+     "stuck_over_14_days": false,
+     "ticket_ids": [
+      41624
+     ]
+    }
+   ],
+   "delegate_note": null,
+   "text": "Approvals waiting on Elena Fairbanks (3)\n- 88061 Saltmarsh Creative: Pending Approval, entered October 29, 2026, 15 days (stuck over 14 days), tickets 41271\n- CE24599 Copperleaf Events: Pending Approval, entered October 31, 2026, 13 days, tickets 41327\n- INV-54357 Desmond Achterberg: Pending PO, entered November 1, 2026, 12 days, tickets 41624",
+   "egress_problems": []
+  },
+  {
+   "act_by": "ben.merriweather@orchestra-mock.example",
+   "approver_name": "Ben Merriweather",
+   "bills": [
+    {
+     "tranId": "INV-5536",
+     "vendor": "Harborlight Staging",
+     "amount": "258.15",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-19",
+     "days_pending": 25,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41405
+     ]
+    },
+    {
+     "tranId": "2026-79016",
+     "vendor": "Kestrel Hollow Web",
+     "amount": "924.08",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-25",
+     "days_pending": 19,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41610
+     ]
+    }
+   ],
+   "delegate_note": null,
+   "text": "Approvals waiting on Ben Merriweather (2)\n- INV-5536 Harborlight Staging: Pending Approval, entered October 19, 2026, 25 days (stuck over 14 days), tickets 41405\n- 2026-79016 Kestrel Hollow Web: Pending Approval, entered October 25, 2026, 19 days (stuck over 14 days), tickets 41610",
+   "egress_problems": []
+  },
+  {
+   "act_by": "ana.underhill@orchestra-mock.example",
+   "approver_name": "Ana Underhill",
+   "bills": [
+    {
+     "tranId": "OF45660",
+     "vendor": "Ostrander Field Research",
+     "amount": "4570.29",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-17",
+     "days_pending": 27,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41458
+     ]
+    }
+   ],
+   "delegate_note": null,
+   "text": "Approvals waiting on Ana Underhill (1)\n- OF45660 Ostrander Field Research: Pending Approval, entered October 17, 2026, 27 days (stuck over 14 days), tickets 41458",
+   "egress_problems": []
+  },
+  {
+   "act_by": "yara.merriweather@orchestra-mock.example",
+   "approver_name": "Yara Merriweather",
+   "bills": [
+    {
+     "tranId": "A-32216",
+     "vendor": "Cobalt Finch Design",
+     "amount": "535.26",
+     "status": "Pending PO",
+     "bill_date": "2026-10-28",
+     "days_pending": 16,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41484
+     ]
+    }
+   ],
+   "delegate_note": null,
+   "text": "Approvals waiting on Yara Merriweather (1)\n- A-32216 Cobalt Finch Design: Pending PO, entered October 28, 2026, 16 days (stuck over 14 days), tickets 41484",
+   "egress_problems": []
+  },
+  {
+   "act_by": "liam.pemberton@orchestra-mock.example",
+   "approver_name": "Liam Pemberton",
+   "bills": [
+    {
+     "tranId": "INV-21296",
+     "vendor": "Ninebark Surveys",
+     "amount": "284.85",
+     "status": "Pending Approval",
+     "bill_date": "2026-10-22",
+     "days_pending": 22,
+     "stuck_over_14_days": true,
+     "ticket_ids": [
+      41653
+     ]
+    }
+   ],
+   "delegate_note": "next approver tessa.holloway@orchestra-mock.example is inactive; delegate liam.pemberton@orchestra-mock.example",
+   "text": "Approvals waiting on Liam Pemberton (1)\nnext approver tessa.holloway@orchestra-mock.example is inactive; delegate liam.pemberton@orchestra-mock.example\n- INV-21296 Ninebark Surveys: Pending Approval, entered October 22, 2026, 22 days (stuck over 14 days), tickets 41653",
+   "egress_problems": []
+  }
+ ],
+ "pending_notes": 10,
+ "digest_count": 6,
+ "summary": "10 pending-approval notes become 6 digests."
+}

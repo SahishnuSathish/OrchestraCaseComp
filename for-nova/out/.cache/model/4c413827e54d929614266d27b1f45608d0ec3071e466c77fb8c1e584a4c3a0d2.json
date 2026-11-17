@@ -1,0 +1,1 @@
+{"intent":"bank_change","invoice_refs":[],"vendor_names":[],"mentioned_ticket_ids":[],"risk_cues":["bank_change"],"asks_about_multiple_invoices":false,"needs_platforms":["netsuite","payment_system"],"safety":"safe","safety_reason":""}
