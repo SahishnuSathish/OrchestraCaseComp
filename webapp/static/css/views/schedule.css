@@ -1,0 +1,15 @@
+/* Scheduled send: sits under the action bar in the review view. */
+#schedule-slot:empty { display: none; }
+.schedule { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--page-pad); background: var(--surface-2); border-top: 1px solid var(--border); font-size: var(--fs-sm); color: var(--text-2); }
+.schedule .sched-label { display: inline-flex; align-items: center; gap: var(--s-2); color: var(--text); font-weight: 500; }
+.schedule .sched-when { font-variant-numeric: tabular-nums; }
+.schedule .sched-input { width: auto; min-height: 30px; padding: 0 var(--s-2); font-size: var(--fs-sm); }
+.schedule .sched-hint { flex-basis: 100%; font-size: var(--fs-xs); color: var(--text-3); margin: 0; }
+.schedule .sched-note { display: inline-flex; align-items: center; gap: var(--s-2); color: var(--danger); }
+.schedule .sched-note.is-quiet { color: var(--text-2); }
+.schedule .sched-error { flex-basis: 100%; color: var(--danger); margin: 0; }
+.schedule .sched-actions { margin-left: auto; display: flex; gap: var(--s-2); }
+@media (max-width: 900px) {
+  .schedule { padding: var(--s-3) var(--s-4); }
+  .schedule .sched-actions { margin-left: 0; }
+}
