@@ -1,0 +1,80 @@
+"""Send one approved reply through the mail adapter. Shared by "Send now" (server.api_send) and scheduled send.
+
+Recipient, subject and body come from the server's own records, never from a request. Does not import server.py.
+"""
+import hashlib
+import json
+import threading
+
+import db
+import mailer
+import reply_checks
+
+_SEND_LOCK = threading.Lock()  # one send at a time: Send now and the scheduler can never both send the same reply
+
+
+class DeliveryError(Exception):
+    """The reply was not sent. `status` is the HTTP status Send now answers with."""
+
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
+        self.message = message
+
+
+def reply_hash(recipient, subject, body):
+    """SHA-256 over the three things that go out."""
+    return hashlib.sha256(json.dumps([recipient, subject, body], ensure_ascii=True).encode("utf-8")).hexdigest()
+
+
+def prepare(run_id, ticket_id):
+    """Check a reply is sendable now and build the message from the records. Raises DeliveryError otherwise."""
+    rec = db.get_ticket(run_id, ticket_id)
+    if not rec:
+        raise DeliveryError(404, "ticket not found in this run")
+    res = rec["bundle"].get("result") or {}
+    if res.get("output_type") != "draft_reply" or not res.get("recipient"):
+        raise DeliveryError(400, "this ticket has no reply to send")
+    if reply_checks.BLOCK_APPROVE_FLAGS & set(res.get("flags") or []):
+        raise DeliveryError(409, "flagged tickets cannot be sent from here")
+    rv = db.get_review(run_id, ticket_id)
+    if rv["state"] == "sent":
+        raise DeliveryError(409, "This reply was already sent.")
+    if rv["state"] != "approved":
+        raise DeliveryError(409, "Approve the reply before sending it.")
+    original = res.get("text") or ""
+    body_text = rv["edited_text"] if rv.get("edited_text") is not None else original
+    default_subject = reply_checks.default_subject(rec["ticket"].get("subject"))
+    subject = rv.get("edited_subject") or default_subject
+    problems = []
+    try:
+        if body_text != original:
+            problems += reply_checks.edit_problems(original, body_text, res["recipient"])
+        if subject != default_subject:
+            problems += reply_checks.edit_problems(default_subject, subject, res["recipient"])
+    except reply_checks.ChecksUnavailable as e:
+        raise DeliveryError(503, str(e))
+    if problems:
+        raise DeliveryError(422, "This reply can't be sent: it adds " + "; ".join(problems) + ". Reopen it and remove that.")
+    msg = mailer.Message(sender=mailer.default_sender(rec["ticket"].get("to")), to=res["recipient"], subject=subject,
+                         body=body_text, ticket_id=ticket_id)
+    return msg
+
+
+def deliver_reply(run_id, ticket_id, expect_hash=None):
+    """Send the approved reply and record it as sent. With `expect_hash`, refuse if the reply no longer matches it."""
+    with _SEND_LOCK:
+        msg = prepare(run_id, ticket_id)
+        if expect_hash is not None and reply_hash(msg.to, msg.subject, msg.body) != expect_hash:
+            raise DeliveryError(409, "The reply changed after it was scheduled.")
+        try:
+            info = mailer.get_mailer().send(msg)
+        except mailer.MailError as e:
+            raise DeliveryError(502, str(e))
+        db.save_sent(run_id, ticket_id, info.get("id"), {k: v for k, v in info.items() if k != "path"})
+    try:  # a manual send ends any schedule for this reply
+        import scheduler
+        scheduler.on_sent(run_id, ticket_id)
+    except Exception:
+        pass
+    return info

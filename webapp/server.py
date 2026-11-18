@@ -32,6 +32,7 @@ from pydantic import BaseModel, Field  # noqa: E402
 
 import chat  # noqa: E402
 import db  # noqa: E402
+import delivery  # noqa: E402
 import local_model  # noqa: E402
 import mailer  # noqa: E402
 import prevention  # noqa: E402
@@ -595,37 +596,10 @@ def api_send(run_id: str, ticket_id: int):
     """Send the approved reply through the mail adapter. Recipient, subject and body all come from the server's
     own records, never from the request."""
     _run_or_404(run_id)
-    rec = db.get_ticket(run_id, ticket_id)
-    if not rec:
-        raise HTTPException(404, "ticket not found in this run")
-    res = rec["bundle"].get("result") or {}
-    if res.get("output_type") != "draft_reply" or not res.get("recipient"):
-        raise HTTPException(400, "this ticket has no reply to send")
-    if BLOCK_APPROVE_FLAGS & set(res.get("flags") or []):
-        raise HTTPException(409, "flagged tickets cannot be sent from here")
-    rv = db.get_review(run_id, ticket_id)
-    if rv["state"] == "sent":
-        raise HTTPException(409, "This reply was already sent.")
-    if rv["state"] != "approved":
-        raise HTTPException(409, "Approve the reply before sending it.")
-    original = res.get("text") or ""
-    body_text = rv["edited_text"] if rv.get("edited_text") is not None else original
-    default_subject = _default_subject(rec["ticket"].get("subject"))
-    subject = rv.get("edited_subject") or default_subject
-    problems = []
-    if body_text != original:
-        problems += _edit_problems(original, body_text, res["recipient"])
-    if subject != default_subject:
-        problems += _edit_problems(default_subject, subject, res["recipient"])
-    if problems:
-        raise HTTPException(422, "This reply can't be sent: it adds " + "; ".join(problems) + ". Reopen it and remove that.")
-    msg = mailer.Message(sender=mailer.default_sender(rec["ticket"].get("to")), to=res["recipient"], subject=subject,
-                         body=body_text, ticket_id=ticket_id)
     try:
-        info = mailer.get_mailer().send(msg)
-    except mailer.MailError as e:
-        raise HTTPException(502, str(e))
-    db.save_sent(run_id, ticket_id, info.get("id"), {k: v for k, v in info.items() if k != "path"})
+        delivery.deliver_reply(run_id, ticket_id)
+    except delivery.DeliveryError as e:
+        raise HTTPException(e.status, e.message)
     get_manager().emit(run_id, "review", {"ticket_id": ticket_id, "state": "sent"})
     return _detail(run_id, ticket_id)
 
