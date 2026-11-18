@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 import db
 import local_model  # noqa: F401  (puts prototype/ on sys.path before extract_model is imported)
 import extract_model  # noqa: E402
+import summarize  # noqa: E402  (same trail grouping and retrieval status as the Data trail panel)
 
 router = APIRouter()
 
@@ -75,6 +76,27 @@ def _clean(text, n=MAX_FIELD):
     return s[:n]
 
 
+def trail_lines(bundle):
+    """The data trail the reply was built from: retrieval status, then each system looked at and whether it had the record.
+    Same grouping and wording source as the Data trail panel (summarize.sources_from_trace)."""
+    trace = bundle.get("trace") or []
+    retrieval = summarize._fallback_retrieval(bundle)
+    status = f"Lookup status: {_clean(retrieval.get('status'), 20)}"
+    if retrieval.get("missing"):
+        status += f"; missing: {_clean('; '.join(retrieval['missing']), 300)}"
+    if retrieval.get("errors"):
+        status += f"; errors: {_clean('; '.join(retrieval['errors']), 200)}"
+    out = [status]
+    if not trace:
+        out.append("- No system lookups are recorded for this ticket.")
+    for src in summarize.sources_from_trace(trace):
+        for it in src["items"]:
+            ref = f" for {_clean(it['ref'], 60)}" if it.get("ref") else ""
+            found = "found" if it.get("found") else "not found"
+            out.append(f"- {_clean(src['name'], 40)}: {_clean(it['label'], 80)}{ref}: {found}")
+    return out
+
+
 def build_context(run_id, ticket_id):
     """Plain-text facts for this one ticket. Nothing from other tickets or vendors. Returns None if the ticket is missing."""
     rec = db.get_ticket(run_id, ticket_id)
@@ -99,7 +121,9 @@ def build_context(run_id, ticket_id):
         f"Output type: {_clean(res.get('output_type'), 60)}",
         f"Flags: {', '.join(_clean(f, 60) for f in (res.get('flags') or [])) or 'none'}",
         f"Review state: {_clean(rv.get('state'), 40)}",
-    ]
+        "",
+        "Data trail (the systems checked for this ticket and the reply):",
+    ] + trail_lines(b)
     draft = rv.get("edited_text") if rv.get("edited_text") is not None else res.get("text")
     if draft:
         lines += ["", "Draft reply (current text):", _clean(draft, 2000)]
