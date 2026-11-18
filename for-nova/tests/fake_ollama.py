@@ -1,7 +1,7 @@
 """TEST STAND-IN for Ollama. It performs NO inference.
 
 A small threaded HTTP server bound to 127.0.0.1 that speaks just enough of Ollama's protocol (/api/version,
-/api/tags, /api/chat with and without streaming, HTTP 404 for an unknown model) for the AP Desk tests and for
+/api/tags, /api/chat with and without streaming, HTTP 404 for an unknown model) for the Conductor tests and for
 checking the UI by hand. The "model output" is canned: a valid ModelReading built from the request text, or a
 plausible brief built from the facts packet. Never use it for anything but tests and manual UI checks.
 

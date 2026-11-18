@@ -1,4 +1,4 @@
-"""Tests for the AP Desk web app (webapp/). No Ollama needed: the model is never called.
+"""Tests for the Conductor web app (webapp/). No Ollama needed: the model is never called.
 
 Run from for-nova/:  python -m unittest tests.test_webapp -v
 """
@@ -399,6 +399,34 @@ class ApiTests(unittest.TestCase):
         html = self.c.get("/").text
         self.assertIn(server.TOKEN, html)
         self.assertNotIn("__AP_TOKEN__", html)
+
+
+class BrandTests(unittest.TestCase):
+    def test_page_and_app_are_named_conductor(self):
+        c = TestClient(server.app, base_url="http://localhost")
+        html = c.get("/").text
+        self.assertIn("<title>Conductor</title>", html)
+        self.assertNotIn("AP Desk", html)
+        self.assertEqual(server.app.title, "Conductor")
+
+    def test_state_dir_prefers_conductor_variable(self):
+        import importlib
+        import os
+        old = {k: os.environ.get(k) for k in ("CONDUCTOR_STATE_DIR", "AP_DESK_STATE_DIR")}
+        try:
+            os.environ["AP_DESK_STATE_DIR"] = str(Path(_TMP.name) / "legacy")
+            os.environ["CONDUCTOR_STATE_DIR"] = str(Path(_TMP.name) / "new")
+            fresh = importlib.reload(importlib.import_module("db"))
+            self.assertEqual(fresh.STATE_DIR, Path(_TMP.name) / "new")
+            del os.environ["CONDUCTOR_STATE_DIR"]
+            fresh = importlib.reload(fresh)
+            self.assertEqual(fresh.STATE_DIR, Path(_TMP.name) / "legacy")
+        finally:
+            for k, v in old.items():
+                os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+            fresh = importlib.reload(importlib.import_module("db"))
+            fresh.STATE_DIR = Path(_TMP.name)
+            fresh.DB_PATH = fresh.STATE_DIR / "app.db"
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""SQLite persistence for the AP Desk web app (runs, per-ticket bundles, briefs, review decisions).
+"""SQLite persistence for the Conductor web app (runs, per-ticket bundles, briefs, review decisions).
 
 One short-lived connection per call, guarded by a lock, so the pipeline thread, the brief worker
 and the request threads never share a connection. Nothing in here touches the prototype.
@@ -10,7 +10,8 @@ import threading
 import time
 from pathlib import Path
 
-STATE_DIR = Path(os.environ.get("AP_DESK_STATE_DIR") or (Path(__file__).resolve().parent / "state"))
+STATE_DIR = Path(os.environ.get("CONDUCTOR_STATE_DIR") or os.environ.get("AP_DESK_STATE_DIR")
+                 or (Path(__file__).resolve().parent / "state"))
 DB_PATH = STATE_DIR / "app.db"
 _LOCK = threading.RLock()
 

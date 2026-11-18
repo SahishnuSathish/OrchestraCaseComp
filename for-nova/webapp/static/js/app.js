@@ -1,4 +1,4 @@
-// AP Desk shell: router dispatch, sidebar (drawer on narrow screens), topbar breadcrumbs, global banners.
+// Conductor shell: router dispatch, sidebar (drawer on narrow screens), topbar breadcrumbs, global banners.
 // Views live in ./views and expose mount(root, { route }) -> { update?({ route }), destroy? }.
 import { h, icon, mount, $, ls } from './lib.js';
 import { api } from './api.js';
@@ -109,7 +109,7 @@ function renderTitle() {
   const leaf = { runs: 'Runs', 'run-new': 'New run', overview: 'Overview', settings: 'Settings', 'not-found': 'Page not found' }[route.name]
     || `${route.name === 'tickets' ? 'Tickets' : 'Review'}${route.ticketId ? ` #${route.ticketId}` : ''}`;
   const label = route.runId && S.runId === route.runId ? S.run?.label : null;
-  document.title = [leaf, label, 'AP Desk'].filter(Boolean).join(' · ');
+  document.title = [leaf, label, 'Conductor'].filter(Boolean).join(' · ');
 }
 
 // ---------------------------------------------------------------------------- global banners
@@ -120,12 +120,12 @@ function renderBanners() {
   const slot = $('#banners');
   if (S.conn === 'expired') {
     mount(slot, banner({
-      tone: 'danger', role: 'alert', text: 'AP Desk was restarted, so this page is out of date. Reload to continue.',
+      tone: 'danger', role: 'alert', text: 'Conductor was restarted, so this page is out of date. Reload to continue.',
       actions: h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: () => location.reload() }, icon('refresh'), 'Reload'),
     }));
   } else if (S.conn === 'offline') {
     mount(slot, banner({
-      tone: 'warning', role: 'alert', text: "Can't reach AP Desk on this computer. Retrying…",
+      tone: 'warning', role: 'alert', text: "Can't reach Conductor on this computer. Retrying…",
       actions: h('button', { class: 'btn btn-sm', type: 'button', onclick: () => api.health().catch(() => {}) }, icon('refresh'), 'Retry now'),
     }));
   } else mount(slot);

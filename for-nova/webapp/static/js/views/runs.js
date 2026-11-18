@@ -41,7 +41,7 @@ export function pathLine(path, cls = '') {
 export async function deleteRunFlow(run) {
   const ok = await confirmDialog({
     title: 'Delete this run?',
-    message: "Its tickets, briefs and review decisions are removed from AP Desk. The dataset files and anything already sent are not touched. This can't be undone.",
+    message: "Its tickets, briefs and review decisions are removed from Conductor. The dataset files and anything already sent are not touched. This can't be undone.",
     confirmLabel: 'Delete run', danger: true,
   });
   if (!ok) return false;

@@ -30,7 +30,7 @@ async function httpError(res) {
   try { msg = detailText(await res.json(), msg); } catch { /* not json */ }
   if (res.status === 401) {
     setApiState('expired');
-    return new ApiError(401, 'AP Desk was restarted, so this page is out of date. Reload to continue.', 'auth');
+    return new ApiError(401, 'Conductor was restarted, so this page is out of date. Reload to continue.', 'auth');
   }
   setApiState('online');
   return new ApiError(res.status, msg, 'http');
@@ -39,8 +39,8 @@ async function httpError(res) {
 function transportError(timedOut) {
   setApiState('offline');
   return timedOut
-    ? new ApiError(0, 'AP Desk took too long to answer.', 'timeout')
-    : new ApiError(0, "Can't reach AP Desk on this computer.", 'network');
+    ? new ApiError(0, 'Conductor took too long to answer.', 'timeout')
+    : new ApiError(0, "Can't reach Conductor on this computer.", 'network');
 }
 
 async function send(method, path, body, { signal, timeout = 30000 } = {}) {
@@ -70,7 +70,7 @@ export async function request(method, path, body, opts) {
   if (!res.ok) throw await httpError(res);
   setApiState('online');
   if (res.status === 204) return null;
-  try { return await res.json(); } catch { throw new ApiError(res.status, 'AP Desk sent an unreadable answer.', 'http'); }
+  try { return await res.json(); } catch { throw new ApiError(res.status, 'Conductor sent an unreadable answer.', 'http'); }
 }
 
 // Parse one SSE block ("event: x\ndata: y\n...") into [type, data]; comment-only blocks give null.

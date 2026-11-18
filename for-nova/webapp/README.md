@@ -1,6 +1,6 @@
-# AP Desk
+# Conductor
 
-AP Desk is a local web app that runs the ticket pipeline over a dataset folder, then lets a person review, edit, approve and send the drafted replies. It runs only on this computer: the server listens on 127.0.0.1 and nothing is sent to a requester unless a person approves it and clicks Send.
+Conductor (formerly AP Desk) is a local web app that runs the ticket pipeline over a dataset folder, then lets a person review, edit, approve and send the drafted replies. It runs only on this computer: the server listens on 127.0.0.1 and nothing is sent to a requester unless a person approves it and clicks Send.
 
 ## Start
 
@@ -74,7 +74,7 @@ Replace `qwen3.5:9b` with the model you selected if it differs. The Settings pag
 
 Two modes. The mode is chosen by the environment when the server starts and cannot be changed from the UI.
 
-- `simulated` (default): each approved reply is written as a `.eml` file in the outbox folder (`webapp/state/outbox/` unless `AP_DESK_STATE_DIR` is set). Nothing leaves the computer.
+- `simulated` (default): each approved reply is written as a `.eml` file in the outbox folder (`webapp/state/outbox/` unless `CONDUCTOR_STATE_DIR`, or the older `AP_DESK_STATE_DIR`, is set). Nothing leaves the computer.
 - `smtp`: the reply is handed to an SMTP relay. This mode is used only when `ORCHESTRA_MAIL_MODE=smtp` and `ORCHESTRA_SMTP_HOST` are both set.
 
 Environment variables: `ORCHESTRA_MAIL_MODE` (`smtp` to enable SMTP), `ORCHESTRA_SMTP_HOST`, `ORCHESTRA_SMTP_PORT` (default `587`), `ORCHESTRA_SMTP_USER` and `ORCHESTRA_SMTP_PASSWORD` (optional, for relays that need a login), `ORCHESTRA_SMTP_STARTTLS` (on by default; `0` turns it off), and `ORCHESTRA_MAIL_FROM` (default: the mailbox the ticket was sent to).
@@ -83,7 +83,7 @@ The recipient, subject and body of a sent message always come from the server's 
 
 ## Where state lives
 
-The SQLite database is `app.db` and the outbox is `outbox/`, both under `webapp/state/` by default. Set `AP_DESK_STATE_DIR` to a folder to move both. The folder is created if it does not exist. Each launch of the server uses the folder set at that time.
+The SQLite database is `app.db` and the outbox is `outbox/`, both under `webapp/state/` by default. Set `CONDUCTOR_STATE_DIR` (or the older `AP_DESK_STATE_DIR`) to a folder to move both; `CONDUCTOR_STATE_DIR` wins when both are set. The folder is created if it does not exist. Each launch of the server uses the folder set at that time.
 
 Deleting a run removes its row, tickets, briefs and review decisions in one transaction. It does not touch the dataset folder or `.eml` files already in the outbox. A run in progress cannot be deleted (HTTP 409).
 

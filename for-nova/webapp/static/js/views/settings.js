@@ -439,7 +439,7 @@ export function mount(root) {
       h('dl', { class: 'kv st-kv' },
         h('dt', null, 'Mode'), h('dd', null, mail?.label || mail?.mode || ''),
         h('dt', null, 'From'), h('dd', { class: 'mono' }, mail?.from || '')),
-      h('p', { class: 'muted st-note' }, "Set when AP Desk starts (environment variables). It can't be changed from this page."));
+      h('p', { class: 'muted st-note' }, "Set when Conductor starts (environment variables). It can't be changed from this page."));
   }
   const mailPanel = panel({ title: 'Email delivery', icon: 'mail', body: mailBody });
 

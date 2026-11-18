@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /*
- * AP Desk browser smoke / regression test.
+ * Conductor browser smoke / regression test.
  *
- * What it covers (the behaviours rebuilt in the AP Desk overhaul):
+ * What it covers (the behaviours rebuilt in the Conductor overhaul):
  *   1  every route loads directly at 360/768/1280/1920 (heading, title, no overflow, no console errors) + error pages
  *   2  legacy hash redirects                      3  breadcrumbs and the narrow back link
  *   4  history is not polluted (J/K, filters, search, choosing a row)
  *   5  list state is remembered (filters, scroll) 6  deterministic back controls (from=review / from=tickets)
- *   7  navigation drawer and collapsible rail     8  "restarted" and "can't reach AP Desk" banners
+ *   7  navigation drawer and collapsible rail     8  "restarted" and "can't reach Conductor" banners
  *   9  New run (double start = one run, invalid path)  10 run overview links into filtered lists
  *   11 review workflow (tab in URL, approve/undo/send, edit problems, autosave failure, narrow layout)
  *   12 Settings + local model against a fake Ollama (status, models, streaming test console, stop, errors)
@@ -22,7 +22,7 @@
  *     prints "skipped: Playwright is not installed" and exits 0. This script never runs `playwright install`.
  *
  * Isolation
- *   The test starts its own AP Desk (random free port, AP_DESK_STATE_DIR in a fresh temp dir) and its own fake Ollama
+ *   The test starts its own Conductor (random free port, CONDUCTOR_STATE_DIR in a fresh temp dir) and its own fake Ollama
  *   (tests/fake_ollama.py, no inference). Nothing is written inside the repository: the tracked webapp/state/ and out/
  *   are never touched (a final check compares `git status` for those paths before and after). Both child processes and
  *   the temp dir are removed in `finally`, also on SIGINT/SIGTERM.
@@ -141,7 +141,7 @@ async function startFake({ fail, tokenDelay = 0.05 } = {}) {
 }
 
 const cleanEnv = () => {
-  const env = { ...process.env, AP_DESK_STATE_DIR: stateDir, PYTHONDONTWRITEBYTECODE: '1' };
+  const env = { ...process.env, CONDUCTOR_STATE_DIR: stateDir, AP_DESK_STATE_DIR: stateDir, PYTHONDONTWRITEBYTECODE: '1' };
   delete env.OLLAMA_URL; delete env.OLLAMA_MODEL; delete env.ORCHESTRA_MAIL_MODE;
   return env;
 };
@@ -262,7 +262,7 @@ async function assertNoOverflow(page, label = '') {
 }
 
 async function waitTitle(page) {
-  await page.waitForFunction(() => document.title.endsWith('AP Desk') && document.title.includes(' · '));
+  await page.waitForFunction(() => document.title.endsWith('Conductor') && document.title.includes(' · '));
 }
 
 const sidebar = (page) => page.locator('nav[aria-label="Primary"]');
@@ -793,19 +793,19 @@ test('8 a 401 shows the "restarted" banner with a Reload button', async (t) => {
   await page.getByText('Connected').or(page.getByText('Not connected')).first().waitFor();
   await page.route('**/api/**', (route) => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ detail: 'missing or bad token' }) }));
   await page.getByRole('button', { name: /Check again/ }).click();
-  const alert = page.getByRole('alert').filter({ hasText: 'AP Desk was restarted' });
+  const alert = page.getByRole('alert').filter({ hasText: 'Conductor was restarted' });
   await alert.waitFor();
   await alert.getByRole('button', { name: 'Reload' }).waitFor();
 });
 
-test("8 an unreachable server shows \"Can't reach AP Desk\" and Retry now clears it", async (t) => {
+test("8 an unreachable server shows \"Can't reach Conductor\" and Retry now clears it", async (t) => {
   t.allowErrors(/ERR_FAILED|net::|Failed to load resource/);
   const page = await t.newPage(VP.desktop);
   await gotoRoute(page, '#/settings');
   await page.locator('.st-status').waitFor();
   await page.route('**/api/**', (route) => route.abort());
   await page.getByRole('button', { name: /Check again/ }).click();
-  const alert = page.getByRole('alert').filter({ hasText: "Can't reach AP Desk" });
+  const alert = page.getByRole('alert').filter({ hasText: "Can't reach Conductor" });
   await alert.waitFor();
   const retry = alert.getByRole('button', { name: 'Retry now' });
   await retry.waitFor();

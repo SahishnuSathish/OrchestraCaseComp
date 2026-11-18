@@ -127,7 +127,7 @@ export function mount(root) {
     const again = () => h('a', { class: 'btn btn-sm', href: runAgainHref(run() || r) }, icon('rotate'), 'Run again');
     const out = warnings.map((w) => banner({ tone: 'warning', role: 'status', text: w }));
     if (st === 'failed') out.push(banner({ tone: 'danger', role: 'alert', title: 'This run failed', text: err || 'No further details were reported.', actions: again() }));
-    else if (st === 'interrupted') out.push(banner({ tone: 'warning', role: 'status', title: 'This run was interrupted because AP Desk stopped.', text: 'Results so far are kept.', actions: again() }));
+    else if (st === 'interrupted') out.push(banner({ tone: 'warning', role: 'status', title: 'This run was interrupted because Conductor stopped.', text: 'Results so far are kept.', actions: again() }));
     else if (st === 'cancelled') out.push(banner({ tone: 'info', role: 'status', title: `This run was stopped after ${fmtInt(p.done || r.done)} of ${fmtInt(p.total || r.total)} tickets.`, text: 'Results so far are kept.', actions: again() }));
     fill(bannerSlot, out);
   }

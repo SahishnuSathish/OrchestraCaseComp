@@ -1,4 +1,4 @@
-"""AP Desk: local web app for running the AP ticket pipeline on a dataset and approving the drafted replies.
+"""Conductor: local web app for running the AP ticket pipeline on a dataset and approving the drafted replies.
 
     python webapp/server.py            # http://127.0.0.1:8790
     python webapp/server.py --open     # also opens the browser
@@ -56,7 +56,7 @@ def get_manager():
 
 
 db.init()
-app = FastAPI(title="AP Desk", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="Conductor", docs_url=None, redoc_url=None, openapi_url=None)
 
 
 # ---------------------------------------------------------------------------- local-only guards
@@ -658,7 +658,7 @@ def main():
     import uvicorn
     get_manager()
     url = f"http://127.0.0.1:{a.port}/"
-    print(f"AP Desk running at {url}  (local only; Ctrl+C to stop)", flush=True)
+    print(f"Conductor running at {url}  (local only; Ctrl+C to stop)", flush=True)
     if a.open:
         import webbrowser
         webbrowser.open(url)
