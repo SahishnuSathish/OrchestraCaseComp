@@ -14,10 +14,12 @@ export function mount(root, { route }) {
   let data = null;
 
   const body = h('div', { class: 'page-grid' });
+  const demoBox = h('div', { class: 'demo-box' });
+  let demo = null;
   const buildBtn = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => build() }, icon('rotate'), 'Build from records');
   fill(root, h('div', { class: 'page' },
     pageHeader({ title: 'Prevent', meta: 'Answers sent before anyone has to ask. Nothing goes out until you approve and send it.', actions: buildBtn }),
-    body));
+    demoBox, body));
 
   const stateOf = (kind, key) => (data.states[`${kind}:${key}`] || {}).state || 'pending';
 
@@ -41,6 +43,72 @@ export function mount(root, { route }) {
 
   const build = () => act(() => api.buildPrevention(runId), 'Built from the current records.');
   const setState = (kind, key, state) => act(() => api.preventionState(runId, kind, key, state));
+
+  // ---- demo on one real invoice: draft -> approve -> send -> vendor lookup -> ticket prevented
+  const demoUrl = (tail = '') => `/api/runs/${runId}/prevention/demo${tail}`;
+
+  async function demoAct(fn) {
+    if (busy) return;
+    busy = true;
+    try {
+      const next = await fn();
+      if (!alive) return;
+      demo = next;
+      renderDemo();
+    } catch (e) {
+      if (alive) toast({ message: e.message });
+    } finally {
+      busy = false;
+    }
+  }
+
+  function demoStep(n, title, state, children) {
+    return h('li', { class: 'demo-step', 'data-step': n, 'data-done': state === 'done' ? 'true' : 'false' },
+      h('span', { class: 'demo-step-n num' }, state === 'done' ? icon('check') : String(n)),
+      h('div', { class: 'demo-step-body' }, h('h3', null, title), ...children));
+  }
+
+  function renderDemo() {
+    if (!demo) return;
+    if (!demo.available) {
+      fill(demoBox, panel({ title: 'Demo on one invoice', icon: 'send', body: emptyState({ title: 'No invoice qualifies', text: demo.message }) }));
+      return;
+    }
+    const inv = demo.invoice;
+    const drafted = demo.drafted;
+    const st = drafted ? demo.state : null;
+    const btn = (label, cls, onclick, ic) => h('button', { class: `btn btn-sm ${cls}`, type: 'button', onclick }, ic ? icon(ic) : null, label);
+    const steps = [
+      demoStep(1, 'Draft from the records', drafted ? 'done' : 'todo', [
+        h('p', { class: 'muted' }, `Invoice ${inv.ref} from ${inv.vendor}: ${inv.currency} ${inv.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}, status ${inv.status}.`),
+        drafted ? h('pre', { class: 'prevent-text demo-notice' }, demo.notice.text) : null,
+        drafted ? h('p', { class: 'muted' }, `To ${demo.notice.to}. Outbound check passed.`) : null,
+        drafted ? null : btn('Draft notice', 'btn-primary', () => demoAct(() => api.post(demoUrl('/draft'))), 'send'),
+      ]),
+      demoStep(2, 'Approve', st === 'approved' || st === 'sent' ? 'done' : 'todo', [
+        drafted && st === 'pending' ? btn('Approve', '', () => demoAct(() => api.post(demoUrl('/approve'))), 'check') : null,
+        !drafted ? h('p', { class: 'muted' }, 'A person approves it before anything is sent.') : null,
+      ]),
+      demoStep(3, 'Send (simulated)', st === 'sent' ? 'done' : 'todo', [
+        st === 'approved' ? btn('Send', 'btn-primary', () => demoAct(() => api.post(demoUrl('/send'))), 'send') : null,
+        st === 'sent' ? h('p', { class: 'muted' }, 'Saved as an .eml in the outbox. Nothing left this computer.') : null,
+      ]),
+      demoStep(4, 'Vendor looks it up', st === 'sent' ? 'done' : 'todo', [
+        st === 'sent' && demo.lookup ? h('p', null, demo.lookup.message) : h('p', { class: 'muted' }, 'After sending, the vendor’s own status lookup answers for this invoice.'),
+        st === 'sent' && demo.lookup ? h('p', null, h('span', { class: `badge ${demo.lookup.same_answer ? 'badge-success' : 'badge-quiet'}` },
+          demo.lookup.same_answer ? 'Same status and balance as the notice' : 'Differs from the notice')) : null,
+      ]),
+    ];
+    const prevented = demo.covered_tickets || [];
+    fill(demoBox, panel({
+      title: 'Demo on one invoice', icon: 'send',
+      body: h('div', { class: 'demo' },
+        h('p', { class: 'muted' }, `Chosen by rule: ${demo.rule}`),
+        h('ol', { class: 'demo-steps' }, ...steps),
+        st === 'sent' ? banner({ tone: 'info', text: prevented.length
+          ? `This notice would have prevented ticket ${prevented.join(', ')}.` : 'No ticket in this run asked about this invoice.' }) : null),
+    }));
+  }
 
   function actions(kind, item, to, canSend) {
     const st = stateOf(kind, item.key);
@@ -114,6 +182,8 @@ export function mount(root, { route }) {
           : emptyState({ title: 'No digests', text: 'No ticket in this run waits on an approver.' }),
       }));
   }
+
+  api.get(demoUrl()).then((d) => { if (alive) { demo = d; renderDemo(); } }).catch(() => {});
 
   (async () => {
     try {
