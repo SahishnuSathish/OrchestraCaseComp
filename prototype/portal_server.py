@@ -7,7 +7,6 @@ The answer to step one is identical whether or not the email is on file. Rate li
 The server never writes records, never sends email and never calls a model. The log holds a masked email, the
 reference and the outcome state, never message text.
 """
-import html
 import json
 import secrets
 import sys
@@ -20,6 +19,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import egress_guard  # noqa: E402
+import portal_page  # noqa: E402
 import status_service  # noqa: E402
 from data_layer import FileBackend, Store  # noqa: E402
 from trace import Trace  # noqa: E402
@@ -74,41 +74,39 @@ class PortalLogic:
         return {"ok": res["ok"], "message": res["message"], "step": "result"}
 
 
-PAGE = """<!doctype html><meta charset="utf-8"><title>Invoice status (demo)</title>
-<style>body{{font:16px/1.5 system-ui;max-width:34rem;margin:3rem auto;padding:0 1rem}}input,button{{font:inherit;padding:.5rem;margin:.25rem 0;width:100%;box-sizing:border-box}}
-.msg{{padding:.75rem;background:#eef;border-radius:6px;margin:1rem 0}}small{{color:#555}}</style>
-<h1>Invoice status</h1><small>Demo only. Runs on this computer and shows the records in the mock data.</small>
-{msg}<form method="post" action="/status">
-<label>Contact email<input name="email" value="{email}" required></label>
-<label>Invoice number<input name="invoice" value="{invoice}" required maxlength="20"></label>
-{code}<button>{button}</button></form>"""
-
-
 def render(message=None, email="", invoice="", ask_code=False):
-    msg = f'<div class="msg">{html.escape(message)}</div>' if message else ""
-    code = '<label>6-digit code<input name="code" inputmode="numeric" maxlength="6" required></label>' if ask_code else ""
-    return PAGE.format(msg=msg, email=html.escape(email), invoice=html.escape(invoice), code=code,
-                       button="Show status" if ask_code else "Send me a code")
+    return portal_page.render(message, email, invoice, ask_code)
 
 
 def make_handler(logic):
     class H(BaseHTTPRequestHandler):
-        def _send(self, body, status=200):
-            data = body.encode("utf-8")
+        def _send(self, body, status=200, ctype="text/html; charset=utf-8"):
+            data = body if isinstance(body, bytes) else body.encode("utf-8")
             self.send_response(status)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(data)))
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("X-Content-Type-Options", "nosniff")
+            for k, v in portal_page.SECURITY_HEADERS.items():
+                self.send_header(k, v)
             self.end_headers()
             self.wfile.write(data)
 
         def do_GET(self):
-            self._send(render() if self.path == "/" else "Not found", 200 if self.path == "/" else 404)
+            path = self.path.split("?", 1)[0]
+            if path == "/":
+                return self._send(render())
+            if path == portal_page.CSS_PATH:
+                return self._send(portal_page.css(), ctype="text/css; charset=utf-8")
+            font = portal_page.FONTS.get(path)  # fixed allowlist: no path is ever built from the request
+            if font is not None:
+                try:
+                    return self._send(font.read_bytes(), ctype="font/woff2")
+                except OSError:
+                    pass
+            self._send("Not found", 404, "text/plain; charset=utf-8")
 
         def do_POST(self):
             if self.path != "/status":
-                return self._send("Not found", 404)
+                return self._send("Not found", 404, "text/plain; charset=utf-8")
             n = min(int(self.headers.get("Content-Length") or 0), 2000)
             f = {k: v[0] for k, v in parse_qs(self.rfile.read(n).decode("utf-8", "replace")).items()}
             email, inv, code = f.get("email", ""), f.get("invoice", ""), f.get("code")
