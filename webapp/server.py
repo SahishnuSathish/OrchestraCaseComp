@@ -194,9 +194,10 @@ async def api_model_test(body: ModelTestBody, request: Request):
 @app.get("/api/fs/list", dependencies=api)
 def api_fs_list(path: str = ""):
     """Directories only. The server is bound to localhost, so this lists the machine the app runs on."""
-    shortcuts = [{"name": "Practice dataset (for-nova/data)", "path": str(runner.DEFAULT_DATASET)},
-                 {"name": "Project (for-nova)", "path": str(runner.FOR_NOVA)},
+    shortcuts = [{"name": "Practice dataset (data)", "path": str(runner.DEFAULT_DATASET)},
+                 {"name": "Project folder", "path": str(runner.FOR_NOVA)},
                  {"name": "Home", "path": str(Path.home())}]
+    path = runner.clean_path(path)
     if not path:
         roots = []
         if os.name == "nt":

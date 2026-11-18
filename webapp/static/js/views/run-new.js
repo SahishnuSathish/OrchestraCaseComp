@@ -1,5 +1,5 @@
 // New run: choose a dataset folder, validate it, pick the reader, start. The run itself is watched on its Overview.
-import { h, icon, mount as fill, debounce, ls, fmtDuration, plural } from '../lib.js';
+import { h, icon, mount as fill, debounce, ls, fmtDuration, plural, cleanPath } from '../lib.js';
 import { api } from '../api.js';
 import { S, on, refreshModel } from '../state.js';
 import { openDialog, toast, pageHeader, panel, banner } from '../ui.js';
@@ -12,7 +12,7 @@ export function mount(root, { route }) {
   const q = route.query || {};
   const stored = ls('ap.reader');
   const ui = {
-    path: q.dataset || ls('ap.dataset') || '', validation: null, validating: false, submitting: false, checking: false,
+    path: cleanPath(q.dataset || ls('ap.dataset') || ''), validation: null, validating: false, submitting: false, checking: false,
     reader: q.model === '1' ? 'model' : q.model === '0' ? 'regex' : q.model === 'none' ? 'none' : (['model', 'regex', 'none'].includes(stored) ? stored : null),
     limit: /^[1-9]\d*$/.test(q.limit || '') ? q.limit : '',
     activeRun: null, startError: null,
@@ -57,11 +57,12 @@ export function mount(root, { route }) {
     immediate ? validate() : validateSoon();
   }
   const validateSoon = debounce(() => validate(), 400);
-  input.addEventListener('input', () => {
-    ui.path = input.value.trim(); ui.startError = null; ui.validation = null; ui.validating = !!ui.path;
+  input.addEventListener('input', (e) => {
+    ui.path = cleanPath(input.value); ui.startError = null; ui.validation = null; ui.validating = !!ui.path;
+    if (e.inputType === 'insertFromPaste' && input.value !== ui.path) input.value = ui.path; // show what will be checked
     renderValidation(); renderAll(); validateSoon();
   });
-  input.addEventListener('change', () => ls('ap.dataset', ui.path));
+  input.addEventListener('change', () => { if (input.value !== ui.path) input.value = ui.path; ls('ap.dataset', ui.path); });
 
   let vSeq = 0;
   async function validate() {
@@ -294,6 +295,6 @@ function openFolderPicker(startPath, onPick) {
     },
   });
   dlg.classList.add('picker-dialog');
-  pathInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); browse(pathInput.value.trim()); } });
+  pathInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); browse(cleanPath(pathInput.value)); } });
   browse(startPath);
 }

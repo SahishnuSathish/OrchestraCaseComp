@@ -16,6 +16,7 @@ import time
 import traceback
 import uuid
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 import db
 import local_model
@@ -41,10 +42,33 @@ def _csv_rows(path):
         return max(0, sum(1 for _ in csv.reader(f)) - 1)
 
 
+_QUOTE_PAIRS = {'"': '"', "'": "'", "“": "”", "‘": "’"}
+
+
+def clean_path(raw):
+    """Tidy a folder path a person typed or pasted. Windows Explorer's "Copy as path" wraps the path in quotes, and a
+    browser can hand over a file:// address; neither is part of the path itself. Mirrors cleanPath() in static/js/lib.js."""
+    s = str(raw if raw is not None else "").strip()
+    while len(s) >= 2 and _QUOTE_PAIRS.get(s[0]) == s[-1]:
+        s = s[1:-1].strip()
+    if s[:5].lower() == "file:":
+        u = urlparse(s)
+        s = unquote(u.path)
+        if u.netloc and u.netloc.lower() != "localhost":
+            s = "\\\\" + u.netloc + s.replace("/", "\\")  # a network share
+        elif re.match(r"^/[A-Za-z]:", s):
+            s = s[1:]
+    return s
+
+
 def validate_dataset(path):
     """Check a directory looks like a dataset the pipeline can read. Never raises for a bad path."""
+    path = clean_path(path)
     out = {"path": str(path), "exists": False, "ok": False, "files": [], "tickets": 0, "has_answer_key": False}
     try:
+        if not path:
+            out["error"] = "That path is not a folder."
+            return out
         p = Path(path).expanduser()
         out["path"] = str(p)
         if not p.is_dir():
@@ -360,7 +384,7 @@ class Manager:
             bundles = json.load(f)
         if not isinstance(bundles, list) or not bundles:
             raise ValueError("bundles.json is empty or not a list of bundles")
-        ds = Path(dataset_path) if dataset_path else DEFAULT_DATASET
+        ds = Path(clean_path(dataset_path)) if clean_path(dataset_path) else DEFAULT_DATASET
         from data_layer import load_tickets_file
         tf = load_tickets_file(ds / "tickets.json")
         by_id = {t["id"]: t for t in tf["tickets"]}

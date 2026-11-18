@@ -85,6 +85,24 @@ export function domainOf(email) { return (email || '').split('@')[1] || ''; }
 export function plural(n, one, many = one + 's') { return `${fmtInt(n)} ${n === 1 ? one : many}`; }
 export function humanize(s) { return (s || '').replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()); }
 
+// Tidy a folder path a person typed or pasted. Windows Explorer's "Copy as path" wraps it in quotes, and a browser can
+// hand over a file:// address; neither is part of the path. Mirrors clean_path() in webapp/runner.py.
+export function cleanPath(raw) {
+  let s = String(raw ?? '').trim();
+  const pairs = { '"': '"', "'": "'", '“': '”', '‘': '’' };
+  while (s.length >= 2 && pairs[s[0]] === s[s.length - 1]) s = s.slice(1, -1).trim();
+  if (/^file:/i.test(s)) {
+    try {
+      const u = new URL(s);
+      let p = decodeURIComponent(u.pathname);
+      if (u.host && u.host.toLowerCase() !== 'localhost') p = `\\\\${u.host}${p.replace(/\//g, '\\')}`;
+      else if (/^\/[A-Za-z]:/.test(p)) p = p.slice(1);
+      s = p;
+    } catch { /* leave it as typed; the server explains what is wrong */ }
+  }
+  return s;
+}
+
 export function isTyping(target) {
   if (!target) return false;
   const t = target.tagName;
