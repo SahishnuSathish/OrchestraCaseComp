@@ -20,6 +20,31 @@ NEEDS_REVIEW = f"Our team needs to review this invoice. Please contact {AP_EMAIL
 SNIPPET_FOR = {"paid": "paid", "released": "released", "scheduled": "scheduled", "approved_no_run": "approved_no_run",
                "pending": "pending"}
 
+# Exec Q&A: a vendor may see the balance and last status of its own invoice. Never a total across invoices.
+AMOUNT = re.compile(r"\b[A-Z]{3} \d{1,3}(?:,\d{3})*\.\d{2}\b")
+ZERO_BALANCE = {"paid", "released"}  # released: the funds have left Orchestra's bank
+
+
+def _money(currency, value):
+    return f"{currency or 'USD'} {float(value):,.2f}"
+
+
+def balance_line(o):
+    """Invoice amount and open balance, from the bill record only."""
+    b = o["bill"]
+    if not b.get("userTotal"):
+        return ""
+    total = _money(b.get("currency"), b["userTotal"])
+    open_bal = _money(b.get("currency"), 0) if o["outcome"] in ZERO_BALANCE else total
+    return f"Invoice amount: {total}. Open balance: {open_bal}."
+
+
+def _amounts_ok(msg, o):
+    """Every amount in the answer is this bill's own total, or zero."""
+    b = o["bill"]
+    ok = {_money(b.get("currency"), 0)} | ({_money(b.get("currency"), b["userTotal"])} if b.get("userTotal") else set())
+    return set(AMOUNT.findall(msg)) <= ok
+
 
 def _result(ok, message, state, trace):
     return {"ok": ok, "message": message, "state": state, "trace": trace.events}
@@ -60,6 +85,8 @@ def lookup_status(contact_email, invoice_ref, store):
     fields.setdefault("settled", "")
     fields["for_vendor"] = ""
     msg = drafts.SNIPPETS[key].format(**fields)
-    if egress_guard.check_outbound(msg, [o], [o["ref"]]):
+    bal = balance_line(o)
+    msg = f"{msg} {bal}" if bal else msg
+    if egress_guard.check_outbound(msg, [o], [o["ref"]]) or not _amounts_ok(msg, o):
         return _result(True, NEEDS_REVIEW, o["outcome"], trace)
     return _result(True, msg, o["outcome"], trace)

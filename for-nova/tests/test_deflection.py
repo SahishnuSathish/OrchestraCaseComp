@@ -173,5 +173,48 @@ class Guard(unittest.TestCase):
         self.assertEqual(egress_guard.mask_email("zane@vendor.example"), "z***@vendor.example")
 
 
+def money(b, value=None):
+    return f"{b['currency']} {float(b['userTotal'] if value is None else value):,.2f}"
+
+
+class BalanceTests(unittest.TestCase):
+    """Exec Q&A: vendors may see the balance and last status of their own invoice, nothing internal."""
+
+    def answer(self, outcome):
+        b = bill_with(outcome)
+        return b, status_service.lookup_status(contact(b["entity"]), b["tranId"], STORE)
+
+    def test_paid_invoice_shows_amount_and_zero_balance(self):
+        b, r = self.answer("paid")
+        self.assertIn(f"Invoice amount: {money(b)}.", r["message"])
+        self.assertIn(f"Open balance: {money(b, 0)}.", r["message"])
+
+    def test_released_invoice_has_zero_open_balance(self):
+        b, r = self.answer("released")
+        self.assertIn(f"Open balance: {money(b, 0)}.", r["message"])
+
+    def test_pending_invoice_shows_full_open_balance_and_no_approver(self):
+        b, r = self.answer("pending")
+        self.assertIn(f"Open balance: {money(b)}.", r["message"])
+        if b.get("nextApprover"):
+            self.assertNotIn(b["nextApprover"], r["message"])
+
+    def test_review_outcomes_get_no_amount(self):
+        for outcome in ("returned", "conflict"):
+            b, r = self.answer(outcome)
+            self.assertEqual(r["message"], status_service.NEEDS_REVIEW, outcome)
+            self.assertIsNone(status_service.AMOUNT.search(r["message"]), outcome)
+
+    def test_every_amount_in_an_answer_is_the_bills_own(self):
+        for outcome in ("paid", "released", "scheduled", "approved_no_run", "pending"):
+            b, r = self.answer(outcome)
+            amts = set(status_service.AMOUNT.findall(r["message"]))
+            self.assertTrue(amts, outcome)
+            self.assertLessEqual(amts, {money(b), money(b, 0)}, outcome)
+
+    def test_portal_does_not_share_conductors_port(self):
+        self.assertNotEqual(portal_server.PORT, 8790)
+
+
 if __name__ == "__main__":
     unittest.main()

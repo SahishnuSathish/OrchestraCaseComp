@@ -1,4 +1,4 @@
-"""Demo-only vendor status portal. Standard library, bound to 127.0.0.1:8790, read-only.
+"""Demo-only vendor status portal. Standard library, bound to 127.0.0.1:8791 (Conductor uses 8790), read-only.
 
 Flow: the vendor enters their contact email and an invoice number; a one-time code is "sent" by printing it to
 THIS console (a real deployment emails a magic link to the address already on the vendor record, never to an
@@ -24,7 +24,7 @@ import status_service  # noqa: E402
 from data_layer import FileBackend, Store  # noqa: E402
 from trace import Trace  # noqa: E402
 
-HOST, PORT = "127.0.0.1", 8790
+HOST, PORT = "127.0.0.1", 8791
 CODE_TTL, WINDOW, PER_EMAIL, PER_IP = 600, 600, 5, 20
 LOG = HERE.parent / "out" / "portal_log.jsonl"
 SENT = "If that address is on file, a 6-digit code has been sent to it. Enter it below to see the status."
