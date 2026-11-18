@@ -198,7 +198,12 @@ class Manager:
     def ensure_live(self, run_id):
         with self.lock:
             if run_id not in self.live:
-                self.live[run_id] = LiveRun(run_id)
+                lr = LiveRun(run_id)
+                # Only a run the database still lists as starting/running can be busy. Anything else (finished before
+                # a restart, or opened from its page later) must not be marked live, or delete_run refuses it forever.
+                status = (db.get_run(run_id) or {}).get("status")
+                lr.finished = status not in ("starting", "running")
+                self.live[run_id] = lr
             return self.live[run_id]
 
     def emit(self, run_id, kind, data=None):
