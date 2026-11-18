@@ -7,8 +7,12 @@ checked again when they are sent (server.py).
 """
 import time
 
+from fastapi import APIRouter
+
 import db
 import runner
+
+router = APIRouter()  # mounted by server.py behind the per-launch token; use request.app.state.get_manager()
 
 KINDS = ("notice", "digest")
 STATES = ("pending", "approved", "skipped")

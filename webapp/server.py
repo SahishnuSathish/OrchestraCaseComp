@@ -30,11 +30,14 @@ from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse  # n
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
 
+import chat  # noqa: E402
 import db  # noqa: E402
 import local_model  # noqa: E402
 import mailer  # noqa: E402
 import prevention  # noqa: E402
+import reply_checks  # noqa: E402
 import runner  # noqa: E402
+import scheduler  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(18)
 STATIC = HERE / "static"
@@ -46,7 +49,7 @@ REVIEW_STATES = {
     "no_draft": {"pending", "closed"},
 }
 SIGNED_OFF = {"approved", "sent", "acknowledged", "closed"}
-BLOCK_APPROVE_FLAGS = {"fraud", "injection"}
+BLOCK_APPROVE_FLAGS = reply_checks.BLOCK_APPROVE_FLAGS
 
 
 def get_manager():
@@ -85,6 +88,7 @@ def auth(request: Request):
 
 
 api = [Depends(auth)]
+app.state.get_manager = get_manager  # for routers in other modules: request.app.state.get_manager()
 
 
 # ---------------------------------------------------------------------------- pages
@@ -387,8 +391,7 @@ def api_tickets(run_id: str):
 
 
 def _default_subject(subject):
-    s = (subject or "").strip()
-    return s if s.lower().startswith("re:") else "Re: " + s
+    return reply_checks.default_subject(subject)
 
 
 def _mail_info(ticket):
@@ -466,19 +469,11 @@ class BulkBody(BaseModel):
 
 
 def _edit_problems(original, edited, recipient):
-    """Problems an employee's edit ADDS to a reply, per the shared egress gate (prototype/egress_guard.py).
-
-    The original already passed the pipeline's draft check against its records, which the bundle does not carry,
-    so only problems that appear in the edited text and not in the original count. Fails closed if the gate cannot load.
-    """
-    runner._proto_on_path()
+    """Problems an employee's edit ADDS to a reply (see reply_checks.edit_problems). Fails closed with 503."""
     try:
-        import egress_guard
-    except Exception as e:  # the gate is owned elsewhere; never wave an edited reply through without it
-        raise HTTPException(503, f"The safety check for edited replies is unavailable ({type(e).__name__}); try again shortly.")
-    before = Counter(egress_guard.check_outbound(original, recipient=recipient))
-    after = Counter(egress_guard.check_outbound(edited, recipient=recipient))
-    return sorted((after - before).elements())
+        return reply_checks.edit_problems(original, edited, recipient)
+    except reply_checks.ChecksUnavailable as e:
+        raise HTTPException(503, str(e))
 
 
 def _apply_review(run_id, tid, state, text=None, note=None):
@@ -511,6 +506,7 @@ def _apply_review(run_id, tid, state, text=None, note=None):
         if problems:
             raise HTTPException(422, "The edited reply can't be approved: it adds " + "; ".join(problems) + ". Remove that and try again.")
     db.save_review(run_id, tid, state, edited, (note or "").strip() or None)
+    scheduler.on_review_change(run_id, tid, state)
 
 
 @app.put("/api/runs/{run_id}/review/{ticket_id}", dependencies=api)
@@ -557,6 +553,9 @@ def _reply_for_edit(run_id, tid):
     if BLOCK_APPROVE_FLAGS & set(res.get("flags") or []):
         raise HTTPException(409, "flagged tickets cannot be edited here; a person must handle them")
     cur = db.get_review(run_id, tid)
+    blocked = scheduler.edit_block_reason(run_id, tid)
+    if blocked:
+        raise HTTPException(409, blocked)
     if cur["state"] not in ("pending", "returned"):
         raise HTTPException(409, "Reopen the reply to edit it." if cur["state"] == "approved" else "This reply was already sent.")
     return rec, res, cur
@@ -740,6 +739,12 @@ def api_prevention_send(run_id: str, kind: str, key: str):
     return _prevention_payload(run_id)
 
 
+# ---------------------------------------------------------------------------- feature routers (chat, scheduled send, prevention)
+app.include_router(chat.router, dependencies=api)
+app.include_router(scheduler.router, dependencies=api)
+app.include_router(prevention.router, dependencies=api)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8790)
@@ -747,6 +752,7 @@ def main():
     a = ap.parse_args()
     import uvicorn
     get_manager()
+    scheduler.start(emit=get_manager().emit)
     url = f"http://127.0.0.1:{a.port}/"
     print(f"Conductor running at {url}  (local only; Ctrl+C to stop)", flush=True)
     if a.open:
