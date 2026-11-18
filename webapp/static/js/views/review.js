@@ -7,6 +7,8 @@ import { api } from '../api.js';
 import { S, on, patchRow, emit, viewState } from '../state.js';
 import { href, navigate } from '../router.js';
 import { briefCard, originalTicket, outputBadge, flagBadges, reviewBadge, emptyState, toast, confirmDialog, openDialog, tabList, backLink, shortcutsDialog } from '../ui.js';
+import { mountChat } from '../chat.js';
+import { mountSchedule } from '../schedule.js';
 
 const TABS = [['todo', 'To review'], ['approved', 'Approved'], ['returned', 'Returned'], ['notes', 'Notes']];
 const TAB_KEYS = TABS.map(([k]) => k);
@@ -88,7 +90,8 @@ export function mount(root, { route }) {
   const centerScroll = h('div', { class: 'center-scroll' });
   const returnSlot = h('div');
   const actionSlot = h('div');
-  const center = h('section', { class: 'pane center', 'aria-label': 'Draft reply' }, centerScroll, h('div', { class: 'center-foot' }, returnSlot, actionSlot));
+  const scheduleSlot = h('div', { id: 'schedule-slot' });
+  const center = h('section', { class: 'pane center', 'aria-label': 'Draft reply' }, centerScroll, h('div', { class: 'center-foot' }, returnSlot, actionSlot, scheduleSlot));
   const originalEl = h('aside', { class: 'pane original', 'aria-label': 'Original ticket' });
   const review = h('div', { class: `review${originalOpen ? '' : ' orig-closed'}` }, queue, center, originalEl);
   review.dataset.pane = 'draft';
@@ -295,7 +298,7 @@ export function mount(root, { route }) {
     if (loadError && !detail) { renderLoadError(); return; }
     if (!detail) {
       fill(centerScroll, h('div', { class: 'center-inner' }, emptyState({ iconName: 'review', title: S.rows.some((r) => r.output_type === 'draft_reply') ? 'Pick a ticket to review' : 'No drafted replies yet', text: 'Each reply shows a short brief of the issue, where the data came from, and what the requester will be told.' })));
-      fill(actionSlot); fill(returnSlot); fill(originalEl);
+      fill(actionSlot); fill(returnSlot); fill(originalEl); fill(scheduleSlot);
       return;
     }
     const d = detail, r = currentRow(), t = d.ticket;
@@ -353,6 +356,7 @@ export function mount(root, { route }) {
         h('button', { class: 'btn btn-sm btn-icon', type: 'button', 'aria-label': 'Previous ticket', title: 'Previous (K)', disabled: idx <= 0 && idx >= 0, onclick: () => step(-1) }, icon('chev-up')),
         h('button', { class: 'btn btn-sm btn-icon', type: 'button', 'aria-label': 'Next ticket', title: 'Next (J)', disabled: idx >= 0 && idx >= rows.length - 1, onclick: () => step(1) }, icon('chev-down'))));
 
+    const chatSlot = h('div', { id: 'chat-slot' });
     const paneSwitch = tabList({ label: 'Show', selected: review.dataset.pane, items: [{ key: 'draft', label: 'Draft' }, { key: 'original', label: 'Original ticket' }], onSelect: (k) => { review.dataset.pane = k; renderCenter(); } });
 
     fill(centerScroll, h('div', { class: 'center-inner' },
@@ -361,7 +365,8 @@ export function mount(root, { route }) {
         h('h2', null, t.subject || '(no subject)'),
         h('div', { class: 'meta' }, h('span', { class: 'mono' }, `#${r.ticket_id}`), outputBadge(r.output_type), flagBadges(r), reviewBadge(r), h('span', { class: 'meta-who' }, [t.sender_name, r.vendor && `· ${r.vendor}`].filter(Boolean).join(' ')))),
       h('div', { class: 'orig-tabs' }, paneSwitch),
-      banners, makeBrief(d, r), doc, problemsEl));
+      banners, makeBrief(d, r), doc, problemsEl, chatSlot));
+    mountChat(chatSlot, { runId, ticketId: r.ticket_id });
 
     fill(originalEl,
       h('div', { class: 'orig-head' }, h('h3', null, 'Original ticket'),
@@ -457,8 +462,19 @@ export function mount(root, { route }) {
   }
 
   // ------------------------------------------------------------------ actions
+  // Reload the open ticket from the server (used by the schedule controls after they change something).
+  async function reloadDetail(id) {
+    try {
+      const nd = await api.ticket(S.runId, id);
+      cache.set(id, nd);
+      patchRow(id, { review_state: nd.review.state });
+      if (detail && detail.row.ticket_id === id) { detail = nd; renderCenter(); }
+      emit('review'); renderQueue();
+    } catch (e) { toast({ message: e.message || 'Could not reload this ticket' }); }
+  }
+
   function renderActions() {
-    if (!detail) { fill(actionSlot); return; }
+    if (!detail) { fill(actionSlot); fill(scheduleSlot); return; }
     const r = currentRow();
     const state = r.review_state;
     const reply = isReply(), flagged = flaggedNow(), editable = editableNow();
@@ -491,6 +507,8 @@ export function mount(root, { route }) {
       buttons.push(h('button', { class: 'btn btn-primary', type: 'button', disabled: busy, onclick: sendReply }, sending ? h('span', { class: 'spinner spinner-sm' }) : icon('send'), sending ? 'Sending…' : 'Send reply', sending ? null : h('span', { class: 'kbd' }, 'S')));
     }
     fill(actionSlot, h('div', { class: 'action-bar' }, h('div', { class: 'status' }, status), h('div', { class: 'actions' }, buttons)));
+    const tid = r.ticket_id;
+    mountSchedule(scheduleSlot, { runId, ticketId: tid, row: r, detail, onChange: () => reloadDetail(tid) });
   }
 
   function renderReturnBox() {

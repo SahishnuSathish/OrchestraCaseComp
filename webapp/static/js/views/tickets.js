@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { S, on, viewState, isActive } from '../state.js';
 import { href, navigate } from '../router.js';
 import { briefCard, originalTicket, dataTrail, decisionBlock, pipelineTimeline, outputBadge, flagBadges, reviewBadge, emptyState, backLink, panel, toast } from '../ui.js';
+import { mountChat } from '../chat.js';
 
 const PAGE = 200;
 const BRIEF_WAIT_MS = 120000;
@@ -414,16 +415,18 @@ export function mount(root, { route }) {
     const prevTop = detailPane.scrollTop;
     briefEl = null;
     const placeholder = h('div');
+    const chatSlot = h('div', { id: 'chat-slot' });
     fill(body,
       h('div', { class: 'detail-head' },
         h('div', { class: 'tk-head-top' }, headMeta,
           canReview ? h('a', { class: 'btn btn-primary btn-sm tk-open-review', href: href('review', { runId, ticketId: r.ticket_id, query: { from: 'tickets' } }) }, icon('review'), 'Open in Review') : null),
         h('h2', null, t.subject || '(no subject)'),
         h('div', { class: 'meta muted' }, [t.sender_name, r.vendor && `· ${r.vendor}`, t.received_at && `· ${fmtDate(t.received_at)}`].filter(Boolean).join(' '))),
-      placeholder, outputPanel(d),
+      placeholder, outputPanel(d), chatSlot,
       originalTicket(t), dataTrail(d.bundle.trace), decisionBlock(d), pipelineTimeline(d.bundle.stages));
     briefEl = placeholder;
     paintBrief();
+    mountChat(chatSlot, { runId, ticketId: r.ticket_id });
     detailPane.scrollTop = keepScroll ? prevTop : 0;
   }
 

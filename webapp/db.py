@@ -64,6 +64,15 @@ def init():
                 con.execute(f"ALTER TABLE runs ADD COLUMN {col} {typ}")
         # A run that was mid-flight when the server stopped can never finish: mark it interrupted.
         con.execute("UPDATE runs SET status='interrupted' WHERE status IN ('running','starting')")
+    # Feature tables (ticket chat, scheduled send) are created by their own modules.
+    import chat
+    import scheduler
+    chat.init_schema()
+    scheduler.init_schema()
+
+
+# Tables with a run_id column that delete_run() clears. Feature tables may not exist yet, so missing ones are skipped.
+RUN_TABLES = ("reviews", "briefs", "tickets", "prevention", "prevention_reviews", "ticket_chat", "scheduled_send")
 
 
 def _exec(sql, args=()):
@@ -139,9 +148,11 @@ def delete_run(run_id):
         con = _connect()
         try:
             with con:
-                for table in ("reviews", "briefs", "tickets", "prevention", "prevention_reviews", "runs"):
-                    col = "id" if table == "runs" else "run_id"
-                    con.execute(f"DELETE FROM {table} WHERE {col}=?", (run_id,))
+                have = {r["name"] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                for table in RUN_TABLES:
+                    if table in have:
+                        con.execute(f"DELETE FROM {table} WHERE run_id=?", (run_id,))
+                con.execute("DELETE FROM runs WHERE id=?", (run_id,))
         finally:
             con.close()
 

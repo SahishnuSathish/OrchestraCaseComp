@@ -1,0 +1,11 @@
+/* Prevent: demo on one real invoice */
+.demo-box:empty { display: none; }
+.demo { display: grid; gap: var(--s-3); }
+.demo-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.demo-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--s-3); align-items: start; }
+.demo-step-n { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-size: var(--fs-sm); }
+.demo-step[data-done="true"] .demo-step-n { background: var(--success-tint); border-color: var(--success-border); color: var(--success); }
+.demo-step-body { min-width: 0; display: grid; gap: var(--s-2); justify-items: start; }
+.demo-step-body h3 { margin: 0; font-size: var(--fs-lg); font-weight: 600; }
+.demo-step-body p { margin: 0; overflow-wrap: anywhere; }
+.demo-notice { margin: 0; padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); max-width: 100%; }
