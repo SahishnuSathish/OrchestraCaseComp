@@ -26,6 +26,9 @@ router = APIRouter()
 MAX_TURNS = 20          # messages (user and assistant) sent to the model
 MAX_QUESTION = 2000
 MAX_FIELD = 6000
+BUDGET_CHARS = 12000     # about 3,000 tokens; the model runs at num_ctx 4096 like the rest of the app
+MAX_CONTEXT = 8500
+NUM_CTX = 4096
 OPEN, CLOSE = "<<<TICKET_DATA", "TICKET_DATA>>>"
 
 SYSTEM = (
@@ -89,7 +92,7 @@ def build_context(run_id, ticket_id):
         f"Sender: {_clean(t.get('sender_name') or row.get('sender_name'), 120)}" + (f" (domain {_clean(domain, 120)})" if domain else ""),
         f"Subject: {_clean(t.get('subject'), 300)}",
         "Original message:",
-        _clean(t.get("body") or t.get("description")),
+        _clean(t.get("body") or t.get("description"), 3500),
         "",
         f"Rule that decided it: {_clean(dec.get('rule'), 120)}",
         f"Why: {_clean(dec.get('why'), 600)}",
@@ -99,29 +102,29 @@ def build_context(run_id, ticket_id):
     ]
     draft = rv.get("edited_text") if rv.get("edited_text") is not None else res.get("text")
     if draft:
-        lines += ["", "Draft reply (current text):", _clean(draft)]
+        lines += ["", "Draft reply (current text):", _clean(draft, 2000)]
     if brief and isinstance(brief.get("bullets"), dict):
-        lines += ["", "Brief:"] + [f"- {k}: {_clean(v, 500)}" for k, v in brief["bullets"].items() if v]
+        lines += ["", "Brief:"] + [f"- {k}: {_clean(v, 300)}" for k, v in brief["bullets"].items() if v]
     return "\n".join(lines)
 
 
 def build_messages(context, prior, question):
-    """System rules, then the delimited ticket data, then the last MAX_TURNS history messages, then the new question."""
-    msgs = [{"role": "system", "content": SYSTEM},
-            {"role": "user", "content": f"{OPEN}\n{context}\n{CLOSE}"},
+    """System rules, then the delimited ticket data, then history, then the new question, within BUDGET_CHARS.
+    The system prompt, the delimiters and the question are never trimmed; the oldest history turns go first."""
+    q = _clean(question, MAX_QUESTION)
+    head = [{"role": "system", "content": SYSTEM},
+            {"role": "user", "content": OPEN + "\n" + context[:MAX_CONTEXT] + "\n" + CLOSE},
             {"role": "assistant", "content": "I have the ticket. What do you want to know?"}]
-    prior = list(prior)[-MAX_TURNS:]
-    while prior and prior[0]["role"] != "user":
+    room = BUDGET_CHARS - sum(len(m["content"]) for m in head) - len(q)
+    prior = [{"role": m["role"], "content": _clean(m["content"], MAX_FIELD)} for m in list(prior)[-MAX_TURNS:]]
+    while prior and (prior[0]["role"] != "user" or sum(len(m["content"]) for m in prior) > room):
         prior.pop(0)
-    for m in prior:
-        msgs.append({"role": m["role"], "content": _clean(m["content"], MAX_FIELD)})
-    msgs.append({"role": "user", "content": _clean(question, MAX_QUESTION)})
-    return msgs
+    return head + prior + [{"role": "user", "content": q}]
 
 
 def request_body(messages, model):
     return {"model": model, "stream": True, "think": False, "keep_alive": "30m",
-            "options": {"temperature": 0.2, "num_ctx": 8192, "num_predict": 700}, "messages": messages}
+            "options": {"temperature": 0.2, "num_ctx": NUM_CTX, "num_predict": 700}, "messages": messages}
 
 
 # ---------------------------------------------------------------------------- streaming
