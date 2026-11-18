@@ -34,6 +34,11 @@ CREATE TABLE IF NOT EXISTS reviews (
   PRIMARY KEY (run_id, ticket_id)
 );
 CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS prevention (run_id TEXT PRIMARY KEY, payload TEXT, built_at REAL);
+CREATE TABLE IF NOT EXISTS prevention_reviews (
+  run_id TEXT, kind TEXT, key TEXT, state TEXT, decided_at REAL, sent_at REAL, message_id TEXT,
+  PRIMARY KEY (run_id, kind, key)
+);
 """
 
 
@@ -134,7 +139,7 @@ def delete_run(run_id):
         con = _connect()
         try:
             with con:
-                for table in ("reviews", "briefs", "tickets", "runs"):
+                for table in ("reviews", "briefs", "tickets", "prevention", "prevention_reviews", "runs"):
                     col = "id" if table == "runs" else "run_id"
                     con.execute(f"DELETE FROM {table} WHERE {col}=?", (run_id,))
         finally:
@@ -234,3 +239,29 @@ def save_sent(run_id, ticket_id, message_id, info):
 def review_states(run_id):
     return {r["ticket_id"]: r for r in _all(
         "SELECT ticket_id, state, edited_text, edited_subject, note, decided_at, sent_at, message_id FROM reviews WHERE run_id=?", (run_id,))}
+
+# ------------------------------------------------------------------ prevention (vendor notices, approver digests)
+def save_prevention(run_id, payload):
+    _exec("INSERT OR REPLACE INTO prevention (run_id, payload, built_at) VALUES (?,?,?)",
+          (run_id, json.dumps(payload, ensure_ascii=True, default=sorted), payload.get("built_at")))
+
+
+def get_prevention(run_id):
+    r = _one("SELECT payload FROM prevention WHERE run_id=?", (run_id,))
+    return json.loads(r["payload"]) if r else None
+
+
+def set_prevention_state(run_id, kind, key, state):
+    _exec("INSERT INTO prevention_reviews (run_id, kind, key, state, decided_at) VALUES (?,?,?,?,?) "
+          "ON CONFLICT(run_id, kind, key) DO UPDATE SET state=excluded.state, decided_at=excluded.decided_at",
+          (run_id, kind, key, state, time.time()))
+
+
+def save_prevention_sent(run_id, kind, key, message_id):
+    _exec("UPDATE prevention_reviews SET state='sent', sent_at=?, message_id=? WHERE run_id=? AND kind=? AND key=?",
+          (time.time(), message_id, run_id, kind, key))
+
+
+def prevention_states(run_id):
+    return {(r["kind"], r["key"]): {"state": r["state"], "sent_at": r["sent_at"], "message_id": r["message_id"]}
+            for r in _all("SELECT * FROM prevention_reviews WHERE run_id=?", (run_id,))}
