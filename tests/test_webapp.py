@@ -427,6 +427,37 @@ class RunFinishTests(unittest.TestCase):
             runner.model_status = original
 
 
+class LiveStateTests(unittest.TestCase):
+    def test_opening_a_finished_run_does_not_block_delete(self):
+        """Viewing a done run (its event stream calls ensure_live) must not mark it busy: delete used to refuse it."""
+        mgr = server.get_manager()
+        rid = "livetest1"
+        db.create_run(rid, "x", "run", False, None, 1, label="live test", status="done")
+        try:
+            mgr.live.pop(rid, None)  # as after a restart: no in-memory record yet
+            mgr.ensure_live(rid)
+            self.assertTrue(mgr.live[rid].finished)
+            mgr.delete_run(rid)  # must not raise
+            self.assertIsNone(db.get_run(rid))
+        finally:
+            mgr.live.pop(rid, None)
+            db.delete_run(rid)
+
+    def test_a_running_run_is_still_busy(self):
+        mgr = server.get_manager()
+        rid = "livetest2"
+        db.create_run(rid, "x", "run", False, None, 1, label="live test", status="running")
+        try:
+            mgr.live.pop(rid, None)
+            mgr.ensure_live(rid)
+            self.assertFalse(mgr.live[rid].finished)
+            with self.assertRaises(RuntimeError):
+                mgr.delete_run(rid)
+        finally:
+            mgr.live.pop(rid, None)
+            db.delete_run(rid)
+
+
 class BrandTests(unittest.TestCase):
     def test_page_and_app_are_named_conductor(self):
         c = TestClient(server.app, base_url="http://localhost")

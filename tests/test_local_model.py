@@ -356,8 +356,8 @@ class WarningAndDeleteTests(Base):
 
     def test_delete_refused_while_running(self):
         m = server.get_manager()
-        live = m.ensure_live("abcd1234")
         db.create_run("abcd1234", DATA, "run", False, None, 5, status="running")
+        live = m.ensure_live("abcd1234")
         try:
             self.assertEqual(self.c.delete("/api/runs/abcd1234", headers=self.h).status_code, 409)
             self.assertIsNotNone(db.get_run("abcd1234"))
