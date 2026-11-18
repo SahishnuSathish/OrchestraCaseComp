@@ -44,6 +44,8 @@ class FileBackend:
     def __init__(self, data_dir, tickets_path=None):
         self.data_dir = Path(data_dir)
         self.tables = {}
+        self._indexes = {}
+        self._applied = None
         for name, fn in TABLE_FILES.items():
             with open(self.data_dir / fn, encoding="utf-8", newline="") as f:
                 self.tables[name] = list(csv.DictReader(f))
@@ -64,7 +66,30 @@ class FileBackend:
                 self.users.setdefault(u["id"], u)
 
     def query(self, table, **filters):
+        """Rows whose fields equal the filters, in file order. Tables never change after loading, so a one-field
+        query is answered from an index built on first use (same rows, same order as a full scan)."""
+        if len(filters) == 1:
+            (k, v), = filters.items()
+            return list(self._index(table, k).get(v, ()))
         return [r for r in self.tables[table] if all(r.get(k) == v for k, v in filters.items())]
+
+    def _index(self, table, key):
+        idx = self._indexes.get((table, key))
+        if idx is None:
+            idx = {}
+            for r in self.tables[table]:
+                idx.setdefault(r.get(key), []).append(r)
+            self._indexes[(table, key)] = idx
+        return idx
+
+    def payments_applying(self, bill_id):
+        """Payments whose semicolon-separated appliedBills lists bill_id, in file order (indexed on first use)."""
+        if self._applied is None:
+            self._applied = {}
+            for p in self.tables["vendorPayment"]:
+                for b in dict.fromkeys(p["appliedBills"].split(";")):
+                    self._applied.setdefault(b, []).append(p)
+        return list(self._applied.get(str(bill_id), ()))
 
     def all(self, table):
         return list(self.tables[table])
@@ -222,7 +247,7 @@ class Lookups:
         def f():
             rows = self.b.query("vendorPayment", appliedBills=bid)
             if not rows and isinstance(self.b, FileBackend):
-                rows = [p for p in self.b.tables["vendorPayment"] if bid in p["appliedBills"].split(";")]
+                rows = self.b.payments_applying(bid)
             return rows
         return self.trace.call("payment_system", "find_payments_for_bill",
                                f"/record/v1/vendorPayment?appliedBills={bid}", bid, f)
