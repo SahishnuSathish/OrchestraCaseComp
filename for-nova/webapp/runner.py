@@ -213,7 +213,11 @@ class Manager:
         return None
 
     # -- starting a run
-    def start_run(self, dataset_path, use_model=False, limit=None):
+    def start_run(self, dataset_path, use_model=False, limit=None, model_free=False):
+        """Three model states. use_model: the pipeline reader runs. Neither flag: the regex reader runs, but the brief
+        writer may still reword briefs when the model is up. model_free: no model at all, briefs included."""
+        if model_free and use_model:
+            raise ValueError("A model-free run cannot also use the model.")
         v = validate_dataset(dataset_path)
         if not v["ok"]:
             raise ValueError(v.get("error") or "Dataset is not valid.")
@@ -221,13 +225,13 @@ class Manager:
             raise RuntimeError("A run is already in progress.")
         run_id = uuid.uuid4().hex[:8]
         total = min(v["tickets"], limit) if limit else v["tickets"]
-        db.create_run(run_id, v["path"], "run", use_model, limit, total, label=Path(v["path"]).name)
+        db.create_run(run_id, v["path"], "run", use_model, limit, total, label=Path(v["path"]).name, model_free=model_free)
         live = self.ensure_live(run_id)
-        t = threading.Thread(target=self._work, args=(live, v["path"], use_model, limit), daemon=True, name=f"run-{run_id}")
+        t = threading.Thread(target=self._work, args=(live, v["path"], use_model, limit, model_free), daemon=True, name=f"run-{run_id}")
         t.start()
         return run_id
 
-    def _work(self, live, path, use_model, limit):
+    def _work(self, live, path, use_model, limit, model_free=False):
         run_id = live.id
         try:
             _proto_on_path()
@@ -275,7 +279,7 @@ class Manager:
                                      "elapsed": round(elapsed, 1)})
             db.update_run(run_id, status="done", finished_at=time.time())
             live.emit("done", {"done": len(tickets), "elapsed": round(time.perf_counter() - t_run, 1)})
-            if used_model or model_status()["usable"]:
+            if not model_free and (used_model or model_status()["usable"]):
                 self.briefs.enqueue_run(run_id)
         except Exception as e:
             traceback.print_exc()
@@ -396,6 +400,12 @@ class BriefWorker:
         self._summ = None
         self._summ_sig = None
 
+    @staticmethod
+    def _model_free(run_id):
+        """A strictly model-free run never gets a model-written brief, whoever asks."""
+        run = db.get_run(run_id)
+        return bool(run and run.get("model_free"))
+
     def pending_count(self):
         with self.lock:
             return len(self.pending)
@@ -407,6 +417,8 @@ class BriefWorker:
                 self.thread.start()
 
     def enqueue(self, run_id, ticket_id, force=False):
+        if self._model_free(run_id):
+            return False
         key = (run_id, int(ticket_id))
         with self.lock:
             if key in self.pending and not force:
@@ -418,6 +430,8 @@ class BriefWorker:
         return True
 
     def enqueue_run(self, run_id, only_template=True):
+        if self._model_free(run_id):
+            return 0
         n = 0
         sources = db.brief_sources(run_id)
         for r in db.list_rows(run_id):
@@ -448,6 +462,8 @@ class BriefWorker:
                     self.pending.discard((run_id, tid))
 
     def _one(self, run_id, tid, force):
+        if self._model_free(run_id):
+            return
         rec = db.get_ticket(run_id, tid)
         if not rec:
             return

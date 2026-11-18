@@ -212,7 +212,7 @@ export function mount(root, { route }) {
 
   function makeBrief(d, r, swap = false) {
     const id = r.ticket_id;
-    const el = briefCard({ brief: d.brief, canRewrite: !!S.model?.usable, onRewrite: () => rewriteBrief(id), swap, busy: briefBusy.has(id), note: briefNotes.get(id) || null });
+    const el = briefCard({ brief: d.brief, canRewrite: !!S.model?.usable && !S.run?.model_free, onRewrite: () => rewriteBrief(id), swap, busy: briefBusy.has(id), note: briefNotes.get(id) || null });
     el.dataset.slot = 'brief';
     return el;
   }

@@ -37,6 +37,14 @@ The app is then at http://127.0.0.1:8790/ (the default). Options:
 
 The local model is an optional second reader. In a run that has the model option turned on, it reads the tickets the built-in regex reader is unsure about (a gate skips the model where regex is already confident, and earlier answers are cached), and it can only add caution to what the regex reader found. It also writes and rewrites the brief shown on a ticket, and every brief is checked against the records before it is shown. It talks to an Ollama server.
 
+A run has one of three model states, chosen on the New run page (API: `use_model`, `model_free`):
+
+| State | Reads tickets with the model | Briefs written by the model |
+|---|---|---|
+| Regex + local model (`use_model: true`) | yes | yes |
+| Regex reader only (the default) | no | yes, when the model is running. A rewrite that fails validation is dropped and the records-only brief stays |
+| No model at all (`model_free: true`) | no | no. The model is never contacted for the run, and rewrite requests for it are refused (HTTP 409) |
+
 Settings are resolved per key in this order:
 
 1. The values saved on the Settings page (stored in the app database).

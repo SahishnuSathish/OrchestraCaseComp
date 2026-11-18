@@ -357,8 +357,9 @@ export function mount(root) {
     const fromModel = q(rows, (r) => r.brief_source === 'model');
     const rest = rows.length - fromModel;
     const pendingN = S.model?.briefs_pending > 0 ? S.model.briefs_pending : upgrading.size;
-    const usable = !!S.model?.usable;
-    const sig = [fromModel, rest, pendingN, usable, active()].join('|');
+    const modelFree = !!S.run?.model_free;
+    const usable = !!S.model?.usable && !modelFree;
+    const sig = [fromModel, rest, pendingN, usable, modelFree, active()].join('|');
     briefsPanel.hidden = !rows.length;
     if (sig === briefSig) return;
     briefSig = sig;
@@ -366,6 +367,7 @@ export function mount(root) {
     bTemplate.textContent = `${fmtInt(rest)} generated from records`;
     if (pendingN > 0) fill(bAction, h('p', { class: 'row muted', role: 'status' }, h('span', { class: 'spinner spinner-sm' }), `Rewriting ${plural(pendingN, 'brief')} in the background…`));
     else if (rest > 0 && usable && !active()) fill(bAction, h('button', { class: 'btn', type: 'button', onclick: (e) => rewrite(e.currentTarget) }, icon('refresh'), 'Rewrite the rest with the local model'));
+    else if (rest > 0 && modelFree) fill(bAction, h('p', { class: 'muted' }, 'This run used no model, so every brief is generated from the records.'));
     else if (rest > 0 && !usable) fill(bAction, h('p', { class: 'muted' }, 'The local model is not available, so briefs are generated from the records. ', h('a', { href: href('settings') }, 'Local model settings')));
     else fill(bAction);
   }

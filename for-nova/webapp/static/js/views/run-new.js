@@ -13,7 +13,7 @@ export function mount(root, { route }) {
   const stored = ls('ap.reader');
   const ui = {
     path: q.dataset || ls('ap.dataset') || '', validation: null, validating: false, submitting: false, checking: false,
-    reader: q.model === '1' ? 'model' : q.model === '0' ? 'regex' : (stored === 'model' || stored === 'regex' ? stored : null),
+    reader: q.model === '1' ? 'model' : q.model === '0' ? 'regex' : q.model === 'none' ? 'none' : (['model', 'regex', 'none'].includes(stored) ? stored : null),
     limit: /^[1-9]\d*$/.test(q.limit || '') ? q.limit : '',
     activeRun: null, startError: null,
   };
@@ -104,6 +104,7 @@ export function mount(root, { route }) {
   };
   const rRegex = mkRadio('regex');
   const rModel = mkRadio('model');
+  const rNone = mkRadio('none');
   const modelName = h('span', { class: 'mono choice-tag' });
   const modelExtra = h('div', { class: 'choice-extra' });
   const limitInput = h('input', { class: 'input', id: 'limit', type: 'number', inputmode: 'numeric', min: '1', step: '1', placeholder: 'All', 'aria-describedby': 'limit-help', value: ui.limit });
@@ -115,19 +116,22 @@ export function mount(root, { route }) {
       h('legend', { class: 'sr-only' }, 'Reader'),
       h('div', { class: 'choice', id: 'choice-regex' },
         h('label', { class: 'choice-row', for: 'reader-regex' }, rRegex,
-          h('span', { class: 'choice-text' }, h('span', { class: 'choice-title' }, 'Regex reader only'), h('span', { class: 'help' }, 'Fast. No model needed.')))),
+          h('span', { class: 'choice-text' }, h('span', { class: 'choice-title' }, 'Regex reader only'), h('span', { class: 'help' }, 'Fast. The model is not used to read tickets, but it can still reword the staff briefs when it is running.')))),
       h('div', { class: 'choice', id: 'choice-model' },
         h('label', { class: 'choice-row', for: 'reader-model' }, rModel,
           h('span', { class: 'choice-text' },
             h('span', { class: 'choice-title' }, 'Regex + local model', modelName),
             h('span', { class: 'help' }, 'Reads the tickets the regex reader is unsure about and writes the briefs.'))),
-        modelExtra)),
+        modelExtra),
+      h('div', { class: 'choice', id: 'choice-none' },
+        h('label', { class: 'choice-row', for: 'reader-none' }, rNone,
+          h('span', { class: 'choice-text' }, h('span', { class: 'choice-title' }, 'No model at all'), h('span', { class: 'help' }, 'Strictly model-free: regex reader and briefs written from the records only. The model is never contacted for this run.'))))),
     h('details', { class: 'advanced', open: !!ui.limit },
       h('summary', null, icon('chev-down', 'icon-sm chev'), 'Advanced: ticket limit'),
       h('div', { class: 'field adv-body' }, h('label', { class: 'label', for: 'limit' }, 'Ticket limit'), limitInput, limitHelp)));
 
   const modelUsable = () => !!S.model?.usable;
-  const effectiveReader = () => (ui.reader === 'model' ? (modelUsable() ? 'model' : 'regex') : ui.reader === 'regex' ? 'regex' : (modelUsable() ? 'model' : 'regex'));
+  const effectiveReader = () => (ui.reader === 'none' ? 'none' : ui.reader === 'model' ? (modelUsable() ? 'model' : 'regex') : ui.reader === 'regex' ? 'regex' : (modelUsable() ? 'model' : 'regex'));
 
   async function checkAgain(btn) {
     if (ui.checking) return;
@@ -140,6 +144,7 @@ export function mount(root, { route }) {
     const eff = effectiveReader();
     rRegex.checked = eff === 'regex';
     rModel.checked = eff === 'model';
+    rNone.checked = eff === 'none';
     rModel.disabled = !usable;
     modelName.textContent = S.model?.model || '';
     modelName.hidden = !S.model?.model;
@@ -172,7 +177,7 @@ export function mount(root, { route }) {
     const v = ui.validation;
     const n = total();
     const model = effectiveReader() === 'model';
-    const readerTxt = model ? `Regex + ${S.model?.model || 'local model'}` : 'Regex reader';
+    const readerTxt = model ? `Regex + ${S.model?.model || 'local model'}` : effectiveReader() === 'none' ? 'Regex reader, no model at all' : 'Regex reader';
     const est = !n ? 'Not known yet' : model ? `About ${fmtDuration(n * 3.6)}` : 'Under a minute';
     fill(summaryBody, h('dl', { class: 'kv nr-kv' },
       h('dt', null, 'Dataset'), h('dd', { class: 'truncate', title: ui.path || null }, v?.ok ? `${folderName(ui.path)} (${plural(n, 'ticket')})` : h('span', { class: 'muted' }, 'Not chosen yet')),
@@ -215,8 +220,9 @@ export function mount(root, { route }) {
     if (ui.submitting || startBtn.disabled) return;
     ui.submitting = true; ui.startError = null; renderStart();
     const useModel = effectiveReader() === 'model';
+    const modelFree = effectiveReader() === 'none';
     try {
-      const { run_id } = await api.startRun({ path: ui.path, use_model: useModel, limit: ui.limit && limitValid() ? +ui.limit : null });
+      const { run_id } = await api.startRun({ path: ui.path, use_model: useModel, model_free: modelFree, limit: ui.limit && limitValid() ? +ui.limit : null });
       navigate(href('overview', { runId: run_id }));
     } catch (e) {
       ui.submitting = false;

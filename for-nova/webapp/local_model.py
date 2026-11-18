@@ -28,7 +28,7 @@ import extract_model  # noqa: E402
 DEFAULT_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "qwen3.5:9b"
 DEFAULT_TIMEOUT = 120
-PROBE_TIMEOUT = 2.0
+PROBE_TIMEOUT = 4.0   # Windows takes ~2 s to refuse a connection to a closed localhost port; a shorter limit reports that as "too slow"
 SETTING_KEY = "model"
 UNSET = object()
 

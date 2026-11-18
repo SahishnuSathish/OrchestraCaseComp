@@ -79,7 +79,7 @@ export async function loadRun(id) {
 // Tried once per run per page load; also called after each model check because the shell does not wait for the first one.
 const upgradeTried = new Set();
 function maybeUpgradeBriefs() {
-  if (!S.runId || !S.model?.usable || isActive(S.run) || upgradeTried.has(S.runId)) return;
+  if (!S.runId || !S.model?.usable || S.run?.model_free || isActive(S.run) || upgradeTried.has(S.runId)) return;
   if (!S.rows.some((r) => r.brief_source !== 'model')) return;
   upgradeTried.add(S.runId);
   api.upgradeBriefs(S.runId).catch(() => {});

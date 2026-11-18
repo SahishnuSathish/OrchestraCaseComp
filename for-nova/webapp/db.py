@@ -53,7 +53,7 @@ def init():
             if col not in have:
                 con.execute(f"ALTER TABLE reviews ADD COLUMN {col} {typ}")
         have = {r["name"] for r in con.execute("PRAGMA table_info(runs)")}
-        for col, typ in (("model", "TEXT"), ("warnings", "TEXT")):
+        for col, typ in (("model", "TEXT"), ("warnings", "TEXT"), ("model_free", "INTEGER DEFAULT 0")):
             if col not in have:
                 con.execute(f"ALTER TABLE runs ADD COLUMN {col} {typ}")
         # A run that was mid-flight when the server stopped can never finish: mark it interrupted.
@@ -85,11 +85,12 @@ def _one(sql, args=()):
 
 
 # ------------------------------------------------------------------ runs
-def create_run(run_id, dataset_path, source, use_model, limit_n, total, label=None, status="starting", model=None, warnings=None):
+def create_run(run_id, dataset_path, source, use_model, limit_n, total, label=None, status="starting", model=None, warnings=None,
+               model_free=False):
     _exec("INSERT INTO runs (id, created_at, dataset_path, source, use_model, limit_n, status, total, done, label, started_at,"
-          " model, warnings) VALUES (?,?,?,?,?,?,?,?,0,?,?,?,?)",
+          " model, warnings, model_free) VALUES (?,?,?,?,?,?,?,?,0,?,?,?,?,?)",
           (run_id, time.time(), str(dataset_path), source, int(bool(use_model)), limit_n, status, total, label, time.time(),
-           model, json.dumps(list(warnings or []))))
+           model, json.dumps(list(warnings or [])), int(bool(model_free))))
 
 
 def update_run(run_id, **fields):

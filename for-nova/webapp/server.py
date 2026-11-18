@@ -242,7 +242,8 @@ def api_validate(body: PathBody):
 # ---------------------------------------------------------------------------- runs
 class RunBody(BaseModel):
     path: str
-    use_model: bool = False
+    use_model: bool = False        # the pipeline reader uses the model
+    model_free: bool = False       # no model anywhere in the run, briefs included (cannot be combined with use_model)
     limit: Optional[int] = None
 
 
@@ -283,6 +284,7 @@ def _counts(run_id):
 def _run_payload(r):
     out = dict(r)
     out["use_model"] = bool(r["use_model"])
+    out["model_free"] = bool(r.get("model_free"))
     out["counts"] = _counts(r["id"])
     return out
 
@@ -296,7 +298,8 @@ def api_runs(limit: int = 50):
 @app.post("/api/runs", dependencies=api)
 def api_start_run(body: RunBody):
     try:
-        run_id = get_manager().start_run(body.path, body.use_model, body.limit if body.limit and body.limit > 0 else None)
+        run_id = get_manager().start_run(body.path, body.use_model, body.limit if body.limit and body.limit > 0 else None,
+                                         model_free=body.model_free)
     except ValueError as e:
         raise HTTPException(400, str(e))
     except RuntimeError as e:
@@ -432,7 +435,9 @@ def api_ticket(run_id: str, ticket_id: int):
 
 @app.post("/api/runs/{run_id}/tickets/{ticket_id}/brief", dependencies=api)
 def api_regen_brief(run_id: str, ticket_id: int):
-    _run_or_404(run_id)
+    run = _run_or_404(run_id)
+    if run.get("model_free"):
+        raise HTTPException(409, "This run was started without any model, so its briefs are written from the records only.")
     if not runner.model_status()["usable"]:
         raise HTTPException(409, "The local model is not available.")
     return {"queued": get_manager().briefs.enqueue(run_id, ticket_id, force=True)}
@@ -440,8 +445,8 @@ def api_regen_brief(run_id: str, ticket_id: int):
 
 @app.post("/api/runs/{run_id}/briefs/upgrade", dependencies=api)
 def api_upgrade_briefs(run_id: str):
-    _run_or_404(run_id)
-    if not runner.model_status()["usable"]:
+    run = _run_or_404(run_id)
+    if run.get("model_free") or not runner.model_status()["usable"]:
         return {"queued": 0, "model": False}
     return {"queued": get_manager().briefs.enqueue_run(run_id), "model": True}
 

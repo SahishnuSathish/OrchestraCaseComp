@@ -340,7 +340,7 @@ export function mount(root, { route }) {
     const d = detail.data, id = detail.id;
     const busy = briefBusy.has(id);
     const next = briefCard({
-      brief: d.brief, canRewrite: !!S.model?.usable, swap: false, busy, note: briefNote.get(id) || null,
+      brief: d.brief, canRewrite: !!S.model?.usable && !S.run?.model_free, swap: false, busy, note: briefNote.get(id) || null,
       onRewrite: (btn) => rewrite(id, btn),
     });
     if (briefEl?.isConnected) briefEl.replaceWith(next);

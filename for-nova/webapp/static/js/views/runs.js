@@ -20,6 +20,7 @@ export function statusBadge(status) {
 }
 
 export function readerText(run) {
+  if (run.model_free) return 'Regex reader, no model';
   if (run.model) return `Regex + ${run.model}`;
   return run.use_model ? 'Regex + local model' : 'Regex reader';
 }
@@ -28,7 +29,7 @@ export const fullDate = (sec) => (sec ? new Date(sec * 1000).toLocaleString(unde
 export const shortDate = (sec) => (sec ? new Date(sec * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '');
 
 export function runAgainHref(run) {
-  return href('run-new', { query: { dataset: run.dataset_path, limit: run.limit_n, model: run.use_model ? 1 : 0 } });
+  return href('run-new', { query: { dataset: run.dataset_path, limit: run.limit_n, model: run.model_free ? 'none' : run.use_model ? 1 : 0 } });
 }
 
 // Dataset paths are shown truncated from the left (the folder name at the end is the useful part).

@@ -280,6 +280,14 @@ class ModelSelectionTests(Base):
             if run["status"] in ("done", "failed", "cancelled"):
                 break
             time.sleep(0.25)
+        # The run row says "done" a moment before its worker thread finishes: that thread still checks whether the
+        # model is usable and, if so, queues the background brief upgrade. Wait for it, so a test that points the app
+        # at the fake model AFTER this returns cannot race that check.
+        live = server.get_manager().live.get(rid)
+        for _ in range(240):
+            if live is None or live.finished:
+                break
+            time.sleep(0.05)
         return rid, run
 
     def drain_briefs(self):
@@ -551,6 +559,10 @@ class FailedRewriteTests(Base):
     """A rewrite that the validator rejects must not turn a valid model-written brief into a 'template' one."""
 
     def start_run(self, **kw):
+        # No usable model may exist while the run finishes, or its worker queues a background brief upgrade. With
+        # nothing configured the app falls back to 127.0.0.1:11434, which is a real, working Ollama on a developer
+        # machine (and nothing at all in a CI container). Point at a model the fake server does not have instead.
+        self.point_at_fake("not-installed:1b")
         return ModelSelectionTests.start_run(self, **kw)
 
     def test_rejected_rewrite_keeps_the_existing_model_brief(self):
@@ -589,3 +601,54 @@ class FailedRewriteTests(Base):
         after = db.get_brief(rid, tid)
         self.assertEqual(after["source"], "template")
         self.assertEqual(after["bullets"], before["bullets"])      # deterministic, from the facts
+
+
+class ModelStatesTests(Base):
+    """A run has three model states. Regex + model; regex reader with the model still allowed to reword briefs;
+    and strictly model-free, where the model is not used for anything even though it is up."""
+
+    def start_run(self, **kw):
+        return ModelSelectionTests.start_run(self, **kw)
+
+    def drain_briefs(self):
+        return ModelSelectionTests.drain_briefs(self)
+
+    def sources(self, rid):
+        return set(db.brief_sources(rid).values())
+
+    def test_regex_only_run_still_lets_the_model_reword_briefs(self):
+        self.point_at_fake()
+        rid, run = self.start_run(use_model=False, limit=2)
+        self.drain_briefs()
+        self.assertFalse(run["use_model"])
+        self.assertFalse(run["model_free"])
+        self.assertEqual(self.sources(rid), {"model"})            # briefs were upgraded by the model
+        self.assertTrue(self.chat_models())                       # and it was only used for briefs
+
+    def test_model_free_run_never_touches_the_model(self):
+        self.point_at_fake()                                      # the model is up and usable
+        rid, run = self.start_run(model_free=True, limit=2)
+        self.drain_briefs()
+        self.assertEqual((run["status"], run["use_model"], run["model_free"], run["model"]), ("done", False, True, None))
+        self.assertEqual(self.sources(rid), {"template"})
+        self.assertEqual(self.fake.requests, [])                  # no chat call, no embedding, nothing
+        tid = db.list_rows(rid)[0]["ticket_id"]
+        r = self.c.post(f"/api/runs/{rid}/tickets/{tid}/brief", headers=self.h)
+        self.assertEqual(r.status_code, 409, r.text)              # a rewrite is refused ...
+        r = self.c.post(f"/api/runs/{rid}/briefs/upgrade", headers=self.h)
+        self.assertEqual((r.status_code, r.json()["queued"]), (200, 0))   # ... and so is a bulk upgrade
+        self.assertFalse(server.get_manager().briefs.enqueue(rid, tid, force=True))
+        self.assertEqual(self.sources(rid), {"template"})
+        self.assertEqual(self.fake.requests, [])
+        self.assertTrue(self.c.get(f"/api/runs/{rid}", headers=self.h).json()["model_free"])
+
+    def test_model_free_cannot_be_combined_with_the_model_reader(self):
+        r = self.c.post("/api/runs", json={"path": str(DATA), "limit": 1, "use_model": True, "model_free": True}, headers=self.h)
+        self.assertEqual(r.status_code, 400, r.text)
+        self.assertIn("model-free", r.json()["detail"])
+
+    def test_old_runs_read_as_not_model_free(self):
+        self.point_at_fake("not-installed:1b")
+        rid, run = self.start_run(use_model=False, limit=1)
+        db.update_run(rid, model_free=None)                       # a row from before the column existed
+        self.assertFalse(self.c.get(f"/api/runs/{rid}", headers=self.h).json()["model_free"])
