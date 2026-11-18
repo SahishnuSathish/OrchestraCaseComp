@@ -155,3 +155,7 @@ python tests/fake_ollama.py --port 11434 --models qwen3.5:9b,llama3.2:3b --token
 ```
 
 Add `--fail http500` or `--fail garbage` to exercise failure states. Point the app at it with `OLLAMA_URL=http://127.0.0.1:11434` (use another port if a real Ollama runs on 11434).
+
+## Look and feel
+
+The interface uses three self-hosted open-source typefaces, so Conductor makes no network requests for type: Instrument Serif (page titles and the wordmark), Geist (interface text) and Geist Mono (ids, rules, paths). The font files and their SIL Open Font Licenses are in `webapp/static/fonts/`, declared in `webapp/static/css/fonts.css`. Colors, radii and type sizes are semantic tokens in `webapp/static/css/tokens.css`; components use tokens, never raw hex.

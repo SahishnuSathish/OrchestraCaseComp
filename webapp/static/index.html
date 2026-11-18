@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="ap-token" content="__AP_TOKEN__">
   <title>Conductor</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%230f766e'/%3E%3Cpath d='M7 12.5l3.2 3.2L17 8.8' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2334e0bd'/%3E%3Cpolygon points='9,20.6 13.4,23 24.3,8.7 23.3,7.7' fill='%23052019'/%3E%3Ccircle cx='9.6' cy='22.4' r='3.2' fill='%23052019'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/fonts.css">
   <link rel="stylesheet" href="/static/css/tokens.css">
   <link rel="stylesheet" href="/static/css/base.css">
   <link rel="stylesheet" href="/static/css/components.css">
@@ -74,6 +75,7 @@
     <symbol id="i-plug" viewBox="0 0 24 24"><path d="m19 5 3-3"/><path d="m2 22 3-3"/><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"/></symbol>
     <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></symbol>
   </svg>
 
@@ -82,7 +84,16 @@
   <div class="shell" id="shell">
     <nav class="sidebar" id="sidebar" aria-label="Primary">
       <div class="side-top">
-        <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="brand-text">Conductor</span></div>
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" role="img" aria-label="Conductor" focusable="false">
+            <rect width="32" height="32" rx="9" fill="#34e0bd"/>
+            <path d="M25.4 14.6A8.6 8.6 0 0 1 17.6 24.4" fill="none" stroke="#052019" stroke-opacity=".38" stroke-width="1.7" stroke-linecap="round"/>
+            <polygon points="10,19.6 12.4,22 24.3,8.7 23.3,7.7" fill="#052019"/>
+            <circle cx="23.8" cy="8.2" r=".7" fill="#052019"/>
+            <circle cx="9.6" cy="22.4" r="2.8" fill="#052019"/>
+          </svg>
+          <span class="brand-text">Conductor</span>
+        </div>
         <button class="rail-toggle" id="rail-toggle" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left-close"/></svg>
         </button>

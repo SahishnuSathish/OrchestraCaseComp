@@ -67,10 +67,10 @@ export function confirmDialog({ title, message, confirmLabel = 'Confirm', danger
 
 // ---------------------------------------------------------------------------- badges
 const OUTPUT = {
-  draft_reply: ['badge-accent', 'mail', 'Reply'],
-  internal_action_note: ['', 'file', 'Internal note'],
-  no_draft: ['badge-quiet', 'circle-dash', 'No reply'],
-  error: ['badge-danger', 'circle-alert', 'Error'],
+  draft_reply: ['badge-tag badge-accent', 'mail', 'Reply'],
+  internal_action_note: ['badge-tag badge-note', 'file', 'Internal note'],
+  no_draft: ['badge-tag badge-warning', 'circle-dash', 'No reply'],
+  error: ['badge-tag badge-danger', 'circle-alert', 'Error'],
 };
 export function outputBadge(type) {
   const [cls, ic, label] = OUTPUT[type] || ['', 'file', humanize(type)];
@@ -79,9 +79,9 @@ export function outputBadge(type) {
 
 export function flagBadges(row) {
   const out = [];
-  for (const f of row.flags || []) out.push(h('span', { class: 'badge badge-danger' }, icon('shield-alert'), humanize(f)));
-  if (row.priority) out.push(h('span', { class: 'badge badge-warning' }, icon('flag'), 'Priority'));
-  if (row.error) out.push(h('span', { class: 'badge badge-danger', title: row.error }, icon('circle-alert'), 'Failed'));
+  for (const f of row.flags || []) out.push(h('span', { class: 'badge badge-tag badge-danger' }, icon('shield-alert'), humanize(f)));
+  if (row.priority) out.push(h('span', { class: 'badge badge-tag badge-warning' }, icon('flag'), 'Priority'));
+  if (row.error) out.push(h('span', { class: 'badge badge-tag badge-danger', title: row.error }, icon('circle-alert'), 'Failed'));
   return out;
 }
 
@@ -100,7 +100,7 @@ export function reviewBadge(row) {
 export function briefCard({ brief, canRewrite, onRewrite, swap = false, busy = false, note = null }) {
   if (!brief) {
     return h('section', { class: 'brief', 'aria-label': 'Brief', 'aria-busy': 'true' },
-      h('div', { class: 'brief-head' }, h('h3', null, 'Brief')),
+      h('div', { class: 'brief-head' }, h('h3', null, icon('sparkles', 'icon-sm'), 'Brief')),
       h('div', { class: 'brief-list' }, [0, 1, 2].map(() => h('div', { class: 'brief-item' }, h('div', { class: 'skeleton', style: { height: '12px', width: '48px' } }), h('div', { class: 'skeleton', style: { height: '14px', width: '85%' } })))));
   }
   const fromModel = brief.source === 'model';
@@ -114,7 +114,7 @@ export function briefCard({ brief, canRewrite, onRewrite, swap = false, busy = f
     ? h('button', { class: 'btn btn-quiet btn-sm btn-icon', type: 'button', disabled: busy, title: 'Rewrite with the local model', 'aria-label': 'Rewrite brief with the local model', onclick: (e) => onRewrite(e.currentTarget) }, icon('refresh'))
     : null;
   return h('section', { class: `brief${swap ? ' brief-swap' : ''}`, 'aria-label': 'Brief', 'aria-busy': busy ? 'true' : null },
-    h('div', { class: 'brief-head' }, h('h3', null, 'Brief'), src, rewrite),
+    h('div', { class: 'brief-head' }, h('h3', null, icon('sparkles', 'icon-sm'), 'Brief'), src, rewrite),
     h('ul', { class: 'brief-list' }, (brief.bullets || []).map((b) =>
       h('li', { class: `brief-item${b.label === 'Watch' ? ' watch' : b.label === 'Next' ? ' next' : ''}` },
         h('span', { class: 'brief-label' }, b.label), h('span', { class: 'brief-text' }, b.text)))),

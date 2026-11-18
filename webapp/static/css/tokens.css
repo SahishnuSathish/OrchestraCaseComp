@@ -1,62 +1,105 @@
-/* Conductor design tokens. Semantic names only: components never use raw hex. Light theme only. */
+/* Conductor design tokens. Semantic names only: components never use raw hex. Light workspace; the navigation rail is the one dark surface (--ink). */
 :root {
   color-scheme: light;
 
-  /* surfaces */
-  --bg: #f4f9f8;
+  /* paper surfaces */
+  --bg: #f2f4f1;
   --surface: #ffffff;
-  --surface-2: #f9fbfb;
-  --surface-hover: #f1f7f6;
-  --border: #dce7e5;
-  --border-strong: #c3d3d0;
+  --surface-2: #fafbfa;
+  --surface-hover: #f3f6f4;
+  --border: #e1e6e2;
+  --border-strong: #c9d2cd;
 
   /* text (all >= 4.5:1 on --surface and --bg) */
-  --text: #0f2a27;
-  --text-2: #43605c;
-  --text-3: #587370;
+  --text: #0f1715;
+  --text-2: #4e5d58;
+  --text-3: #5d6b66;
   --text-on-accent: #ffffff;
 
-  /* accent: teal. #0f766e is AA for text on white; --ring is for focus and large graphics only */
-  --accent: #0f766e;
-  --accent-hover: #0b5f58;
-  --accent-press: #094e48;
-  --accent-tint: #e6f5f2;
-  --accent-border: #a9d9d2;
+  /* accent: teal on light surfaces. #0d7a6f is AA for text on white; --ring is for focus and large graphics only */
+  --accent: #0d7a6f;
+  --accent-hover: #0a655c;
+  --accent-press: #08524b;
+  --accent-tint: #e2f5f1;
+  --accent-border: #b6e3da;
+  --accent-ink: #0a5f56; /* text on --accent-tint */
   --ring: #0d9488;
 
   /* status: always paired with an icon and text, never color alone */
-  --success: #3b7a1d;
-  --success-tint: #f0f8e8;
-  --success-border: #cfe5b8;
-  --warning: #b54708;
-  --warning-tint: #fffaeb;
-  --warning-border: #f3d9a4;
-  --danger: #b42318;
-  --danger-tint: #fef3f2;
-  --danger-border: #f4c7c3;
-  --neutral-tint: #eef3f2;
+  --success: #1b6a3e;
+  --success-tint: #e3f4e9;
+  --success-border: #bfe3cc;
+  --warning: #8a5409;
+  --warning-tint: #fbefd5;
+  --warning-border: #eed49c;
+  --danger: #a8261c;
+  --danger-tint: #fcebe8;
+  --danger-border: #f1c3bd;
+  --note: #4338ca; /* internal notes */
+  --note-tint: #ecebfc;
+  --neutral-tint: #eaeeeb;
+  --track: #e6ebe8; /* segmented-control track */
 
   /* outcome chart colors: marks and swatches only (>= 3:1 on white, separable for colour-blind viewers), never text */
   --viz-reply: #0d9488;
   --viz-note: #5b5bd6;
-  --viz-none: #b98400;
+  --viz-none: #b8860b;
   --viz-failed: #c4321f;
 
-  /* shape: deliberately square-ish. No pills. */
-  --r-sm: 3px;
-  --r-md: 4px;
-  --r-lg: 6px;
-  --r-xl: 8px;
+  /* ink rail: the dark navigation surface and its mint signal */
+  --ink: #0b1210;
+  --ink-2: #111b18;
+  --ink-3: #17231f;
+  --ink-line: #1f2e29;
+  --rail-text: #9db0a9;
+  --rail-dim: #7b9188;
+  --rail-hover: #17231f;
+  --signal: #34e0bd;
+  --signal-ink: #052019;
+  --signal-tint: rgb(52 224 189 / 0.13);
+  --wordmark: #eefaf6;
+  --console-text: #c9e8df; /* model output console text on --ink */
+  --on-ink: #ffffff; /* text and icons on --ink, --accent and the dark toast */
+  --rail-strong: #f2fbf8;
+  --rail-active: #effffb;
+  --ink-hover: #1b2a25;
+  --ink-press: #26382f;
+  --danger-on-ink: #ff8a7d;
+  --veil: rgb(255 255 255 / 0.14); /* translucent chips on ink and accent fills */
+  --veil-border: rgb(255 255 255 / 0.3);
+  --veil-hover: rgb(255 255 255 / 0.1);
+  --live: #14b8a6;
+  --live-glow: rgb(20 184 166 / 0.2);
+  --quiet-hover: #e8ece9;
+  --input-border: #cfd8d3;
+  --danger-wash: #fff8f6;
+  --brief-text: #1f3a35;
+  --shadow-tab: 0 1px 2px rgb(15 23 21 / 0.1);
 
-  /* type */
-  --font-sans: Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+  /* tempo bar: progress drawn as beats */
+  --tick: #d7dfdb;
+  --tick-on: #0d9488;
+  --tick-rail: #26382f;
+
+  /* shape: tags 7, controls 10, cards 14, dialogs 18, status pills fully round */
+  --r-sm: 7px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* type: serif for people (page titles, wordmark), sans for work, mono for ids and rules */
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: Geist, Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-md: 14px;
   --fs-lg: 16px;
   --fs-xl: 20px;
-  --fs-2xl: 28px;
+  --fs-2xl: 32px;
+  --fs-display: 42px;
+  --fs-display-sm: 30px;
 
   /* 4/8 spacing */
   --s-1: 4px;
@@ -68,17 +111,19 @@
   --s-7: 48px;
 
   /* layout */
-  --rail-w: 232px;
-  --topbar-h: 56px;
+  --rail-w: 248px;
+  --topbar-h: 54px;
   --page-max: 1200px;
+  --page-pad: 36px;
   --banner-h: 0px; /* set by the shell while a global banner is showing */
   --queue-w: 320px;
   --original-w: 380px;
   --detail-w: 560px;
 
   /* elevation: borders do the work; one faint shadow for floating layers only */
-  --shadow-float: 0 8px 24px rgb(15 42 39 / 0.12), 0 1px 2px rgb(15 42 39 / 0.08);
-  --scrim: rgb(15 42 39 / 0.45);
+  --shadow-float: 0 8px 24px rgb(11 18 16 / 0.14), 0 1px 2px rgb(11 18 16 / 0.08);
+  --shadow-focus: 0 0 0 3px rgb(13 122 111 / 0.14);
+  --scrim: rgb(11 18 16 / 0.5);
 
   /* z-index scale */
   --z-sticky: 10;

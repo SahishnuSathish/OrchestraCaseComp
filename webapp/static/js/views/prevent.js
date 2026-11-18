@@ -14,7 +14,7 @@ export function mount(root, { route }) {
   let data = null;
 
   const body = h('div', { class: 'page-grid' });
-  const buildBtn = h('button', { class: 'btn', type: 'button', onclick: () => build() }, icon('rotate'), 'Build from records');
+  const buildBtn = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => build() }, icon('rotate'), 'Build from records');
   fill(root, h('div', { class: 'page' },
     pageHeader({ title: 'Prevent', meta: 'Answers sent before anyone has to ask. Nothing goes out until you approve and send it.', actions: buildBtn }),
     body));

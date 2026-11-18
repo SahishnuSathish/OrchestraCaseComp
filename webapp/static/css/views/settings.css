@@ -1,6 +1,12 @@
 /* Settings page: local model and mail delivery. */
-.st-grid { max-width: 860px; }
+.st-grid { max-width: none; }
 .st-loaderr { max-width: 860px; }
+/* model + test console on the left, email delivery beside them on wide screens */
+@media (min-width: 1100px) {
+  .st-grid { grid-template-columns: minmax(0, 1fr) 340px; }
+  .st-grid > :nth-child(1), .st-grid > :nth-child(2) { grid-column: 1; }
+  .st-grid > :nth-child(3) { grid-column: 2; grid-row: 1; }
+}
 .st-col { display: flex; flex-direction: column; gap: var(--s-5); min-width: 0; }
 .st-field { min-width: 0; }
 .st-skel { display: flex; flex-direction: column; gap: var(--s-3); }
@@ -9,7 +15,7 @@
 .st-status { display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
 .st-state { display: flex; align-items: flex-start; gap: var(--s-2); font-size: var(--fs-md); }
 .st-state .icon { margin-top: 2px; flex: none; }
-.st-state strong { font-weight: 650; overflow-wrap: anywhere; }
+.st-state strong { font-weight: 600; overflow-wrap: anywhere; }
 .st-ok .icon { color: var(--success); }
 .st-warn .icon { color: var(--warning); }
 .st-bad .icon { color: var(--danger); }
@@ -34,10 +40,10 @@ input[type="number"].input { max-width: 160px; flex: 0 1 160px; }
 .st-models legend { padding: 0; margin-bottom: var(--s-2); }
 .st-model {
   display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--s-3); row-gap: 2px; align-items: start;
-  padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md); cursor: pointer; background: var(--surface);
+  padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-lg); cursor: pointer; background: var(--surface);
 }
 .st-model input { grid-row: 1 / span 2; margin: 3px 0 0; width: 16px; height: 16px; accent-color: var(--accent); }
-.st-model.on { border-color: var(--accent-border); background: var(--accent-tint); }
+.st-model.on { border-color: var(--accent); background: var(--accent-tint); box-shadow: var(--shadow-focus); }
 .st-model:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
 .st-model:has(input:disabled) { cursor: progress; opacity: 0.7; }
 .st-model-main { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; min-width: 0; }
@@ -63,11 +69,12 @@ input[type="number"].input { max-width: 160px; flex: 0 1 160px; }
 .st-sent > summary { cursor: pointer; padding: var(--s-2) var(--s-3); font-weight: 600; font-size: var(--fs-sm); min-height: 36px; display: flex; align-items: center; }
 .st-pre { margin: 0; padding: var(--s-3); border-top: 1px solid var(--border); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 200px; overflow: auto; font-size: var(--fs-sm); }
 .st-outwrap { display: flex; flex-direction: column; gap: var(--s-1); min-width: 0; }
+/* the one dark block in the work area: the model's streamed output */
 .st-out {
-  max-height: 320px; min-height: 64px; overflow: auto; padding: var(--s-3); white-space: pre-wrap; overflow-wrap: anywhere;
-  border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); font-size: var(--fs-sm); line-height: 1.55;
+  max-height: 320px; min-height: 64px; overflow: auto; padding: 14px var(--s-4); white-space: pre-wrap; overflow-wrap: anywhere;
+  border: 1px solid var(--ink-line); border-radius: 12px; background: var(--ink); color: var(--console-text); font-size: 12.5px; line-height: 1.7;
 }
-.st-out:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.st-out:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 .st-result { display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
 .st-result:empty, .st-errbox:empty { display: none; }
 .st-h3 { font-size: var(--fs-md); font-weight: 650; }

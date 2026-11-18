@@ -73,11 +73,16 @@ function renderSide() {
 
   const r = data.run;
   const headingId = 'side-run-heading';
+  // The tempo bar and its count are updated in place (updateRailProgress) so a streaming run never rebuilds the sidebar.
+  railFill = r ? h('div', { class: 'bar-fill' }) : null;
+  railCount = r ? h('span', { class: 'count' }) : null;
   mount($('#side-body'),
     h('div', { class: 'nav-group' }, link('Runs', 'layers', href('runs'), data.runs)),
     r ? h('div', { class: 'side-section', role: 'group', 'aria-labelledby': headingId },
+      h('span', { class: 'side-eyebrow' }, 'Current run'),
       h('div', { class: 'side-heading', id: headingId, title: r.path || null },
         r.live ? h('span', { class: 'dot dot-live', role: 'img', 'aria-label': 'Run in progress' }) : null, h('span', { class: 'truncate' }, r.label)),
+      h('div', { class: 'side-run' }, h('div', { class: 'bar bar-sm', 'aria-hidden': 'true' }, railFill), railCount),
       link('Overview', 'gauge', ...r.overview),
       link('Tickets', 'tickets', ...r.tickets),
       link('Review', 'review', ...r.review, r.pending),
@@ -88,6 +93,17 @@ function renderSide() {
       h('a', { class: 'nav-link side-model', href: href('settings'), title: info.title, 'aria-label': `${info.side}. Open settings` },
         h('span', { class: `dot dot-${info.tone}` }), h('span', { class: 'nav-label' }, info.side)),
       h('p', { class: 'side-fine' }, 'Runs on this computer. Nothing is sent without your approval.')));
+  updateRailProgress();
+}
+
+let railFill = null;
+let railCount = null;
+function updateRailProgress() {
+  if (!railFill || !S.run) return;
+  const total = S.progress.total || S.run.total || 0;
+  const done = Math.min(S.progress.done || S.run.done || 0, total || 0);
+  railFill.style.transform = `scaleX(${total ? done / total : 0})`;
+  railCount.textContent = total ? `${done} of ${total} tickets` : '';
 }
 
 // ---------------------------------------------------------------------------- topbar
@@ -145,6 +161,7 @@ function onConn() {
 
 function chrome() {
   renderSide();
+  updateRailProgress();
   renderTopbar();
   renderTitle();
   renderBanners();

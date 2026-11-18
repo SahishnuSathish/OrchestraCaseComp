@@ -484,7 +484,7 @@ export function mount(root, { route }) {
     if (!resolved && !(reply && flagged) && (!reply || editable)) {
       const blocked = problems.length > 0;
       const unsavable = saveState === 'error';
-      buttons.push(h('button', { class: 'btn btn-primary', type: 'button', disabled: blocked || unsavable || saveState === 'saving' || busy, title: blocked ? 'Remove what the edit adds first' : unsavable ? 'Your edit has not been saved: use Retry first' : null, onclick: approve },
+      buttons.push(h('button', { class: 'btn btn-ok', type: 'button', disabled: blocked || unsavable || saveState === 'saving' || busy, title: blocked ? 'Remove what the edit adds first' : unsavable ? 'Your edit has not been saved: use Retry first' : null, onclick: approve },
         icon('check'), reply ? 'Approve' : 'Close ticket', h('span', { class: 'kbd' }, 'A')));
     }
     if (state === 'approved' && reply && rv.can_send) {

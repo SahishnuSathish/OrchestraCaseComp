@@ -136,7 +136,7 @@ export function mount(root) {
   const liveList = h('div', { class: 'live-list', role: 'log', 'aria-label': 'Tickets as they finish' });
   const nowLine = h('div', { class: 'now' });
   const barFill = h('div', { class: 'bar-fill' });
-  const bar = h('div', { class: 'bar', role: 'progressbar', 'aria-label': 'Run progress', 'aria-valuemin': '0', 'aria-valuemax': '100' }, barFill);
+  const bar = h('div', { class: 'bar bar-lg', role: 'progressbar', 'aria-label': 'Run progress', 'aria-valuemin': '0', 'aria-valuemax': '100' }, barFill);
   const big = h('span', { class: 'big' });
   const small = h('span', { class: 'small' });
   const announce = h('span', { class: 'sr-only', role: 'status' });
