@@ -55,6 +55,7 @@ export function parse(hash, opts = {}) {
     if (b === 'new' && seg.length === 2) return { name: 'run-new', query };
     if (!RUN_ID.test(b)) return notFound(query);
     if (seg.length === 2) return { name: 'overview', runId: b, query };
+    if (c === 'prevent') return seg.length === 3 ? { name: 'prevent', runId: b, query } : notFound(query);
     if (!SCOPES.includes(c) || seg.length > 4) return notFound(query);
     if (seg.length === 3) return { name: c, runId: b, query };
     if (!TICKET_ID.test(d)) return notFound(query);
@@ -79,6 +80,7 @@ export function href(name, { runId, ticketId, query } = {}) {
     case 'overview': return `#/runs/${runId}${qs}`;
     case 'tickets':
     case 'review': return `#/runs/${runId}/${name}${ticketId ? `/${ticketId}` : ''}${qs}`;
+    case 'prevent': return `#/runs/${runId}/prevent${qs}`;
     case 'settings': return `#/settings${qs}`;
     default: return `#/runs${qs}`;
   }
@@ -116,6 +118,7 @@ export function crumbs(route, run) {
       const list = { label: section, href: route.ticketId ? href(route.name, { runId: route.runId, query: listQuery }) : null };
       return route.ticketId ? [runs, runCrumb, list, { label: `#${route.ticketId}`, href: null }] : [runs, runCrumb, list];
     }
+    case 'prevent': return [runs, runCrumb, { label: 'Prevent', href: null }];
     case 'settings': return [{ label: 'Settings', href: null }];
     default: return [runs, { label: 'Page not found', href: null }];
   }

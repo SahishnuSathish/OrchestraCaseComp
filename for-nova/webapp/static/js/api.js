@@ -159,6 +159,10 @@ export const api = {
   saveDraft: (id, tid, body) => request('PUT', `/api/runs/${id}/review/${tid}/draft`, body),
   send: (id, tid) => request('POST', `/api/runs/${id}/tickets/${tid}/send`, {}),
   bulk: (id, ids, state) => request('POST', `/api/runs/${id}/review/bulk`, { ids, state }),
+  prevention: (id, opts) => request('GET', `/api/runs/${id}/prevention`, undefined, opts),
+  buildPrevention: (id) => request('POST', `/api/runs/${id}/prevention/build`, {}, { timeout: 120000 }),
+  preventionState: (id, kind, key, state) => request('PUT', `/api/runs/${id}/prevention/${kind}/${encodeURIComponent(key)}`, { state }),
+  preventionSend: (id, kind, key) => request('POST', `/api/runs/${id}/prevention/${kind}/${encodeURIComponent(key)}/send`, {}),
   events: (id) => new EventSource(`/api/runs/${id}/events?token=${encodeURIComponent(token)}`),
   async download(path, fallbackName) {
     const res = await send('GET', path);

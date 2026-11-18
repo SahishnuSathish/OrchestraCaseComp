@@ -285,6 +285,7 @@ function routeTable() {
     { name: 'ticket detail', hash: `#/runs/${run}/tickets/41259`, wait: '.detail-head h2' },
     { name: 'review', hash: `#/runs/${run}/review`, wait: 'a.q-item' },
     { name: 'review draft', hash: `#/runs/${run}/review/${draft}`, wait: '.center-head h2' },
+    { name: 'prevent', hash: `#/runs/${run}/prevent`, wait: '.prevent-ready' },
     { name: 'settings', hash: '#/settings', wait: '.st-status' },
   ];
 }
@@ -1248,6 +1249,49 @@ for (const vp of [VP.desktop, VP.phone]) {
     assert.ok(lines.length === 0, `accessibility problems:\n        ${lines.join('\n        ')}`);
   });
 }
+
+test('15 prevent page builds, approves and sends a notice; skip and undo; no overflow @1280 @360', async (t) => {
+  const run = await createRun();
+  try {
+    const page = await t.newPage(VP.desktop);
+    await gotoRoute(page, `#/runs/${run}/prevent`);
+    await page.getByRole('heading', { name: 'Nothing built yet' }).waitFor();
+    await page.getByRole('button', { name: 'Build from records' }).last().click();
+    await page.getByText('Self-servable').waitFor();
+    assert.match(await page.title(), /^Prevent · .+ · Conductor$/);
+
+    const first = page.locator('.prevent-item[data-kind="notice"]').first();
+    const key = await first.getAttribute('data-key');
+    const item = page.locator(`.prevent-item[data-kind="notice"][data-key="${key}"]`);
+    await item.getByRole('button', { name: 'Approve' }).click();
+    await item.getByRole('button', { name: 'Send' }).click();
+    await page.locator(`.prevent-item[data-key="${key}"][data-state="sent"]`).waitFor();
+    assert.equal(await item.getByRole('button').filter({ hasText: /^(Approve|Send|Skip)$/ }).count(), 0, 'a sent notice has no actions');
+
+    const second = page.locator('.prevent-item[data-kind="notice"][data-state="pending"]').first();
+    const key2 = await second.getAttribute('data-key');
+    await second.getByRole('button', { name: 'Skip' }).click();
+    const skipped = page.locator(`.prevent-item[data-key="${key2}"][data-state="skipped"]`);
+    await skipped.waitFor();
+    await skipped.getByRole('button', { name: 'Undo skip' }).click();
+    await page.locator(`.prevent-item[data-key="${key2}"][data-state="pending"]`).waitFor();
+
+    assert.ok(await page.locator('.prevent-item[data-kind="digest"]').count() > 0, 'digests are listed');
+    const st = await api(`/api/runs/${run}/prevention`);
+    assert.equal(st.states[`notice:${key}`].state, 'sent');
+    await assertNoOverflow(page, 'prevent @1280');
+
+    await page.reload();
+    await page.locator(`.prevent-item[data-key="${key}"][data-state="sent"]`).waitFor(); // state survives a reload
+
+    const phone = await t.newPage(VP.phone);
+    await gotoRoute(phone, `#/runs/${run}/prevent`);
+    await phone.getByText('Self-servable').waitFor();
+    await assertNoOverflow(phone, 'prevent @360');
+  } finally {
+    await removeRun(run);
+  }
+});
 
 test('14 reduced motion switches toasts and spinners off @1280', async (t) => {
   const page = await t.newPage(VP.desktop);

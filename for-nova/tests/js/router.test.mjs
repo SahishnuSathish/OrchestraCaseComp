@@ -255,3 +255,17 @@ describe('crumbs keep the list state when going up from a ticket', () => {
     assert.equal(parentHref(parse('#/runs/ab12cd34/tickets/41259')), '#/runs/ab12cd34/tickets');
   });
 });
+
+describe('prevent page route', () => {
+  it('parses, links and has crumbs', () => {
+    assert.deepEqual(parse(`#/runs/${RUN}/prevent`, { lastRunId: null }), { name: 'prevent', runId: RUN, query: {} });
+    assert.equal(href('prevent', { runId: RUN }), `#/runs/${RUN}/prevent`);
+    assert.deepEqual(crumbs({ name: 'prevent', runId: RUN }, { label: 'Nov 13' }).map((c) => c.label), ['Runs', 'Nov 13', 'Prevent']);
+    assert.equal(crumbs({ name: 'prevent', runId: RUN }, { label: 'Nov 13' }).at(-1).href, null);
+  });
+
+  it('has no ticket level and rejects junk', () => {
+    assert.equal(parse(`#/runs/${RUN}/prevent/41259`, { lastRunId: null }).name, 'not-found');
+    assert.equal(parse(`#/runs/${RUN}/preventx`, { lastRunId: null }).name, 'not-found');
+  });
+});

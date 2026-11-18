@@ -10,12 +10,13 @@ import * as runNewView from './views/run-new.js';
 import * as overviewView from './views/overview.js';
 import * as ticketsView from './views/tickets.js';
 import * as reviewView from './views/review.js';
+import * as preventView from './views/prevent.js';
 import * as settingsView from './views/settings.js';
 import * as notFoundView from './views/not-found.js';
 
 const VIEWS = {
   runs: runsView, 'run-new': runNewView, overview: overviewView, tickets: ticketsView,
-  review: reviewView, settings: settingsView, 'not-found': notFoundView,
+  review: reviewView, prevent: preventView, settings: settingsView, 'not-found': notFoundView,
 };
 
 const root = document.documentElement;
@@ -57,6 +58,7 @@ function renderSide() {
       overview: [href('overview', { runId }), inRun('overview')],
       tickets: [href('tickets', { runId, query: tickets.query }), inRun('tickets')],
       review: [href('review', { runId, ticketId: review.ticketId, query: review.query }), inRun('review')],
+      prevent: [href('prevent', { runId }), inRun('prevent')],
       pending: pendingDrafts(),
     } : null,
     model: [info.tone, info.side, info.title],
@@ -78,7 +80,8 @@ function renderSide() {
         r.live ? h('span', { class: 'dot dot-live', role: 'img', 'aria-label': 'Run in progress' }) : null, h('span', { class: 'truncate' }, r.label)),
       link('Overview', 'gauge', ...r.overview),
       link('Tickets', 'tickets', ...r.tickets),
-      link('Review', 'review', ...r.review, r.pending))
+      link('Review', 'review', ...r.review, r.pending),
+      link('Prevent', 'send', ...r.prevent))
       : h('div', { class: 'side-section' }, h('p', { class: 'side-empty' }, 'Open a run to see its tickets and review queue.')),
     h('div', { class: 'side-foot' },
       link('Settings', 'settings', href('settings'), data.settings),
@@ -106,7 +109,7 @@ function renderTopbar() {
 }
 
 function renderTitle() {
-  const leaf = { runs: 'Runs', 'run-new': 'New run', overview: 'Overview', settings: 'Settings', 'not-found': 'Page not found' }[route.name]
+  const leaf = { runs: 'Runs', 'run-new': 'New run', overview: 'Overview', prevent: 'Prevent', settings: 'Settings', 'not-found': 'Page not found' }[route.name]
     || `${route.name === 'tickets' ? 'Tickets' : 'Review'}${route.ticketId ? ` #${route.ticketId}` : ''}`;
   const label = route.runId && S.runId === route.runId ? S.run?.label : null;
   document.title = [leaf, label, 'Conductor'].filter(Boolean).join(' · ');
