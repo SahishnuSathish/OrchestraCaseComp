@@ -90,10 +90,11 @@ function createPanel({ runId, ticketId }) {
   function renderList() {
     if (loading && !msgs.length) { list.replaceChildren(h('p', { class: 'muted chat-empty' }, 'Loading chat...')); return; }
     if (!msgs.length) {
-      list.replaceChildren(
+      list.replaceChildren(...[
         loadErr ? h('p', { class: 'muted chat-empty' }, loadErr) : null,
         h('div', { class: 'chat-suggest' }, SUGGESTIONS.map((s) =>
-          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { input.value = s; ask(); } }, s))));
+          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { input.value = s; ask(); } }, s))),
+      ].filter(Boolean));
       return;
     }
     list.replaceChildren(...msgs.map(bubble));
