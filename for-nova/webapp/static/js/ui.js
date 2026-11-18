@@ -91,7 +91,7 @@ export function reviewBadge(row) {
   if (s === 'sent') return h('span', { class: 'badge badge-success' }, icon('send'), 'Sent');
   if (s === 'approved') return h('span', { class: 'badge badge-success' }, icon('check'), 'Approved');
   if (s === 'returned') return h('span', { class: 'badge badge-warning' }, icon('undo'), 'Returned');
-  if (s === 'acknowledged') return h('span', { class: 'badge badge-success' }, icon('check'), 'Acknowledged');
+  if (s === 'acknowledged') return h('span', { class: 'badge badge-success' }, icon('check'), 'Closed');
   if (s === 'closed') return h('span', { class: 'badge badge-success' }, icon('check'), 'Closed');
   return h('span', { class: 'badge badge-quiet' }, row.output_type === 'draft_reply' ? 'To review' : 'Open');
 }

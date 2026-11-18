@@ -15,6 +15,13 @@
 .q-item[aria-current="true"] { background: var(--accent-tint); border-left-color: var(--accent); }
 @media (hover: hover) and (pointer: fine) { .q-item:hover:not([aria-current="true"]) { background: var(--surface-hover); } }
 .q-item:focus-visible { outline-offset: -2px; }
+.q-row { position: relative; }
+.q-row.has-toggle .q-top { padding-right: 84px; min-height: 28px; }
+.q-toggle { position: absolute; top: var(--s-2); right: var(--s-3); }
+.q-item.is-done .q-subject { color: var(--text-2); font-weight: 450; }
+.q-item.is-done .q-top .icon-sm { color: var(--success); }
+.note-filter { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.note-filter[hidden] { display: none; }
 .q-top { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
 .q-top .id { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-3); }
 .q-top .badges { margin-left: auto; display: flex; gap: var(--s-1); }

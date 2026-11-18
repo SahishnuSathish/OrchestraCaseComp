@@ -14,6 +14,9 @@ const TAB_TITLES = { notes: 'Internal notes and tickets with no reply', approved
 const NARROW = () => window.matchMedia('(max-width: 900px)').matches;
 const WIDE = () => window.matchMedia('(min-width: 1440px)').matches;
 const DONE = ['approved', 'sent', 'acknowledged', 'closed'];
+const NOTE_FILTERS = [['open', 'Open'], ['closed', 'Closed'], ['all', 'All']];
+const isDone = (r) => DONE.includes(r.review_state);
+const canToggle = (r) => r.output_type !== 'draft_reply' && r.output_type !== 'error'; // notes and no-reply tickets close in one click
 const BRIEF_WAIT_MS = 120000;
 
 const SHORTCUTS = [
@@ -50,6 +53,8 @@ export function mount(root, { route }) {
   let sending = false;
   let sendError = null;       // { id, message }
   let originalOpen = ls('ap.orig') !== 'closed';
+  let noteFilter = NOTE_FILTERS.some(([k]) => k === ls('ap.notes')) ? ls('ap.notes') : 'open'; // Notes tab: which tickets to list
+  const rowBusy = new Set();  // ticket ids with a close/reopen request in flight
   const cache = new Map();
   const undo = [];            // { ids, prev: [{tid, state}] }
   const off = [];
@@ -72,11 +77,12 @@ export function mount(root, { route }) {
   const progressText = h('span');
   const progressBar = h('div', { class: 'bar-fill' });
   const tabsEl = tabList({ label: 'Queue', variant: 'stacked', selected: tab, items: TABS.map(([key, label]) => ({ key, label, count: 0, title: TAB_TITLES[key] })), onSelect: (k) => setTab(k) });
+  const noteFilterEl = h('div', { class: 'note-filter', role: 'group', 'aria-label': 'Show notes', hidden: true });
   const listEl = h('div', { class: 'queue-list' });
   const bulkSlot = h('div');
   const shortcutsBtn = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openShortcuts() }, icon('keyboard'), 'Shortcuts');
   const queue = h('section', { class: 'pane queue', 'aria-label': 'Review queue' },
-    h('div', { class: 'queue-top' }, h('div', { class: 'review-progress' }, progressText, h('div', { class: 'bar' }, progressBar)), tabsEl),
+    h('div', { class: 'queue-top' }, h('div', { class: 'review-progress' }, progressText, h('div', { class: 'bar' }, progressBar)), tabsEl, noteFilterEl),
     listEl,
     h('div', { class: 'queue-foot' }, bulkSlot, shortcutsBtn));
   const centerScroll = h('div', { class: 'center-scroll' });
@@ -102,7 +108,40 @@ export function mount(root, { route }) {
   const toggleOriginal = () => (WIDE() ? (originalOpen ? closeOriginal() : openOriginal()) : (review.dataset.pane === 'original' ? closeOriginal() : openOriginal()));
 
   // ------------------------------------------------------------------ queue
-  const queueRows = (t = tab) => S.rows.filter((r) => tabOf(r) === t).sort((a, b) => rank(a) - rank(b) || a.seq - b.seq);
+  const inNoteFilter = (r) => noteFilter === 'all' || (noteFilter === 'closed') === isDone(r);
+  const queueRows = (t = tab) => S.rows.filter((r) => tabOf(r) === t && (t !== 'notes' || inNoteFilter(r))).sort((a, b) => rank(a) - rank(b) || a.seq - b.seq);
+
+  function setNoteFilter(k) {
+    if (k === noteFilter) return;
+    noteFilter = k; ls('ap.notes', k);
+    const rows = queueRows('notes');
+    renderQueue();
+    if (selected && rows.some((r) => r.ticket_id === selected)) return; // the open ticket is still listed: stay on it
+    flushDraft();
+    const first = NARROW() ? null : rows[0];
+    navigate(first ? urlFor(first.ticket_id, 'notes') : listUrl('notes'), { replace: true });
+  }
+
+  // One-click close / reopen from the list (notes and no-reply tickets only). Replies still go through Approve.
+  async function toggleNote(r) {
+    const id = r.ticket_id;
+    if (rowBusy.has(id) || deciding) return;
+    const closing = !isDone(r);
+    const state = closing ? (r.output_type === 'internal_action_note' ? 'acknowledged' : 'closed') : 'pending';
+    if (selected === id && detail?.row.ticket_id === id) { await setState(state, { undoable: true }); return; }
+    const prev = r.review_state || 'pending';
+    rowBusy.add(id); renderQueue();
+    try {
+      const d = await api.review(S.runId, id, { state });
+      cache.set(id, d);
+      patchRow(id, { review_state: d.review.state });
+      undo.push({ ids: [id], prev: [{ tid: id, state: prev }] });
+      emit('review');
+      toast({ message: `${closing ? 'Closed' : 'Reopened'} #${id}`, actionLabel: closing ? 'Undo' : undefined, onAction: () => undoLast(), duration: 6000 });
+    } catch (e) {
+      toast({ message: e.message || 'Could not save that change', duration: 6000 });
+    } finally { rowBusy.delete(id); renderQueue(); if (detail && !textarea) renderCenter(); } // keeps the "n of m" pager in step
+  }
 
   function setTab(k) {
     if (!TAB_KEYS.includes(k)) return;
@@ -113,7 +152,13 @@ export function mount(root, { route }) {
 
   function renderQueue() {
     const counts = Object.fromEntries(TAB_KEYS.map((k) => [k, S.rows.filter((r) => tabOf(r) === k).length]));
-    tabsEl.update({ items: TABS.map(([key, label]) => ({ key, label, count: counts[key], title: TAB_TITLES[key] })), selected: tab });
+    const notes = S.rows.filter((r) => tabOf(r) === 'notes');
+    const noteCounts = { open: notes.filter((r) => !isDone(r)).length, closed: notes.filter(isDone).length, all: notes.length };
+    // The Notes tab counts what still needs closing; Approved and Returned keep their totals.
+    const shown = { ...counts, notes: noteCounts.open };
+    tabsEl.update({ items: TABS.map(([key, label]) => ({ key, label, count: shown[key], title: key === 'notes' ? `${noteCounts.open} open of ${noteCounts.all}. ${TAB_TITLES.notes}` : TAB_TITLES[key] })), selected: tab });
+    noteFilterEl.hidden = tab !== 'notes';
+    fill(noteFilterEl, ...(tab === 'notes' ? NOTE_FILTERS.map(([k, label]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(k === noteFilter), onclick: () => setNoteFilter(k) }, label, h('span', { class: 'chip-count' }, String(noteCounts[k])))) : []));
     const drafts = S.rows.filter((r) => r.output_type === 'draft_reply');
     const done = drafts.filter((r) => r.review_state !== 'pending').length;
     fill(progressText);
@@ -123,16 +168,27 @@ export function mount(root, { route }) {
     const rows = queueRows();
     const top = listEl.scrollTop;
     if (rows.length) {
-      fill(listEl, h('ul', { class: 'q-list', 'aria-label': `${TABS.find(([k]) => k === tab)[1]}: ${rows.length} tickets` }, rows.map((r) => h('li', null,
-        h('a', { class: 'q-item', href: urlFor(r.ticket_id), 'aria-current': r.ticket_id === selected ? 'true' : null, dataset: { id: r.ticket_id }, onclick: onItemClick },
-          h('span', { class: 'q-top' }, h('span', { class: 'id' }, `#${r.ticket_id}`), h('span', { class: 'badges' }, flagBadges(r), tab === 'notes' || tab === 'approved' ? reviewBadge(r) : null)),
-          h('span', { class: 'q-subject truncate' }, r.subject || '(no subject)'),
-          h('span', { class: 'q-sub truncate' }, r.output_type === 'draft_reply' ? `To ${domainOf(r.recipient) || r.sender_name || 'requester'}${r.reason_tag ? ` · ${humanize(r.reason_tag)}` : ''}` : `${humanize(r.rule)}${r.act_by ? ` · for ${r.act_by.split('@')[0]}` : ''}`))))));
+      fill(listEl, h('ul', { class: 'q-list', 'aria-label': `${TABS.find(([k]) => k === tab)[1]}: ${rows.length} tickets` }, rows.map((r) => {
+        const toggle = tab === 'notes' && canToggle(r);
+        const done = isDone(r);
+        return h('li', { class: `q-row${toggle ? ' has-toggle' : ''}` },
+          h('a', { class: `q-item${toggle && done ? ' is-done' : ''}`, href: urlFor(r.ticket_id), 'aria-current': r.ticket_id === selected ? 'true' : null, dataset: { id: r.ticket_id }, onclick: onItemClick },
+            h('span', { class: 'q-top' }, toggle && done ? icon('check', 'icon-sm') : null, h('span', { class: 'id' }, `#${r.ticket_id}`), h('span', { class: 'badges' }, flagBadges(r), !toggle && (tab === 'notes' || tab === 'approved') ? reviewBadge(r) : null)),
+            h('span', { class: 'q-subject truncate' }, r.subject || '(no subject)'),
+            h('span', { class: 'q-sub truncate' }, r.output_type === 'draft_reply' ? `To ${domainOf(r.recipient) || r.sender_name || 'requester'}${r.reason_tag ? ` · ${humanize(r.reason_tag)}` : ''}` : `${humanize(r.rule)}${r.act_by ? ` · for ${r.act_by.split('@')[0]}` : ''}`)),
+          toggle ? h('button', { class: `btn btn-sm q-toggle${done ? ' btn-quiet' : ''}`, type: 'button', disabled: rowBusy.has(r.ticket_id), 'aria-label': `${done ? 'Reopen' : 'Close'} ticket #${r.ticket_id}`, title: done ? 'Reopen this ticket' : 'Close this ticket', onclick: () => toggleNote(r) }, icon(done ? 'undo' : 'check'), done ? 'Reopen' : 'Close') : null);
+      })));
     } else if (tab === 'todo') {
       fill(listEl, emptyState({
         iconName: 'circle-check', title: 'Nothing left to review', text: 'Every drafted reply has been approved or returned.',
         actions: [h('a', { class: 'btn btn-sm', href: href('overview', { runId }) }, 'Run overview'),
           counts.approved ? h('button', { class: 'btn btn-sm', type: 'button', onclick: () => setTab('approved') }, 'See approved replies') : null],
+      }));
+    } else if (tab === 'notes' && noteFilter !== 'all' && notes.length) {
+      const other = noteFilter === 'open' ? 'closed' : 'open';
+      fill(listEl, emptyState({
+        iconName: 'circle-check', title: noteFilter === 'open' ? 'All notes are closed' : 'No closed notes yet', text: noteFilter === 'open' ? 'Nothing needs following up in this run.' : 'Tickets you close will be listed here.',
+        actions: [h('button', { class: 'btn btn-sm', type: 'button', onclick: () => setNoteFilter(other) }, `Show ${other} notes`)],
       }));
     } else {
       fill(listEl, emptyState({ iconName: 'inbox', title: 'Nothing here', text: 'Tickets that land here will be listed.' }));
@@ -415,7 +471,7 @@ export function mount(root, { route }) {
       : saveState === 'error' && editable ? h('span', { class: 'status-error' }, icon('circle-alert', 'icon-sm'), 'Could not save your edit', h('button', { class: 'link-btn', type: 'button', onclick: () => saveDraft() }, 'Retry'))
       : state === 'sent'
         ? h('span', null, icon('send', 'icon-sm'), `Sent ${relTime(rv.sent_at)}${mode === 'simulated' ? ' (simulated: saved to the outbox)' : ''}`)
-        : resolved ? h('span', null, icon('check', 'icon-sm'), `${humanize(state)}${rv.decided_at ? ` · ${relTime(rv.decided_at)}` : ''}`)
+        : resolved ? h('span', null, icon('check', 'icon-sm'), `${state === 'acknowledged' ? 'Closed' : humanize(state)}${rv.decided_at ?` · ${relTime(rv.decided_at)}` : ''}`)
           : state === 'returned' ? h('span', null, icon('undo', 'icon-sm'), `Returned to AP${rv.note ? `: ${rv.note}` : ''}`)
             : h('span', null, flagged ? 'Cannot be approved here' : reply ? 'Waiting for your decision' : 'Open');
     const buttons = [];
@@ -429,7 +485,7 @@ export function mount(root, { route }) {
       const blocked = problems.length > 0;
       const unsavable = saveState === 'error';
       buttons.push(h('button', { class: 'btn btn-primary', type: 'button', disabled: blocked || unsavable || saveState === 'saving' || busy, title: blocked ? 'Remove what the edit adds first' : unsavable ? 'Your edit has not been saved: use Retry first' : null, onclick: approve },
-        icon('check'), reply ? 'Approve' : isNote() ? 'Acknowledge' : 'Close', h('span', { class: 'kbd' }, 'A')));
+        icon('check'), reply ? 'Approve' : 'Close ticket', h('span', { class: 'kbd' }, 'A')));
     }
     if (state === 'approved' && reply && rv.can_send) {
       buttons.push(h('button', { class: 'btn btn-primary', type: 'button', disabled: busy, onclick: sendReply }, sending ? h('span', { class: 'spinner spinner-sm' }) : icon('send'), sending ? 'Sending…' : 'Send reply', sending ? null : h('span', { class: 'kbd' }, 'S')));
@@ -477,14 +533,15 @@ export function mount(root, { route }) {
       patchRow(id, { review_state: d.review.state });
       emit('review');
       if (undoable) undo.push({ ids: [id], prev: [{ tid: id, state: prev }] });
-      const verbs = { approved: 'Approved', returned: 'Returned', acknowledged: 'Acknowledged', closed: 'Closed', pending: 'Reopened' };
+      const verbs = { approved: 'Approved', returned: 'Returned', acknowledged: 'Closed', closed: 'Closed', pending: 'Reopened' };
       toast({ message: `${verbs[state]} #${id}`, actionLabel: state === 'pending' ? undefined : 'Undo', onAction: () => undoLast(), duration: 6000 });
       renderQueue();
       // After approving a reply stay on it so Send is right there; other decisions move on.
       if (state === 'pending') {
         const nt = tabOf(S.byId.get(id));
         if (nt && nt !== tab) { renderCenter(); navigate(urlFor(id, nt), { replace: true }); return; }
-        renderCenter();
+        if (!queueRows().some((x) => x.ticket_id === id)) advanceFrom(id); // reopened while looking at Closed: move on to the next one
+        else renderCenter();
       } else if (state !== 'approved' && !queueRows().some((x) => x.ticket_id === id)) advanceFrom(id);
       else renderCenter();
     } catch (e) {
@@ -660,6 +717,10 @@ export function mount(root, { route }) {
       const row = S.byId.get(nSel);
       const t = row && tabOf(row);
       if (t && t !== nTab) { fromId = nFrom; replaceTo(urlFor(nSel, t)); return true; }
+    }
+    if (nSel && nTab === 'notes') { // a link to a ticket the Notes filter would hide: show the group it is in
+      const row = S.byId.get(nSel);
+      if (row && !inNoteFilter(row)) { noteFilter = isDone(row) ? 'closed' : 'open'; ls('ap.notes', noteFilter); }
     }
     tab = nTab; selected = nSel; fromId = nFrom;
     return false;
