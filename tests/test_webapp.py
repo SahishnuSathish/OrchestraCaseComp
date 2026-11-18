@@ -1,6 +1,6 @@
 """Tests for the Conductor web app (webapp/). No Ollama needed: the model is never called.
 
-Run from for-nova/:  python -m unittest tests.test_webapp -v
+Run from the repo root:  python -m unittest tests.test_webapp -v
 """
 import json
 import sys

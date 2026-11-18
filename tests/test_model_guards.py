@@ -1,6 +1,6 @@
 """Guard tests for the model layer. No Ollama needed: a fake extractor stands in.
 
-  python -m unittest discover -s tests -v   (from for-nova/)
+  python -m unittest discover -s tests -v   (from the repo root)
 """
 import copy
 import sys

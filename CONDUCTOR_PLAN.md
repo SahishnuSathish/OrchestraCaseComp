@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.13, FastAPI and uvicorn, SQLite (`webapp/db.py`), vanilla ES-module front end (`webapp/static/js`), stdlib `unittest`, Node `--test`, Playwright smoke test, Ollama (`qwen3.5:9b`, `nomic-embed-text`), `pypdf` and `reportlab` (both already installed), and `numpy` (installed, used for classifiers; no scikit-learn).
 
-Written 2026-11-17 from the Orchestra executive Q&A. Commands run from `for-nova/`.
+Written 2026-11-17 from the Orchestra executive Q&A. Commands run from the repo root.
 
 ## Global Constraints
 

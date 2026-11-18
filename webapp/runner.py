@@ -90,7 +90,7 @@ def validate_dataset(path):
 
 
 def list_importable():
-    """Existing result sets on disk (for-nova/out/*/bundles.json) so the UI can open one without re-running."""
+    """Existing result sets on disk (out/*/bundles.json) so the UI can open one without re-running."""
     found = []
     for b in sorted((FOR_NOVA / "out").glob("*/bundles.json")):
         try:

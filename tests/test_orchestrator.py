@@ -1,4 +1,4 @@
-"""Orchestrator, gate and cache tests. No Ollama needed.  python -m unittest discover -s tests -v   (from for-nova/)"""
+"""Orchestrator, gate and cache tests. No Ollama needed.  python -m unittest discover -s tests -v   (from the repo root)"""
 import copy
 import sys
 import tempfile

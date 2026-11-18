@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Webapp runtime state (SQLite db + outbox). Seed files already committed stay tracked.
+webapp/state/
+
+# Pipeline model/embedding cache. Files already committed stay tracked.
+out/.cache/
+
+# Node
+node_modules/
+
+# Local environment / tooling
+.env
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db

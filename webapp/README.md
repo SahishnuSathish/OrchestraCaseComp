@@ -10,7 +10,7 @@ Install the dependencies:
 pip install fastapi uvicorn pydantic
 ```
 
-Run the server from the `for-nova/` folder:
+Run the server from the repo root:
 
 ```
 python webapp/server.py
@@ -134,7 +134,7 @@ All paths are under `/api`, and every call needs the `x-ap-token` header. `GET /
 
 ## Tests
 
-From `for-nova/`. None of these need Ollama.
+From the repo root. None of these need Ollama.
 
 ```
 python -m unittest discover -s tests -p "test_*.py"   # backend, pipeline and the local-model API

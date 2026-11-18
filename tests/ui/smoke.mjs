@@ -13,7 +13,7 @@
  *   12 Settings + local model against a fake Ollama (status, models, streaming test console, stop, errors)
  *   13 the selected model reaches a run          14 accessibility basics
  *
- * Run (from the for-nova/ directory):   cd for-nova && node tests/ui/smoke.mjs
+ * Run (from the repo root):   node tests/ui/smoke.mjs
  *
  * Prerequisites
  *   - Node 22 (plain ESM, no package.json, no new dependencies).
@@ -28,7 +28,7 @@
  *   the temp dir are removed in `finally`, also on SIGINT/SIGTERM.
  *
  * Test 13 and the model cache
- *   The pipeline caches model readings in for-nova/out/.cache/model (tracked files) and there is no override for that
+ *   The pipeline caches model readings in out/.cache/model (tracked files) and there is no override for that
  *   directory (prototype/cache.py: DEFAULT_DIR is fixed, webapp/runner.py does not pass one). A cache entry is only
  *   written when the model returned a valid reading, so test 13 talks to a dedicated fake Ollama started with
  *   `--fail http500`: every /api/chat answers HTTP 500, no reading is ever produced and nothing is cached. The model
@@ -48,8 +48,8 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const NOVA = path.resolve(HERE, '..', '..');           // .../for-nova
-const REPO = path.resolve(NOVA, '..');
+const NOVA = path.resolve(HERE, '..', '..');           // repo root
+const REPO = NOVA;
 const DATA_DIR = path.join(NOVA, 'data');
 
 // ------------------------------------------------------------------------------------------------ playwright
@@ -1322,10 +1322,10 @@ test('14 reduced motion switches toasts and spinners off @1280', async (t) => {
 });
 
 // ---------------------------------------------------------------------------------------------- repository hygiene (runs last)
-const gitState = () => spawnSync('git', ['-C', REPO, 'status', '--short', '--untracked-files=all', '--', 'for-nova/webapp/state', 'for-nova/out'],
+const gitState = () => spawnSync('git', ['-C', REPO, 'status', '--short', '--untracked-files=all', '--', 'webapp/state', 'out'],
   { encoding: 'utf8' }).stdout;
 let gitBefore = '';
-test('git status shows nothing new under for-nova/webapp/state or for-nova/out', async () => {
+test('git status shows nothing new under webapp/state or out', async () => {
   assert.equal(gitState(), gitBefore, 'files under webapp/state or out/ changed while the test ran');
 });
 

@@ -1,6 +1,6 @@
 """Tests for the local-model settings, status, streaming test call and run recording (webapp/local_model.py).
 
-Uses tests/fake_ollama.py (a protocol stand-in, no inference). Run from for-nova/:
+Uses tests/fake_ollama.py (a protocol stand-in, no inference). Run from the repo root:
     python -m unittest tests.test_local_model -v
 """
 import http.client

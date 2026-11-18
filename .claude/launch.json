@@ -4,7 +4,7 @@
     {
       "name": "ap-desk",
       "runtimeExecutable": "C:\\Users\\Sahishnu Sathish\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
-      "runtimeArgs": ["for-nova/webapp/server.py", "--port", "8790"],
+      "runtimeArgs": ["webapp/server.py", "--port", "8790"],
       "port": 8790
     }
   ]
