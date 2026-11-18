@@ -127,6 +127,10 @@ All paths are under `/api`, and every call needs the `x-ap-token` header. `GET /
 | GET | `/api/mail/status` | Current mail mode and sender |
 | POST | `/api/runs/{run_id}/tickets/{ticket_id}/send` | Send an approved reply through the mail adapter |
 | GET | `/api/runs/{run_id}/export` | Download results as a score.py-style JSON file (`?scope=signed_off` or `all`) |
+| GET | `/api/runs/{run_id}/prevention` | Vendor notices, approver digests and deflection numbers for a run (`built: false` until built) |
+| POST | `/api/runs/{run_id}/prevention/build` | Build them from the run's dataset (the run must be done; changes no ticket) |
+| PUT | `/api/runs/{run_id}/prevention/{kind}/{key}` | Set `pending`, `approved` or `skipped` on a notice (`kind=notice`, key = vendor id) or digest (`kind=digest`, key = approver email) |
+| POST | `/api/runs/{run_id}/prevention/{kind}/{key}/send` | Send an approved notice to the vendor's address on record, or a digest to the approver on record. A notice whose records changed since the build is refused |
 
 ## Tests
 

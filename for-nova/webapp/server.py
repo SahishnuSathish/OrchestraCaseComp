@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field  # noqa: E402
 import db  # noqa: E402
 import local_model  # noqa: E402
 import mailer  # noqa: E402
+import prevention  # noqa: E402
 import runner  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(18)
@@ -648,6 +649,94 @@ def api_export(run_id: str, scope: str = "signed_off"):
     name = f"results-{run['label'] or run_id}-{scope}.json".replace(" ", "_")
     return StreamingResponse(iter([payload]), media_type="application/json",
                              headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
+# ---------------------------------------------------------------------------- prevention (notices, digests)
+class PreventionStateBody(BaseModel):
+    state: str
+
+
+def _prevention_payload(run_id):
+    p = db.get_prevention(run_id)
+    if not p:
+        return {"built": False}
+    states = {f"{kind}:{key}": v for (kind, key), v in db.prevention_states(run_id).items()}
+    return {"built": True, **p, "states": states}
+
+
+def _prevention_item(run_id, kind, key):
+    item = prevention.find(db.get_prevention(run_id), kind, key)
+    if item is None:
+        raise HTTPException(404, "No such notice or digest in this run.")
+    return item
+
+
+def _prevention_state(run_id, kind, key):
+    return (db.prevention_states(run_id).get((kind, key)) or {}).get("state", "pending")
+
+
+@app.get("/api/runs/{run_id}/prevention", dependencies=api)
+def api_prevention(run_id: str):
+    _run_or_404(run_id)
+    return _prevention_payload(run_id)
+
+
+@app.post("/api/runs/{run_id}/prevention/build", dependencies=api)
+def api_prevention_build(run_id: str):
+    run = _run_or_404(run_id)
+    if run["status"] != "done":
+        raise HTTPException(409, "Wait for the run to finish before building notices and digests.")
+    try:
+        prevention.build(run_id, get_manager())
+    except prevention.Unavailable as e:
+        raise HTTPException(422, str(e))
+    return _prevention_payload(run_id)
+
+
+@app.put("/api/runs/{run_id}/prevention/{kind}/{key}", dependencies=api)
+def api_prevention_set_state(run_id: str, kind: str, key: str, body: PreventionStateBody):
+    _run_or_404(run_id)
+    _prevention_item(run_id, kind, key)
+    if body.state not in prevention.STATES:
+        raise HTTPException(422, f"state must be one of: {', '.join(prevention.STATES)}")
+    if _prevention_state(run_id, kind, key) == "sent":
+        raise HTTPException(409, "This was already sent.")
+    db.set_prevention_state(run_id, kind, key, body.state)
+    return _prevention_payload(run_id)
+
+
+@app.post("/api/runs/{run_id}/prevention/{kind}/{key}/send", dependencies=api)
+def api_prevention_send(run_id: str, kind: str, key: str):
+    """Recipient, subject and body come from the stored build, never from the request, and are checked again here."""
+    run = _run_or_404(run_id)
+    item = _prevention_item(run_id, kind, key)
+    st = _prevention_state(run_id, kind, key)
+    if st == "sent":
+        raise HTTPException(409, "This was already sent.")
+    if st != "approved":
+        raise HTTPException(409, "Approve it before sending.")
+    runner._proto_on_path()
+    if kind == "notice":
+        import notices
+        store = get_manager().store_for(run["dataset_path"])
+        fresh = {x["vendor_id"]: x for x in notices.build(store)["notices"]} if store else {}
+        if (fresh.get(key) or {}).get("text") != item["text"]:
+            raise HTTPException(409, "The records changed since this notice was drafted. Build again, then review it.")
+        to, subject = item["to"], "Your invoices with Orchestra: current status"
+    else:
+        import egress_guard
+        allowed = [b["tranId"] for b in item["bills"]] + [str(t) for b in item["bills"] for t in b["ticket_ids"]]
+        if not item["sendable"] or egress_guard.check_internal(item["text"], allowed):
+            raise HTTPException(409, "This digest has no approver on record or failed the internal check, so it can't be sent.")
+        to, subject = item["act_by"], f"Approvals waiting on you ({len(item['bills'])})"
+    msg = mailer.Message(sender=mailer.default_sender(None), to=to, subject=subject, body=item["text"],
+                         headers={"X-Conductor-Prevention": f"{kind}:{key}"})
+    try:
+        info = mailer.get_mailer().send(msg)
+    except mailer.MailError as e:
+        raise HTTPException(502, str(e))
+    db.save_prevention_sent(run_id, kind, key, info.get("id"))
+    return _prevention_payload(run_id)
 
 
 def main():

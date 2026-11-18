@@ -85,5 +85,99 @@ class BuildTests(unittest.TestCase):
             prevention.build("nodata01", server.get_manager())
 
 
+class ApiTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.c = TestClient(server.app, base_url="http://localhost")
+        cls.rid = finished_run(cls.c)
+
+    def setUp(self):
+        self._outbox = tempfile.TemporaryDirectory()
+        self._get = server.mailer.get_mailer
+        server.mailer.get_mailer = lambda env=None: server.mailer.OutboxMailer(self._outbox.name)  # never the real outbox
+
+    def tearDown(self):
+        server.mailer.get_mailer = self._get
+        self._outbox.cleanup()
+
+    def url(self, tail="", rid=None):
+        return f"/api/runs/{rid or self.rid}/prevention{tail}"
+
+    def build(self):
+        r = self.c.post(self.url("/build"), headers=H)
+        self.assertEqual(r.status_code, 200, r.text)
+        return r.json()
+
+    def test_not_built_then_built(self):
+        rid = finished_run(self.c)
+        self.assertEqual(self.c.get(self.url(rid=rid), headers=H).json(), {"built": False})
+        r = self.c.post(self.url("/build", rid=rid), headers=H)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertTrue(r.json()["built"])
+        self.assertEqual(r.json()["report"]["tickets"], 100)
+        self.assertEqual(r.json()["states"], {})
+
+    def test_send_needs_approval_and_uses_the_servers_own_text(self):
+        n = self.build()["notices"][0]
+        k = f"/notice/{n['key']}"
+        self.assertEqual(self.c.post(self.url(k + "/send"), headers=H).status_code, 409)  # not approved yet
+        self.assertEqual(self.c.put(self.url(k), json={"state": "approved"}, headers=H).status_code, 200)
+        r = self.c.post(self.url(k + "/send"), json={"to": "attacker@evil.example", "body": "x"}, headers=H)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["states"][f"notice:{n['key']}"]["state"], "sent")
+        self.assertEqual(self.c.post(self.url(k + "/send"), headers=H).status_code, 409)  # already sent
+        self.assertEqual(self.c.put(self.url(k), json={"state": "pending"}, headers=H).status_code, 409)
+        emls = list(Path(self._outbox.name).glob("*.eml"))
+        self.assertEqual(len(emls), 1)
+        eml = emls[0].read_text(encoding="utf-8")
+        self.assertIn(f"To: {n['to']}", eml)
+        self.assertNotIn("attacker@evil.example", eml)
+
+    def test_a_digest_goes_to_the_approver_on_record(self):
+        d = next(x for x in self.build()["digests"] if x["sendable"])
+        k = f"/digest/{d['key']}"
+        self.c.put(self.url(k), json={"state": "approved"}, headers=H)
+        r = self.c.post(self.url(k + "/send"), headers=H)
+        self.assertEqual(r.status_code, 200, r.text)
+        eml = next(Path(self._outbox.name).glob("*.eml")).read_text(encoding="utf-8")
+        self.assertIn(f"To: {d['act_by']}", eml)
+
+    def test_unsendable_digest_is_refused(self):
+        bad = next((x for x in self.build()["digests"] if not x["sendable"]), None)
+        if bad is None:
+            self.skipTest("every digest in the pack has an approver")
+        k = f"/digest/{bad['key']}"
+        self.c.put(self.url(k), json={"state": "approved"}, headers=H)
+        self.assertEqual(self.c.post(self.url(k + "/send"), headers=H).status_code, 409)
+        self.assertEqual(list(Path(self._outbox.name).glob("*.eml")), [])
+
+    def test_a_notice_whose_records_changed_is_refused(self):
+        p = self.build()
+        n = p["notices"][1]
+        stale = dict(p)
+        stale["notices"] = [dict(x, text=x["text"] + "\nOld line.") if x["key"] == n["key"] else x for x in p["notices"]]
+        db.save_prevention(self.rid, stale)
+        k = f"/notice/{n['key']}"
+        self.c.put(self.url(k), json={"state": "approved"}, headers=H)
+        r = self.c.post(self.url(k + "/send"), headers=H)
+        self.assertEqual(r.status_code, 409)
+        self.assertIn("records changed", r.json()["detail"])
+
+    def test_bad_kind_state_and_key(self):
+        p = self.build()
+        self.assertEqual(self.c.put(self.url("/other/x"), json={"state": "approved"}, headers=H).status_code, 404)
+        self.assertEqual(self.c.put(self.url("/notice/nope"), json={"state": "approved"}, headers=H).status_code, 404)
+        k = f"/notice/{p['notices'][0]['key']}"
+        self.assertEqual(self.c.put(self.url(k), json={"state": "sent"}, headers=H).status_code, 422)
+
+    def test_unfinished_or_unknown_run(self):
+        db.create_run("busy0001", str(DATA), "run", False, None, 100, status="running")
+        self.assertEqual(self.c.post(self.url("/build", rid="busy0001"), headers=H).status_code, 409)
+        self.assertEqual(self.c.get(self.url(rid="nosuch01"), headers=H).status_code, 404)
+
+    def test_token_required(self):
+        self.assertEqual(self.c.get(self.url()).status_code, 401)
+
+
 if __name__ == "__main__":
     unittest.main()
