@@ -278,6 +278,9 @@ class Manager:
                 live.emit("ticket", {"row": db.get_ticket(run_id, bundle["ticket_id"])["row"], "done": n, "total": len(tickets),
                                      "elapsed": round(elapsed, 1)})
             db.update_run(run_id, status="done", finished_at=time.time())
+            # Finished the moment the record says done: the model check below can take seconds (a refused localhost
+            # connection on Windows), and a "done" run must not look busy to delete_run or running_run meanwhile.
+            live.finished = True
             live.emit("done", {"done": len(tickets), "elapsed": round(time.perf_counter() - t_run, 1)})
             if not model_free and (used_model or model_status()["usable"]):
                 self.briefs.enqueue_run(run_id)

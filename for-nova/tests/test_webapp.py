@@ -401,6 +401,32 @@ class ApiTests(unittest.TestCase):
         self.assertNotIn("__AP_TOKEN__", html)
 
 
+class RunFinishTests(unittest.TestCase):
+    def test_a_run_reported_done_can_be_deleted_at_once(self):
+        """The slow post-run model check must not keep a 'done' run marked busy (delete used to get 409 here)."""
+        mgr = server.get_manager()
+        original = runner.model_status
+
+        def slow_status(force=False):
+            time.sleep(1.5)  # a refused localhost connection can take this long on Windows
+            return {"usable": False, "state": "unreachable", "model": None}
+
+        runner.model_status = slow_status
+        try:
+            rid = mgr.start_run(str(DATA), limit=3)
+            for _ in range(500):
+                if db.get_run(rid)["status"] == "done":
+                    break
+                time.sleep(0.01)
+            self.assertEqual(db.get_run(rid)["status"], "done")
+            mgr.delete_run(rid)  # raised RuntimeError ("still in progress") before the fix
+            self.assertIsNone(db.get_run(rid))
+            self.assertIsNone(mgr.running_run())
+        finally:
+            time.sleep(1.6)  # let the run thread finish its model check before restoring
+            runner.model_status = original
+
+
 class BrandTests(unittest.TestCase):
     def test_page_and_app_are_named_conductor(self):
         c = TestClient(server.app, base_url="http://localhost")
