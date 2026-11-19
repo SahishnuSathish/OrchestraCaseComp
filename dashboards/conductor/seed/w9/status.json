@@ -1,0 +1,304 @@
+{
+ "3000": {
+  "address": "251 Quarry Street, Portland, OR 97205",
+  "entity_type": "LLC",
+  "legal_name": "Quillfern Studio",
+  "status": "missing",
+  "tin_last4": "8457"
+ },
+ "3001": {
+  "address": "661 Alder Drive, Tucson, AZ 85701",
+  "entity_type": "S Corporation",
+  "legal_name": "Bramblewick Print Co",
+  "on_file_at": "2025-04-16",
+  "status": "on_file",
+  "tin_last4": "8791"
+ },
+ "3002": {
+  "address": "127 Cedar Boulevard, Raleigh, NC 27601",
+  "entity_type": "LLC",
+  "legal_name": "Tallowridge Media",
+  "on_file_at": "2026-02-06",
+  "record_tin_last4": "2909",
+  "status": "tin_mismatch",
+  "tin_last4": "7706"
+ },
+ "3003": {
+  "address": "721 Harbor Road, Denver, CO 80202",
+  "entity_type": "S Corporation",
+  "legal_name": "Harborlight Staging",
+  "on_file_at": "2025-08-16",
+  "status": "on_file",
+  "tin_last4": "5027"
+ },
+ "3004": {
+  "address": "450 Linden Avenue, Austin, TX 78701",
+  "entity_type": "C Corporation",
+  "legal_name": "Sablecrest Translation",
+  "on_file_at": "2024-09-13",
+  "status": "on_file",
+  "tin_last4": "9808"
+ },
+ "3005": {
+  "address": "620 Foundry Lane, Boise, ID 83702",
+  "entity_type": "Partnership",
+  "legal_name": "Ostrander Field Research",
+  "on_file_at": "2022-07-23",
+  "status": "expired",
+  "tin_last4": "4518"
+ },
+ "3006": {
+  "address": "886 Mill Street, Albany, NY 12207",
+  "entity_type": "C Corporation",
+  "legal_name": "Pennywhistle Audio",
+  "on_file_at": "2024-09-21",
+  "status": "on_file",
+  "tin_last4": "4748"
+ },
+ "3007": {
+  "address": "616 Maple Court, Madison, WI 53703",
+  "entity_type": "Partnership",
+  "legal_name": "Larkspur Catering Group",
+  "status": "missing",
+  "tin_last4": "6546"
+ },
+ "3008": {
+  "address": "633 Harbor Road, Denver, CO 80202",
+  "entity_type": "S Corporation",
+  "legal_name": "Cobalt Finch Design",
+  "on_file_at": "2025-08-28",
+  "status": "on_file",
+  "tin_last4": "8987"
+ },
+ "3009": {
+  "address": "935 Cedar Boulevard, Raleigh, NC 27601",
+  "entity_type": "LLC",
+  "legal_name": "Marrowgate Consulting",
+  "on_file_at": "2023-02-10",
+  "status": "on_file",
+  "tin_last4": "7269"
+ },
+ "3010": {
+  "address": "826 Linden Avenue, Austin, TX 78701",
+  "entity_type": "C Corporation",
+  "legal_name": "Fernhollow Photo",
+  "on_file_at": "2024-01-21",
+  "status": "on_file",
+  "tin_last4": "3616"
+ },
+ "3011": {
+  "address": "964 Foundry Lane, Boise, ID 83702",
+  "entity_type": "Partnership",
+  "legal_name": "Tin Lantern Media Inc",
+  "on_file_at": "2025-03-19",
+  "status": "name_mismatch",
+  "tin_last4": "2198"
+ },
+ "3012": {
+  "address": "510 Mill Street, Albany, NY 12207",
+  "entity_type": "C Corporation",
+  "legal_name": "Wrenfield Data Labs",
+  "on_file_at": "2024-05-01",
+  "status": "on_file",
+  "tin_last4": "9996"
+ },
+ "3013": {
+  "address": "816 Maple Court, Madison, WI 53703",
+  "entity_type": "Partnership",
+  "legal_name": "Copperleaf Events",
+  "on_file_at": "2026-11-11",
+  "status": "on_file",
+  "tin_last4": "9418"
+ },
+ "3014": {
+  "address": "563 Quarry Street, Portland, OR 97205",
+  "entity_type": "LLC",
+  "legal_name": "Ninebark Surveys",
+  "status": "missing",
+  "tin_last4": "1889"
+ },
+ "3015": {
+  "address": "621 Alder Drive, Tucson, AZ 85701",
+  "entity_type": "S Corporation",
+  "legal_name": "Oxbow Courier Service",
+  "on_file_at": "2025-08-12",
+  "status": "on_file",
+  "tin_last4": "9855"
+ },
+ "3016": {
+  "address": "695 Cedar Boulevard, Raleigh, NC 27601",
+  "entity_type": "LLC",
+  "legal_name": "Thistledown Staffing",
+  "on_file_at": "2025-02-06",
+  "record_tin_last4": "8909",
+  "status": "tin_mismatch",
+  "tin_last4": "4706"
+ },
+ "3017": {
+  "address": "297 Harbor Road, Denver, CO 80202",
+  "entity_type": "S Corporation",
+  "legal_name": "Verdigris Signage",
+  "on_file_at": "2025-12-16",
+  "status": "on_file",
+  "tin_last4": "5019"
+ },
+ "3018": {
+  "address": "824 Maple Court, Madison, WI 53703",
+  "entity_type": "Partnership",
+  "legal_name": "Halcyon Pier Productions",
+  "on_file_at": "2022-07-15",
+  "status": "expired",
+  "tin_last4": "9746"
+ },
+ "3019": {
+  "address": "262 Mill Street, Albany, NY 12207",
+  "entity_type": "C Corporation",
+  "legal_name": "Juniper Slate Analytics",
+  "on_file_at": "2024-09-09",
+  "status": "on_file",
+  "tin_last4": "9708"
+ },
+ "3020": {
+  "address": "969 Harbor Road, Denver, CO 80202",
+  "entity_type": "S Corporation",
+  "legal_name": "Moss and Meridian LLC",
+  "on_file_at": "2025-04-16",
+  "status": "on_file",
+  "tin_last4": "3403"
+ },
+ "3021": {
+  "address": "215 Cedar Boulevard, Raleigh, NC 27601",
+  "entity_type": "LLC",
+  "legal_name": "Saltmarsh Creative",
+  "on_file_at": "2023-02-26",
+  "status": "on_file",
+  "tin_last4": "9437"
+ },
+ "3022": {
+  "address": "509 Alder Drive, Tucson, AZ 85701",
+  "entity_type": "S Corporation",
+  "legal_name": "Ironbark Rentals",
+  "on_file_at": "2025-08-28",
+  "status": "on_file",
+  "tin_last4": "9959"
+ },
+ "3023": {
+  "address": "147 Quarry Street, Portland, OR 97205",
+  "entity_type": "LLC",
+  "legal_name": "Dovetail Lane Printing",
+  "status": "missing",
+  "tin_last4": "9033"
+ },
+ "3024": {
+  "address": "896 Maple Court, Madison, WI 53703",
+  "entity_type": "Partnership",
+  "legal_name": "Kestrel Hollow Web",
+  "on_file_at": "2026-07-11",
+  "status": "on_file",
+  "tin_last4": "1866"
+ },
+ "3025": {
+  "address": "414 Mill Street, Albany, NY 12207",
+  "entity_type": "C Corporation",
+  "legal_name": "Amberline Transcription",
+  "on_file_at": "2024-05-17",
+  "status": "on_file",
+  "tin_last4": "6124"
+ },
+ "3026": {
+  "address": "212 Foundry Lane, Boise, ID 83702",
+  "entity_type": "Partnership",
+  "legal_name": "Greywater Audio LLC",
+  "on_file_at": "2024-07-11",
+  "status": "name_mismatch",
+  "tin_last4": "6294"
+ },
+ "3027": {
+  "address": "234 Linden Avenue, Austin, TX 78701",
+  "entity_type": "C Corporation",
+  "legal_name": "Foxglove Talent",
+  "on_file_at": "2024-01-01",
+  "status": "on_file",
+  "tin_last4": "1200"
+ },
+ "3028": {
+  "address": "203 Quarry Street, Portland, OR 97205",
+  "entity_type": "LLC",
+  "legal_name": "Birchmere Logistics",
+  "on_file_at": "2023-02-10",
+  "status": "on_file",
+  "tin_last4": "7497"
+ },
+ "3029": {
+  "address": "533 Alder Drive, Tucson, AZ 85701",
+  "entity_type": "S Corporation",
+  "legal_name": "Plumb Line Research",
+  "on_file_at": "2024-08-12",
+  "record_tin_last4": "4047",
+  "status": "tin_mismatch",
+  "tin_last4": "8844"
+ },
+ "3030": {
+  "address": "632 Maple Court, Madison, WI 53703",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Imani Okoye-Reed",
+  "on_file_at": "2026-07-03",
+  "status": "on_file",
+  "tin_last4": "4970"
+ },
+ "3031": {
+  "address": "326 Mill Street, Albany, NY 12207",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Tomasz Velarde",
+  "status": "missing",
+  "tin_last4": "5132"
+ },
+ "3032": {
+  "address": "844 Foundry Lane, Boise, ID 83702",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Priya Halvorsen",
+  "on_file_at": "2026-03-07",
+  "status": "on_file",
+  "tin_last4": "4510"
+ },
+ "3033": {
+  "address": "946 Linden Avenue, Austin, TX 78701",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Desmond Achterberg",
+  "on_file_at": "2022-09-05",
+  "status": "expired",
+  "tin_last4": "7656"
+ },
+ "3034": {
+  "address": "977 Harbor Road, Denver, CO 80202",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Lucia Fenwick-Oyelaran",
+  "on_file_at": "2025-04-24",
+  "status": "on_file",
+  "tin_last4": "9355"
+ },
+ "3035": {
+  "address": "223 Cedar Boulevard, Raleigh, NC 27601",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Marek T. Tanaka-Holt",
+  "on_file_at": "2024-02-26",
+  "status": "name_mismatch",
+  "tin_last4": "4749"
+ },
+ "3036": {
+  "address": "853 Alder Drive, Tucson, AZ 85701",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Bronwyn Castellano",
+  "on_file_at": "2025-04-08",
+  "status": "on_file",
+  "tin_last4": "6919"
+ },
+ "3037": {
+  "address": "619 Quarry Street, Portland, OR 97205",
+  "entity_type": "Individual/sole proprietor",
+  "legal_name": "Oluwaseun Lindqvist",
+  "on_file_at": "2023-06-02",
+  "status": "on_file",
+  "tin_last4": "2905"
+ }
+}
