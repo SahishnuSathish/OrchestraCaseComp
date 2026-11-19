@@ -18,14 +18,14 @@
 /* ---- page head ---------------------------------------------------------------------------------------- */
 .lv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3) var(--s-5); flex-wrap: wrap; margin-bottom: var(--s-5); }
 .lv-head-main { display: flex; align-items: flex-start; gap: var(--s-3); min-width: 0; flex: 1 1 420px; }
-.lv-head-main > .c-mark { margin-top: 4px; }
 .lv-head-titles { min-width: 0; }
+.lv-eyebrow { display: inline-flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-ahead-ink); }
 .lv-title {
   font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-3xl); line-height: var(--lh-tight);
   font-weight: var(--fw-semibold); letter-spacing: -0.015em; text-wrap: balance;
 }
 .lv-lede { margin-top: 6px; max-width: 70ch; color: var(--color-text-secondary); font-size: var(--fs-md); line-height: var(--lh-body); }
-.lv-meta { margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted); }
+.lv-meta { margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 .lv-head-actions { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
 
 /* ---- section heads -------------------------------------------------------------------------------------- */

@@ -7,7 +7,7 @@ import {
   button, setBusy, checkbox, chip, stat, table, skeletonText, empty, notice, toast, avatar,
 } from '../components/index.js';
 import {
-  pageHead, sectionHead, sourceLine, nameOf, fmtWhen, fmtTime, ago, appNow, plural, errText, liveRegion, say,
+  pageHead, sectionHead, sourceLine, sourceText, nameOf, fmtWhen, fmtTime, ago, appNow, plural, errText, liveRegion, say, dataAsOf,
 } from '../components/leadership/util.js';
 import { barList, compare } from '../components/leadership/charts.js';
 import * as wf from '../api-workflow.js';
@@ -44,10 +44,10 @@ export function mount(root) {
 
   const kpis = h('div', { class: 'tm-kpis' });
   const grid = h('div', { class: 'tm-grid' });
-  const asOf = h('p', { class: 'lv-meta' });
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   const refreshBtn = button({ label: 'Refresh', icon: 'refresh', size: 'sm', variant: 'quiet', onClick: () => load(true) });
   fill(root, h('div', { class: 'page lv-page tm-page' },
-    pageHead({ title: 'Team', lede: 'How the accounts payable inbox is doing right now, and where work is waiting. Each figure says where it came from.', actions: [asOf, refreshBtn] }),
+    pageHead({ title: 'Team', lede: 'How the accounts payable inbox is doing right now, and where work is waiting.', meta: asOf, actions: refreshBtn }),
     kpis, grid, live));
 
   async function load(manual = false) {
@@ -281,7 +281,7 @@ export function mount(root) {
       fill(grid);
       return;
     }
-    asOf.textContent = data.as_of ? `As of ${fmtWhen(data.as_of)}` : '';
+    asOf.textContent = dataAsOf(data.as_of);
     if (!data.available) {
       fill(kpis);
       fill(grid, notice({ tone: 'info', title: 'The inbox is still connecting', text: 'Figures appear once Conductor has read the inbox.' }));

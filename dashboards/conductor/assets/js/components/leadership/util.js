@@ -125,22 +125,42 @@ export const plural = (n, one, many = `${one}s`) => `${Number(n || 0).toLocaleSt
 // ---------------------------------------------------------------------------- page head
 /**
  * pageHead({ title, lede, actions, product, meta }) - the top of a leadership page: a display title, one plain line
- * about what the page is for, and the page's own actions. `product: 'ahead'` adds the Ahead mark.
+ * about what the page is for, and the page's own actions. Every leadership page uses it inside the standard `.page`
+ * container, so the title's left edge is the same everywhere. `product: 'ahead'` adds a small brand line above the
+ * title (never beside it). `meta` is the quiet line under the lede, for example dataAsOf(). `meta` may be a node.
  */
 export function pageHead({ title, lede, actions, product, meta, id } = {}) {
+  const brand = product === 'ahead' ? 'Conductor: Ahead' : product === 'direct' ? 'Conductor: Direct' : null;
   return h('header', { class: `lv-head${product ? ` lv-head-${product}` : ''}` },
     h('div', { class: 'lv-head-main' },
-      product ? mark({ product, size: 36 }) : null,
       h('div', { class: 'lv-head-titles' },
+        brand ? h('p', { class: 'lv-eyebrow' }, mark({ product, size: 20 }), h('span', null, brand)) : null,
         h('h1', { class: 'lv-title', id }, title),
         lede ? h('p', { class: 'lv-lede' }, lede) : null,
-        meta ? h('p', { class: 'lv-meta' }, meta) : null)),
+        meta ? (meta instanceof Node ? meta : h('p', { class: 'lv-meta' }, meta)) : null)),
     actions ? h('div', { class: 'lv-head-actions' }, actions) : null);
 }
 
-/** A small "where this number came from" line. */
+/** "Data as of Nov 13, 10:49 AM": the one freshness line by a page title (the app clock when no time is given). */
+export function dataAsOf(at) {
+  return `Data as of ${fmtWhen(at || appNow())}`;
+}
+
+// A source the server sends is shown as given, except the old blanket "practice data, snapshot" wording: the page's
+// "Data as of" line carries that once, by the title.
+const GENERIC_SOURCE = /practice data|snapshot/i;
+/** The source text worth showing, or null. */
+export function sourceText(text) {
+  const t = String(text || '').trim();
+  return t && !GENERIC_SOURCE.test(t) ? t : null;
+}
+
+/** A small "where this number came from" line: "Source: past replies in Zendesk", or "Since this morning" as is. */
 export function sourceLine(text) {
-  return h('p', { class: 'lv-source' }, icon('database', 'icon-sm'), h('span', null, `Source: ${text}`));
+  const t = sourceText(text);
+  if (!t) return null;
+  const shown = /^(source:|since\b)/i.test(t) ? t[0].toUpperCase() + t.slice(1) : `Source: ${t}`;
+  return h('p', { class: 'lv-source' }, icon('database', 'icon-sm'), h('span', null, shown));
 }
 
 /** A labelled key/value list. rows: [[label, value], ...] (null rows are skipped). */

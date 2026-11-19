@@ -1,7 +1,6 @@
 /* Escalations (#/escalations): the CFO's queue and the opened ticket. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.esc-page { max-width: calc(1360px + var(--page-pad) * 2); }
 .esc-grid { display: grid; grid-template-columns: minmax(320px, 380px) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
 
 /* queue */

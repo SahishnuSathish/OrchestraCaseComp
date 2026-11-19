@@ -7,7 +7,7 @@ import {
   skeletonRows, skeletonText, empty, notice, tabs, toast,
 } from '../components/index.js';
 import {
-  pageHead, ago, fmtWhen, fmtDay, nameOf, firstName, REASONS, CATEGORIES, stateBadge, kv, errText, liveRegion, say,
+  pageHead, ago, fmtWhen, fmtDay, fmtTime, nameOf, firstName, REASONS, CATEGORIES, stateBadge, kv, errText, liveRegion, say, dataAsOf,
 } from '../components/leadership/util.js';
 import { replyHash } from '../components/leadership/reply-hash.js';
 import * as wf from '../api-workflow.js';
@@ -44,11 +44,13 @@ export function mount(root, { route }) {
     listBody);
   const detailPane = h('section', { class: 'c-pane esc-detail', 'aria-label': 'Selected ticket', tabindex: '-1' });
   const grid = h('div', { class: 'esc-grid' }, listPane, detailPane);
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
 
   fill(root, h('div', { class: 'page lv-page esc-page' },
     pageHead({
       title: 'Escalations',
       lede: 'Priority replies to sign off, and internal notes to decide. Nothing here reaches a vendor until you act.',
+      meta: asOf,
     }),
     grid, live));
 
@@ -118,6 +120,7 @@ export function mount(root, { route }) {
     try {
       const [esc, threads] = await Promise.all([wf.escalations(), inbox.threads({}).catch(() => ({ rows: [] }))]);
       if (!alive) return;
+      asOf.textContent = dataAsOf();
       const byId = new Map((threads.rows || []).map((t) => [t.ticket_id, t]));
       const before = rows ? new Set(rows.map((r) => r.ticket_id)) : null;
       rows = (esc.rows || []).map((r) => {

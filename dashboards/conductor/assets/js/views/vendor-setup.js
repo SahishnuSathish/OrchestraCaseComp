@@ -8,7 +8,7 @@ import {
   button, setBusy, badge, fmtMoney, skeletonRows, skeletonText, empty, notice, tabs, toast,
 } from '../components/index.js';
 import {
-  pageHead, fmtDay, fmtWhen, nameOf, plural, kv, errText, liveRegion, say, reviewBadge,
+  pageHead, fmtDay, fmtWhen, nameOf, plural, kv, errText, liveRegion, say, reviewBadge, dataAsOf,
 } from '../components/leadership/util.js';
 import * as w9 from '../api-w9.js';
 import * as wf from '../api-workflow.js';
@@ -47,10 +47,12 @@ export function mount(root, { route }) {
     listBody);
   const detailPane = h('section', { class: 'c-pane vs-detail', 'aria-label': 'Selected vendor', tabindex: '-1' });
   const grid = h('div', { class: 'vs-grid' }, listPane, detailPane);
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   fill(root, h('div', { class: 'page lv-page vs-page' },
     pageHead({
       title: 'Vendor setup',
       lede: 'Vendors whose W-9 is missing, expired or does not match our records, and the bills each one is holding up. Bank details are never accepted here.',
+      meta: asOf,
     }),
     grid, live));
 
@@ -86,6 +88,7 @@ export function mount(root, { route }) {
       const q = await w9.queue();
       if (!alive) return;
       rows = q.rows || [];
+      asOf.textContent = dataAsOf();
     } catch (e) {
       if (!alive) return;
       loadError = errText(e);

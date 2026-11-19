@@ -7,7 +7,7 @@ import {
   button, setBusy, field, setFieldError, badge, fmtMoney, stat, skeletonRows, empty, notice, tabs, modal, toast,
 } from '../components/index.js';
 import {
-  pageHead, fmtDay, daysSince, nameOf, plural, errText, liveRegion, say, APP_TODAY, sourceLine,
+  pageHead, fmtDay, daysSince, nameOf, plural, errText, liveRegion, say, APP_TODAY, sourceLine, dataAsOf,
 } from '../components/leadership/util.js';
 import * as wf from '../api-workflow.js';
 import { subscribe } from '../api-live.js';
@@ -24,12 +24,14 @@ export function mount(root, { session }) {
 
   const top = h('div', { class: 'ap-top' });
   const listSlot = h('div', { class: 'ap-list-slot' });
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   fill(root, h('div', { class: 'page lv-page ap-page' },
     pageHead({
       title: 'Waiting on you',
       lede: readOnly
         ? 'Bills waiting on an approver, and the vendor questions each one is holding up. Read-only here; approvers answer from their own page.'
         : 'Bills that need your approval, and the vendor questions each one is holding up. Approve them in NetSuite as usual. Here you can tell the AP team where things stand.',
+      meta: asOf,
     }),
     top, listSlot, live));
 
@@ -39,6 +41,7 @@ export function mount(root, { session }) {
       const d = await wf.approverQueue();
       if (!alive) return;
       data = d;
+      asOf.textContent = dataAsOf();
       if (!view) view = d.bills.some((b) => b.blocked_tickets.length) ? 'blocking' : 'all';
     } catch (e) {
       if (!alive) return;
@@ -87,7 +90,7 @@ export function mount(root, { session }) {
         title: bills.length ? 'No vendor is waiting on these bills' : 'Nothing is waiting on you',
         text: bills.length ? 'Every bill here is pending, but no vendor has asked about one yet.' : 'When a bill needs your approval, it appears here.',
       }),
-      sourceLine('NetSuite bills (read-only) and Zendesk tickets, snapshot Nov 13'));
+      sourceLine('NetSuite bills (read-only) and Zendesk tickets'));
   }
 
   function billRow(b) {

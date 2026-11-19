@@ -1,7 +1,6 @@
 /* Settings: Connections and Advanced (#/settings, #/connections, #/settings/advanced). Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.cx-page { max-width: calc(1240px + var(--page-pad) * 2); }
 .cx-page > .c-tabs { margin-bottom: var(--s-5); }
 .cx-body { display: flex; flex-direction: column; gap: var(--s-5); }
 .cx-section { display: flex; flex-direction: column; gap: var(--s-3); }

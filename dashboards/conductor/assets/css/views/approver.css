@@ -1,7 +1,6 @@
 /* Waiting on you (#/approver): the budget approver's page. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.ap-page { max-width: calc(1120px + var(--page-pad) * 2); }
 .ap-top { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-5); }
 .ap-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .ap-listhead { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-3); }

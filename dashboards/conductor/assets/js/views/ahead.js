@@ -12,7 +12,7 @@ import {
   button, setBusy, badge, chip, statusBadge, fmtMoney, stat, skeletonText, skeletonRows, reading, empty, notice, tabs, toast, mark,
 } from '../components/index.js';
 import {
-  pageHead, sectionHead, sourceLine, reviewBadge, nameOf, fmtDay, fmtTime, plural, errText, liveRegion, say,
+  pageHead, sectionHead, sourceLine, reviewBadge, nameOf, fmtDay, fmtTime, plural, errText, liveRegion, say, dataAsOf,
 } from '../components/leadership/util.js';
 
 const SOURCE = 'practice data, snapshot Nov 13';
@@ -46,13 +46,13 @@ export function mount(root, { route, session }) {
   const builtLine = h('p', { class: 'lv-meta' });
   const rebuildBtn = button({ label: 'Rebuild from records', icon: 'refresh', size: 'sm', variant: 'quiet', onClick: () => build(true) });
 
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   fill(root, h('div', { class: 'page lv-page ah-page' },
-    h('section', { class: 'ah-hero', 'aria-labelledby': 'ah-title' },
-      h('div', { class: 'ah-hero-text' },
-        h('div', { class: 'ah-hero-brand' }, mark({ product: 'ahead', size: 28 }), h('span', null, 'Conductor: Ahead')),
-        h('h1', { class: 'ah-title', id: 'ah-title' }, 'Tell vendors before they ask.'),
-        h('p', { class: 'ah-lede' }, 'Ahead drafts status notices for vendors and reminders for approvers from our records. A person approves each one, then sends it. Every notice answers a question before it becomes a ticket.')),
-      figureSlot, statsSlot),
+    pageHead({
+      product: 'ahead', id: 'ah-title', title: 'Tell vendors before they ask.', meta: asOf,
+      lede: 'Ahead drafts status notices for vendors and reminders for approvers from our records. A person approves each one, then sends it. Every notice answers a question before it becomes a ticket.',
+    }),
+    h('section', { class: 'ah-hero', 'aria-label': 'Impact' }, figureSlot, statsSlot),
     h('div', { class: 'ah-bar' }, tabSlot, h('div', { class: 'ah-bar-tools' }, builtLine, rebuildBtn)),
     panel, live));
 

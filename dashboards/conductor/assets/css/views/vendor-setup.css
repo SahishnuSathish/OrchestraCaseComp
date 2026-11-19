@@ -1,7 +1,6 @@
 /* Vendor setup (#/vendor-setup): the W-9 queue and one vendor. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.vs-page { max-width: calc(1320px + var(--page-pad) * 2); }
 .vs-grid { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
 .vs-list { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); max-height: calc(100dvh - var(--topbar-h) - var(--s-6)); }
 .vs-list > .c-pane-head { flex-wrap: wrap; }
