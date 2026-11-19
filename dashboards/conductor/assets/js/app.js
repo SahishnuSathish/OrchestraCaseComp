@@ -1,10 +1,15 @@
-// Conductor shell: router dispatch, sidebar (drawer on narrow screens), topbar breadcrumbs, global banners.
-// Views live in ./views and expose mount(root, { route }) -> { update?({ route }), destroy? }.
+// Conductor staff workspace (/app): session check, the shell (shell.js) and route dispatch.
+// Views live in ./views and expose mount(root, { route, session }) -> { update?({ route }), destroy?() }.
+// The run-era views (runs, tickets, review, prevent, settings) still render here, with a slim context bar for their
+// breadcrumbs, until wave 2 replaces them.
 import { h, icon, mount, $, ls } from './lib.js';
 import { api } from './api.js';
-import { S, on, loadRun, pollModel, refreshModel, refreshRun, pendingDrafts, isActive, viewState } from './state.js';
+import { S, on, loadRun, pollModel, refreshModel, refreshRun, isActive } from './state.js';
 import { parse, href, navigate, onNavigate, crumbs } from './router.js';
-import { banner, emptyState } from './ui.js';
+import { banner } from './ui.js';
+import { empty, button, progress } from './components/index.js';
+import { startShell, setRoute, canOpen, isStaff } from './shell.js';
+import { current, homeFor } from './hub/session-port.js';
 import * as runsView from './views/runs.js';
 import * as runNewView from './views/run-new.js';
 import * as overviewView from './views/overview.js';
@@ -29,117 +34,75 @@ const VIEWS = {
   inbox: inboxView, escalations: escalationsView, team: teamView, approver: approverView, ahead: aheadView,
   'vendor-setup': vendorSetupView, connections: connectionsView, styleguide: styleguideView,
 };
+const LEGACY = new Set(['runs', 'run-new', 'overview', 'tickets', 'review', 'prevent', 'settings', 'not-found']);
+const TITLES = {
+  inbox: 'Inbox', escalations: 'Escalations', team: 'Team', approver: 'Waiting on you', ahead: 'Conductor: Ahead',
+  'vendor-setup': 'Vendor setup', connections: 'Settings', styleguide: 'Style guide', runs: 'Runs', 'run-new': 'New run',
+  overview: 'Overview', prevent: 'Prevent', settings: 'Settings', 'not-found': 'Page not found', tickets: 'Tickets', review: 'Review',
+};
 
-const root = document.documentElement;
 const main = $('#main');
-const mainCol = $('#main-col');
-const sidebar = $('#sidebar');
-const menuBtn = $('#menu-btn');
-let current = null; // { name, runId, inst }
-let route = parse(location.hash);
+let session = null;
+let home = '#/inbox';
+let mounted = null; // { name, runId, inst }
+let route = null;
 let routeSeq = 0;
 
-// ---------------------------------------------------------------------------- model status wording
+// ---------------------------------------------------------------------------- model status wording (legacy context bar)
 function modelInfo(m) {
-  if (!m) return { tone: 'off', side: 'Checking local model', chip: 'Local model', title: 'Checking the local model' };
+  if (!m) return { tone: 'off', chip: 'Local model', title: 'Checking the local model' };
   const state = m.state || (m.usable ? 'ready' : 'unreachable');
   const at = m.host ? ` at ${m.host}` : '';
   switch (state) {
-    case 'ready': return { tone: 'ok', side: 'Local model ready', chip: m.model, title: `${m.model}${at}, running on this computer` };
-    case 'model_missing': return { tone: 'off', side: 'Model not installed', chip: 'Model not installed', title: m.error || `${m.model || 'The selected model'} is not installed${at}` };
-    case 'no_models': return { tone: 'off', side: 'Model not installed', chip: 'Model not installed', title: m.error || `No models are installed${at}` };
-    case 'not_local': return { tone: 'bad', side: 'Model server blocked', chip: 'Model server blocked', title: m.error || 'The configured model server is not on this computer, so it is never contacted' };
-    default: return { tone: 'off', side: 'Local model offline', chip: 'Local model offline', title: m.error || `The local model is not reachable${at}. Runs use the regex reader only` };
+    case 'ready': return { tone: 'ok', chip: m.model, title: `${m.model}${at}, running on this computer` };
+    case 'model_missing': return { tone: 'off', chip: 'Model not installed', title: m.error || `${m.model || 'The selected model'} is not installed${at}` };
+    case 'no_models': return { tone: 'off', chip: 'Model not installed', title: m.error || `No models are installed${at}` };
+    case 'not_local': return { tone: 'bad', chip: 'Model server blocked', title: m.error || 'The configured model server is not on this computer, so it is never contacted' };
+    default: return { tone: 'off', chip: 'Local model offline', title: m.error || `The local model is not reachable${at}. Runs use the regex reader only` };
   }
 }
 
-// ---------------------------------------------------------------------------- sidebar
-let sideSig = '';
-function renderSide() {
-  const info = modelInfo(S.model);
-  const runId = S.runId;
-  const inRun = (name) => route.runId === runId && route.name === name;
-  const tickets = runId ? viewState.get(runId, 'tickets') : null;
-  const review = runId ? viewState.get(runId, 'review') : null;
-  const data = {
-    runs: route.name === 'runs' || route.name === 'run-new',
-    settings: route.name === 'settings',
-    run: runId && S.run ? {
-      label: S.run.label || 'Run', path: S.run.dataset_path || '', live: isActive(S.run) || isActive({ status: S.progress.status }),
-      overview: [href('overview', { runId }), inRun('overview')],
-      tickets: [href('tickets', { runId, query: tickets.query }), inRun('tickets')],
-      review: [href('review', { runId, ticketId: review.ticketId, query: review.query }), inRun('review')],
-      prevent: [href('prevent', { runId }), inRun('prevent')],
-      pending: pendingDrafts(),
-    } : null,
-    model: [info.tone, info.side, info.title],
-  };
-  const sig = JSON.stringify(data);
-  if (sig === sideSig) return;
-  sideSig = sig;
-
-  const link = (label, ic, to, current, count) => h('a', {
-    class: 'nav-link', href: to, title: label, 'aria-label': count > 0 ? `${label}, ${count} to review` : label, 'aria-current': current ? 'page' : null,
-  }, icon(ic), h('span', { class: 'nav-label' }, label), count > 0 ? h('span', { class: 'nav-count', 'aria-hidden': 'true' }, count) : null);
-
-  const r = data.run;
-  const headingId = 'side-run-heading';
-  // The tempo bar and its count are updated in place (updateRailProgress) so a streaming run never rebuilds the sidebar.
-  railFill = r ? h('div', { class: 'bar-fill' }) : null;
-  railCount = r ? h('span', { class: 'count' }) : null;
-  mount($('#side-body'),
-    h('div', { class: 'nav-group' }, link('Runs', 'layers', href('runs'), data.runs)),
-    r ? h('div', { class: 'side-section', role: 'group', 'aria-labelledby': headingId },
-      h('span', { class: 'side-eyebrow' }, 'Current run'),
-      h('div', { class: 'side-heading', id: headingId, title: r.path || null },
-        r.live ? h('span', { class: 'dot dot-live', role: 'img', 'aria-label': 'Run in progress' }) : null, h('span', { class: 'truncate' }, r.label)),
-      h('div', { class: 'side-run' }, h('div', { class: 'bar bar-sm', 'aria-hidden': 'true' }, railFill), railCount),
-      link('Overview', 'gauge', ...r.overview),
-      link('Tickets', 'tickets', ...r.tickets),
-      link('Review', 'review', ...r.review, r.pending),
-      link('Prevent', 'send', ...r.prevent))
-      : h('div', { class: 'side-section' }, h('p', { class: 'side-empty' }, 'Open a run to see its tickets and review queue.')),
-    h('div', { class: 'side-foot' },
-      link('Settings', 'settings', href('settings'), data.settings),
-      h('a', { class: 'nav-link side-model', href: href('settings'), title: info.title, 'aria-label': `${info.side}. Open settings` },
-        h('span', { class: `dot dot-${info.tone}` }), h('span', { class: 'nav-label' }, info.side)),
-      h('p', { class: 'side-fine' }, 'Runs on this computer. Nothing is sent without your approval.')));
-  updateRailProgress();
-}
-
-let railFill = null;
-let railCount = null;
-function updateRailProgress() {
-  if (!railFill || !S.run) return;
-  const total = S.progress.total || S.run.total || 0;
-  const done = Math.min(S.progress.done || S.run.done || 0, total || 0);
-  railFill.style.transform = `scaleX(${total ? done / total : 0})`;
-  railCount.textContent = total ? `${done} of ${total} tickets` : '';
-}
-
-// ---------------------------------------------------------------------------- topbar
-let topSig = '';
-function renderTopbar() {
+// ---------------------------------------------------------------------------- legacy context bar (breadcrumbs, run pages, model)
+let subSig = '';
+function renderSubbar() {
+  const bar = $('#subbar');
+  if (!route || !LEGACY.has(route.name)) {
+    if (!bar.hidden) { bar.hidden = true; mount(bar); subSig = ''; }
+    return;
+  }
   const run = S.runId === route.runId ? S.run : null;
   const items = crumbs(route, run);
   const info = modelInfo(S.model);
-  const sig = JSON.stringify([items, info]);
-  if (sig === topSig) return;
-  topSig = sig;
+  const runTabs = route.runId ? [
+    ['Overview', 'overview', href('overview', { runId: route.runId })],
+    ['Tickets', 'tickets', href('tickets', { runId: route.runId })],
+    ['Review', 'review', href('review', { runId: route.runId })],
+    ['Prevent', 'prevent', href('prevent', { runId: route.runId })],
+  ] : [];
+  const live = !!run && (isActive(run) || isActive({ status: S.progress.status }));
+  const sig = JSON.stringify([items, info, runTabs.map((t) => t[1]), route.name, live]);
+  if (sig === subSig) return;
+  subSig = sig;
+  bar.hidden = false;
   const parent = items.length > 1 ? items[items.length - 2] : null;
-  mount($('#crumbs'),
-    parent ? h('a', { class: 'btn btn-quiet btn-icon crumb-back', href: parent.href, 'aria-label': `Back to ${parent.label}` }, icon('chev-left')) : null,
-    h('nav', { class: 'crumbs', 'aria-label': 'Breadcrumb' }, h('ol', null, items.map((c) => h('li', null,
-      c.href ? h('a', { href: c.href, title: c.label }, c.label) : h('span', { 'aria-current': 'page', title: c.label }, c.label))))));
-  mount($('#status-area'), h('a', { class: 'status-chip', href: href('settings'), title: info.title, 'aria-label': `${info.side}. Open settings` },
-    h('span', { class: `dot dot-${info.tone}` }), icon('cpu', 'chip-icon'), h('span', { class: 'chip-text truncate' }, info.chip)));
+  mount(bar,
+    parent ? h('a', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm c-subbar-back', href: parent.href, 'aria-label': `Back to ${parent.label}` }, icon('chev-left')) : null,
+    h('nav', { class: 'c-crumbs', 'aria-label': 'Breadcrumb' }, h('ol', null, items.map((c) => h('li', null,
+      c.href ? h('a', { href: c.href, title: c.label }, c.label) : h('span', { 'aria-current': 'page', title: c.label }, c.label))))),
+    live ? h('span', { class: 'c-dot-label c-subbar-live' }, h('span', { class: 'c-dot c-dot-settled is-live', 'aria-hidden': 'true' }), 'Running') : null,
+    runTabs.length ? h('nav', { class: 'c-subbar-tabs', 'aria-label': 'Run pages' }, runTabs.map(([label, name, to]) =>
+      h('a', { class: 'c-subbar-tab', href: to, 'aria-current': route.name === name ? 'page' : null }, label))) : null,
+    h('span', { class: 'c-subbar-spacer' }),
+    h('a', { class: 'c-subbar-model', href: href('settings'), title: info.title, 'aria-label': `${info.chip}. Open settings` },
+      h('span', { class: `dot dot-${info.tone}`, 'aria-hidden': 'true' }), icon('cpu'), h('span', { class: 'truncate' }, info.chip)));
 }
 
 function renderTitle() {
-  const leaf = { runs: 'Runs', 'run-new': 'New run', overview: 'Overview', prevent: 'Prevent', settings: 'Settings', 'not-found': 'Page not found' }[route.name]
-    || `${route.name === 'tickets' ? 'Tickets' : 'Review'}${route.ticketId ? ` #${route.ticketId}` : ''}`;
+  if (!route) return;
+  const leaf = TITLES[route.name] || 'Conductor';
+  const id = route.ticketId ? ` #${route.ticketId}` : '';
   const label = route.runId && S.runId === route.runId ? S.run?.label : null;
-  document.title = [leaf, label, 'Conductor'].filter(Boolean).join(' · ');
+  document.title = [`${leaf}${id}`, label, 'Conductor'].filter(Boolean).join(' · ');
 }
 
 // ---------------------------------------------------------------------------- global banners
@@ -171,101 +134,32 @@ function onConn() {
 }
 
 function chrome() {
-  renderSide();
-  updateRailProgress();
-  renderTopbar();
+  renderSubbar();
   renderTitle();
   renderBanners();
 }
 let raf = 0;
 function scheduleChrome() { cancelAnimationFrame(raf); raf = requestAnimationFrame(chrome); }
 
-// ---------------------------------------------------------------------------- collapsible sidebar (desktop)
-// The employee's choice (saved) wins. Without one, the sidebar collapses to icons on medium widths.
-const railMedia = window.matchMedia('(max-width: 1199px)');
-function applyRail() {
-  const saved = ls('ap.rail');
-  const collapsed = saved ? saved === 'collapsed' : railMedia.matches;
-  root.dataset.rail = collapsed ? 'collapsed' : 'open';
-  const btn = $('#rail-toggle');
-  btn.setAttribute('aria-expanded', String(!collapsed));
-  btn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-  btn.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
-  btn.firstElementChild.firstElementChild.setAttribute('href', collapsed ? '#i-panel-left-open' : '#i-panel-left-close');
-}
-
-// ---------------------------------------------------------------------------- drawer (<= 900px)
-const narrow = window.matchMedia('(max-width: 900px)');
-let drawerOpen = false;
-function setDrawer(open, { refocus = true } = {}) {
-  if (open === drawerOpen || (open && !narrow.matches)) return;
-  drawerOpen = open;
-  root.dataset.drawer = open ? 'open' : 'closed';
-  menuBtn.setAttribute('aria-expanded', String(open));
-  menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-  mainCol.inert = open;
-  if (open) $('#drawer-close').focus();
-  else if (refocus) menuBtn.focus();
-}
-const drawerFocusables = () => [...sidebar.querySelectorAll('a[href], button:not(:disabled)')].filter((el) => el.offsetParent !== null);
-
-function initChrome() {
-  $('#rail-toggle').addEventListener('click', () => {
-    ls('ap.rail', root.dataset.rail === 'collapsed' ? 'open' : 'collapsed');
-    applyRail();
-  });
-  railMedia.addEventListener('change', applyRail);
-  applyRail();
-
-  menuBtn.addEventListener('click', () => setDrawer(!drawerOpen));
-  $('#drawer-close').addEventListener('click', () => setDrawer(false));
-  $('#scrim').addEventListener('click', () => setDrawer(false));
-  narrow.addEventListener('change', () => { if (!narrow.matches) setDrawer(false, { refocus: false }); });
-  sidebar.addEventListener('click', (e) => {
-    const a = e.target.closest('a[href]');
-    if (!a) return;
-    setDrawer(false, { refocus: false });
-    if (a.getAttribute('href') === location.hash) main.focus({ preventScroll: true }); // same page: no route change will move focus
-  });
-  document.addEventListener('keydown', (e) => {
-    if (!drawerOpen) return;
-    if (e.key === 'Escape' && !document.querySelector('dialog[open]')) { e.preventDefault(); setDrawer(false); return; }
-    if (e.key !== 'Tab') return;
-    const items = drawerFocusables();
-    if (!items.length) return;
-    const first = items[0], last = items[items.length - 1];
-    if (!sidebar.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
-    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
-  $('.skip').addEventListener('click', (e) => { e.preventDefault(); main.focus({ preventScroll: true }); });
-
-  // Workspace pages size themselves below the topbar and any global banner.
-  new ResizeObserver(() => root.style.setProperty('--banner-h', `${$('#banners').offsetHeight}px`)).observe($('#banners'));
-}
-
 // ---------------------------------------------------------------------------- routing
 const page = (...kids) => h('div', { class: 'page' }, ...kids);
 
 function teardown() {
-  current?.inst?.destroy?.();
-  current = null;
+  mounted?.inst?.destroy?.();
+  mounted = null;
 }
 
 function showRunError(err) {
   teardown();
   chrome();
-  const goRuns = h('a', { class: 'btn btn-primary', href: href('runs') }, 'Go to runs');
+  const goRuns = button({ label: 'Go to runs', variant: 'primary', href: href('runs') });
   if (err.status === 404) {
     if (ls('ap.run') === route.runId) ls('ap.run', null);
-    mount(main, page(emptyState({
-      iconName: 'circle-alert', title: 'This run no longer exists',
-      text: 'It may have been deleted, or this link came from another computer.', action: goRuns,
-    })));
+    mount(main, page(empty({ icon: 'circle-alert', title: 'This run no longer exists', text: 'It may have been deleted, or this link came from another computer.', actions: goRuns })));
   } else {
-    mount(main, page(emptyState({
-      iconName: 'plug', title: "Couldn't open this run", text: err.message || 'Something went wrong while loading it.',
-      actions: [h('button', { class: 'btn btn-primary', type: 'button', onclick: () => dispatchRoute() }, icon('rotate'), 'Try again'), h('a', { class: 'btn', href: href('runs') }, 'Go to runs')],
+    mount(main, page(empty({
+      icon: 'plug', title: "Couldn't open this run", text: err.message || 'Something went wrong while loading it.',
+      actions: [button({ label: 'Try again', variant: 'primary', icon: 'refresh', onClick: () => dispatchRoute() }), button({ label: 'Go to runs', href: href('runs') })],
     })));
   }
   main.focus({ preventScroll: true });
@@ -273,48 +167,64 @@ function showRunError(err) {
 
 async function dispatchRoute() {
   const seq = ++routeSeq;
+  // An empty hash (or "#/") opens this person's home, not the old run list.
+  if (!location.hash || location.hash === '#' || location.hash === '#/') { navigate(home, { replace: true }); return; }
   const next = parse(location.hash);
   if (next.redirect) { navigate(next.redirect, { replace: true }); return; }
+  if (!canOpen(session.role, next.name)) { navigate(home, { replace: true }); return; }
   route = next;
-  setDrawer(false, { refocus: false });
-
-  if (route.runId && route.runId !== S.runId) {
-    teardown();
-    chrome();
-    mount(main, page(h('div', { class: 'loading-block', role: 'status' }, h('span', { class: 'spinner' }), 'Opening run…')));
-    try { await loadRun(route.runId); } catch (err) { if (seq === routeSeq) showRunError(err); return; }
-    if (seq !== routeSeq || S.runId !== route.runId) return;
-  }
-
-  chrome();
-  const runId = route.runId || null;
-  if (current && current.name === route.name && current.runId === runId && current.inst.update) {
-    current.inst.update({ route });
-    return;
-  }
-  teardown();
-  window.scrollTo(0, 0);
-  main.scrollTop = 0;
+  setRoute(route);
+  progress.start();
   try {
-    current = { name: route.name, runId, inst: VIEWS[route.name].mount(main, { route }) || {} };
-  } catch (err) {
-    console.error(err);
-    mount(main, page(emptyState({ iconName: 'circle-alert', title: 'This page could not be shown', text: err.message, action: h('a', { class: 'btn btn-primary', href: href('runs') }, 'Go to runs') })));
+    if (route.runId && route.runId !== S.runId) {
+      teardown();
+      chrome();
+      mount(main, page(h('div', { class: 'loading-block', role: 'status' }, h('span', { class: 'c-spinner', 'aria-hidden': 'true' }), 'Opening run…')));
+      try { await loadRun(route.runId); } catch (err) { if (seq === routeSeq) showRunError(err); return; }
+      if (seq !== routeSeq || S.runId !== route.runId) return;
+    }
+
+    chrome();
+    const runId = route.runId || null;
+    if (mounted && mounted.name === route.name && mounted.runId === runId && mounted.inst.update) {
+      mounted.inst.update({ route });
+      return;
+    }
+    teardown();
+    window.scrollTo(0, 0);
+    main.scrollTop = 0;
+    main.dataset.view = route.name;
+    try {
+      mounted = { name: route.name, runId, inst: VIEWS[route.name].mount(main, { route, session }) || {} };
+    } catch (err) {
+      console.error(err);
+      mount(main, page(empty({ icon: 'circle-alert', title: 'This page could not be shown', text: err.message, actions: button({ label: 'Go to your home page', variant: 'primary', href: home }) })));
+    }
+    main.focus({ preventScroll: true });
+  } finally {
+    progress.done();
   }
-  main.focus({ preventScroll: true });
 }
 
-function boot() {
-  initChrome();
+async function boot() {
+  let s = null;
+  try { s = await current(); } catch { s = null; }
+  if (!s || !s.role) { location.replace('/'); return; }
+  if (s.role === 'vendor') { location.replace(homeFor('vendor')); return; }
+  session = s;
+  const target = homeFor(s.role) || '';
+  home = target.includes('#') ? `#${target.split('#')[1]}` : '#/inbox';
+  startShell({ session });
+
   on((kind) => { if (['run', 'model', 'ticket', 'progress', 'review', 'conn'].includes(kind)) scheduleChrome(); });
   on((kind) => { if (kind === 'conn') onConn(); });
   onNavigate(dispatchRoute);
   window.addEventListener('hashchange', dispatchRoute);
-  pollModel();
+  if (isStaff(s.role)) pollModel();
   dispatchRoute();
-  // Pages outside a run (#/runs, #/settings) still show the last opened run in the sidebar.
+  // Run pages opened later still know the last run (the legacy views read it).
   const saved = ls('ap.run');
-  if (saved && !route.runId) {
+  if (isStaff(s.role) && saved && !route?.runId) {
     loadRun(saved).catch((err) => { if (err.status === 404) ls('ap.run', null); });
   }
 }

@@ -1,0 +1,36 @@
+/* Conductor: Direct frame (components/direct-shell.js). Navy-led, so vendors read it as Orchestra facing out. */
+.c-direct { min-height: 100dvh; display: flex; flex-direction: column; background: var(--color-canvas); }
+.c-direct-bar { position: sticky; top: 0; z-index: var(--z-topbar); background: var(--color-direct); color: var(--color-chrome-text); }
+.c-direct-bar :focus-visible { outline-color: var(--color-focus-on-dark); }
+.c-direct-bar-inner { display: flex; align-items: center; gap: var(--s-4); max-width: 1200px; margin: 0 auto; padding: 0 var(--s-5); min-height: 56px; }
+.c-direct-company { display: flex; align-items: center; gap: var(--s-2); min-width: 0; padding-left: var(--s-4); border-left: 1px solid var(--color-direct-line); color: var(--color-chrome-text); font-weight: var(--fw-medium); }
+.c-direct-company .icon { color: var(--color-direct-text-muted); }
+.c-direct-company-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-direct-spacer { flex: 1; }
+.c-direct-contact { flex: none; }
+.c-direct-user {
+  display: inline-flex; align-items: center; gap: var(--s-2); min-height: 36px; padding: 0 var(--s-2) 0 4px; max-width: 260px;
+  background: transparent; border: 1px solid transparent; border-radius: var(--radius-control); color: var(--color-chrome-text);
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.c-direct-user:hover, .c-direct-user[aria-expanded="true"] { background: var(--color-direct-raised); border-color: var(--color-direct-line); }
+.c-direct-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); }
+.c-direct-caret { color: var(--color-direct-text-muted); }
+.c-direct-navbar { background: var(--color-direct-raised); border-top: 1px solid var(--color-direct-line); }
+.c-direct-navbar .c-direct-bar-inner { min-height: 44px; }
+.c-direct-nav { display: flex; align-items: stretch; gap: var(--s-1); min-width: 0; overflow-x: auto; scrollbar-width: none; align-self: stretch; }
+.c-direct-navlink { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 0 var(--s-3); color: var(--color-direct-text-muted); font-size: var(--fs-md); font-weight: var(--fw-medium); white-space: nowrap; text-decoration: none; }
+.c-direct-navlink:hover { color: var(--color-chrome-text); text-decoration: none; }
+.c-direct-navlink[aria-current="page"] { color: var(--color-chrome-text); }
+.c-direct-navlink[aria-current="page"]::after { content: ""; position: absolute; left: var(--s-3); right: var(--s-3); bottom: 0; height: 3px; background: var(--color-direct-highlight); }
+.c-direct-navcount { min-width: 18px; height: 18px; padding: 0 5px; display: inline-grid; place-items: center; font-size: 11px; font-variant-numeric: tabular-nums; background: var(--color-direct-highlight); color: var(--color-direct); border-radius: var(--radius-badge); }
+.c-direct-main { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: var(--s-5) var(--s-5) var(--s-7); }
+.c-direct-main:focus { outline: none; }
+@media (max-width: 767px) {
+  .c-direct-bar-inner { padding: 0 var(--s-4); gap: 0 var(--s-3); flex-wrap: wrap; }
+  .c-direct-company { order: 5; flex-basis: 100%; padding: 0 0 10px; border-left: 0; font-size: var(--fs-sm); }
+  .c-direct-user-name { display: none; }
+  .c-direct-main { padding: var(--s-4) var(--s-4) var(--s-6); }
+  .c-direct-bar .c-lockup-parent, .c-direct-bar .c-lockup-rule { display: none; }
+}
+@media (min-width: 768px) and (max-width: 1023px) { .c-direct-bar .c-lockup-parent, .c-direct-bar .c-lockup-rule { display: none; } }

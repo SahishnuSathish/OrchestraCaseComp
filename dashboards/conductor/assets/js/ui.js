@@ -1,26 +1,14 @@
-// Shared UI pieces: toasts, dialogs, badges, the brief card, and the ticket-detail sections.
+// Shared UI pieces for the run-era views: toasts, dialogs, badges, the brief card, and the ticket-detail sections.
+// New code uses ./components/index.js; toast() here now hands over to the c-toast component.
 import { h, icon, $, mount, fmtDate, fmtMs, humanize } from './lib.js';
+import { toast as cToast } from './components/overlays.js';
 
 let uid = 0;
 const nextId = (p) => `${p}-${++uid}`;
 
 // ---------------------------------------------------------------------------- toast
-export function toast({ message, actionLabel, onAction, duration = 5000 }) {
-  const root = $('#toasts');
-  while (root.children.length >= 3) root.firstChild.remove();
-  let timer;
-  const close = () => {
-    clearTimeout(timer);
-    el.classList.add('leaving');
-    setTimeout(() => el.remove(), 140);
-  };
-  const el = h('div', { class: 'toast' },
-    h('span', null, message),
-    actionLabel && h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { onAction?.(); close(); } }, actionLabel),
-    h('button', { class: 'btn btn-quiet btn-sm btn-icon', type: 'button', 'aria-label': 'Dismiss', onclick: close }, icon('x')));
-  root.append(el);
-  timer = setTimeout(close, duration);
-  return close;
+export function toast({ message, actionLabel, onAction, duration = 5000, tone }) {
+  return cToast({ message, actionLabel, onAction, duration, tone });
 }
 
 // ---------------------------------------------------------------------------- dialog
