@@ -1,16 +1,37 @@
 // Hash router: pure parse/href/crumbs, plus navigate() for the two history modes.
-// Routes: #/runs, #/runs/new, #/runs/:runId, #/runs/:runId/tickets[/:id], #/runs/:runId/review[/:id], #/settings.
-// Nothing here touches the DOM; location/history are only read inside functions, so the module imports in Node.
+// Workspace routes: #/inbox[/:ticketId], #/escalations[/:ticketId], #/team, #/approver, #/ahead, #/vendor-setup[/:vendorId],
+// #/settings, #/settings/advanced, #/connections, #/styleguide. The run-era routes (#/runs...) still parse, and links into
+// a run's tickets or review redirect: to #/inbox/<id> when the run is the inbox run, otherwise to Settings, Advanced.
+// Nothing here touches the DOM; location/history/storage are only read inside functions, so the module imports in Node.
 
 const RUN_ID = /^[0-9a-f]{8}$/;
 const TICKET_ID = /^[1-9][0-9]*$/;
 const SCOPES = ['tickets', 'review'];
 const FLAG_KEYS = ['flagged', 'priority'];
 const DEFAULTS = { sort: 'seq', tab: 'todo', dir: 'asc' };
+const INBOX_RUN_KEY = 'conductor.inboxRun';
+const SESSION_KEY = 'conductor.session';
+const HOMES = { ap_specialist: '#/inbox', cfo: '#/escalations', approver: '#/approver' };
 
-function lastRunId() {
+/** The last batch run this browser opened (localStorage `ap.run`). */
+export function lastRunId() {
   try { return globalThis.localStorage?.getItem('ap.run') || null; } catch { return null; }
 }
+
+/** The inbox run id this tab has seen (views/inbox.js records it). null until known. */
+export function knownInboxRunId() {
+  try { return globalThis.sessionStorage?.getItem(INBOX_RUN_KEY) || null; } catch { return null; }
+}
+/** Remember the inbox run id so old run links can be redirected without a request. */
+export function rememberInboxRunId(id) {
+  try { if (id && RUN_ID.test(id)) globalThis.sessionStorage?.setItem(INBOX_RUN_KEY, id); } catch { /* storage blocked */ }
+}
+
+function sessionRole() {
+  try { return JSON.parse(globalThis.sessionStorage?.getItem(SESSION_KEY) || 'null')?.role || null; } catch { return null; }
+}
+/** The home hash for a role: '#/inbox' (specialists), '#/escalations' (CFO), '#/approver' (approvers). */
+export function homeHash(role = sessionRole()) { return HOMES[role] || '#/inbox'; }
 
 function parseQuery(qs) {
   const query = {};
@@ -38,8 +59,11 @@ function queryString(query) {
 
 const notFound = (query) => ({ name: 'not-found', query });
 
-// parse('#/runs/ab12cd34/tickets/41259?from=review') -> { name:'tickets', runId:'ab12cd34', ticketId:41259, query:{from:'review'} }
-// `redirect` is set for legacy and empty hashes; the shell applies it with replace. opts.lastRunId overrides localStorage.
+// parse('#/inbox/41259') -> { name:'inbox', ticketId:41259, query:{} }
+// `redirect` is set for empty and legacy hashes; the shell applies it with replace.
+// opts: { role, inboxRunId } override what this tab has stored (tests pass them).
+// When the inbox run id is not known yet, a run's tickets/review link keeps its route and the tickets/review view
+// finishes the redirect after asking the server.
 export function parse(hash, opts = {}) {
   const raw = String(hash || '').replace(/^#/, '');
   const qAt = raw.indexOf('?');
@@ -47,10 +71,11 @@ export function parse(hash, opts = {}) {
   const query = parseQuery(qAt < 0 ? '' : raw.slice(qAt + 1));
   const seg = path ? path.split('/') : [];
   const [a, b, c, d] = seg;
+  const inboxRun = opts.inboxRunId !== undefined ? opts.inboxRunId : knownInboxRunId();
 
-  if (!seg.length || (a === 'run' && seg.length === 1)) return { name: 'runs', query, redirect: '#/runs' };
+  // An empty hash (and the old "#/run") opens this person's home.
+  if (!seg.length || (a === 'run' && seg.length === 1)) return { name: 'home', query, redirect: homeHash(opts.role) };
   if (a === 'settings' && seg.length === 1) return { name: 'settings', query };
-  // Phase 3 routes (docs/phase3/CONTRACTS.md section 12). workspace-ui owns this file in wave 2.
   if (a === 'settings' && b === 'advanced' && seg.length === 2) return { name: 'connections', section: 'advanced', query };
   if ((a === 'inbox' || a === 'escalations') && seg.length <= 2) {
     if (b !== undefined && !TICKET_ID.test(b)) return notFound(query);
@@ -62,25 +87,33 @@ export function parse(hash, opts = {}) {
     if (seg.length === 1) return { name: 'runs', query };
     if (b === 'new' && seg.length === 2) return { name: 'run-new', query };
     if (!RUN_ID.test(b)) return notFound(query);
-    if (seg.length === 2) return { name: 'overview', runId: b, query };
-    if (c === 'prevent') return seg.length === 3 ? { name: 'prevent', runId: b, query } : notFound(query);
+    const isInbox = !!inboxRun && b === inboxRun;
+    if (seg.length === 2) return isInbox ? { name: 'inbox', query, redirect: href('inbox') } : { name: 'overview', runId: b, query };
+    if (c === 'prevent') {
+      if (seg.length !== 3) return notFound(query);
+      return isInbox ? { name: 'ahead', query, redirect: href('ahead') } : { name: 'prevent', runId: b, query };
+    }
     if (!SCOPES.includes(c) || seg.length > 4) return notFound(query);
-    if (seg.length === 3) return { name: c, runId: b, query };
-    if (!TICKET_ID.test(d)) return notFound(query);
-    return { name: c, runId: b, ticketId: Number(d), query };
+    if (seg.length === 4 && !TICKET_ID.test(d)) return notFound(query);
+    const route = seg.length === 4 ? { name: c, runId: b, ticketId: Number(d), query } : { name: c, runId: b, query };
+    if (!inboxRun) return route;
+    return { ...route, redirect: isInbox ? href('inbox', { ticketId: route.ticketId }) : href('advanced') };
   }
+  // #/tickets[/:id] and #/review[/:id], from before runs had ids in the address: the inbox now holds every ticket.
   if (SCOPES.includes(a) && seg.length <= 2) {
     if (b !== undefined && !TICKET_ID.test(b)) return notFound(query);
-    const runId = opts.lastRunId !== undefined ? opts.lastRunId : lastRunId();
-    const target = runId && RUN_ID.test(runId)
-      ? href(a, { runId, ticketId: b === undefined ? undefined : Number(b), query })
-      : '#/runs';
-    return { name: runId && RUN_ID.test(runId) ? a : 'runs', query, redirect: target };
+    return { name: 'inbox', query, redirect: href('inbox', { ticketId: b === undefined ? undefined : Number(b) }) };
   }
   return notFound(query);
 }
 
-// href('tickets', { runId, ticketId, query }) -> '#/runs/ab12cd34/tickets/41259?from=review'. Empty and default query values are dropped.
+/** Where a run's tickets/review link goes once the inbox run id is known (used by views/tickets.js and views/review.js). */
+export function runLinkTarget(route, inboxRunId) {
+  if (inboxRunId && route?.runId === inboxRunId) return href('inbox', { ticketId: route.ticketId });
+  return href('advanced');
+}
+
+// href('inbox', { ticketId, query }) -> '#/inbox/41259'. Empty and default query values are dropped.
 export function href(name, { runId, ticketId, vendorId, query } = {}) {
   const qs = queryString(query);
   switch (name) {
@@ -107,7 +140,7 @@ let dispatch = null;
 // The shell registers its route function here: replaceState does not fire `hashchange`.
 export function onNavigate(fn) { dispatch = fn; }
 
-// navigate(href('tickets', {...}))            pushes a history entry
+// navigate(href('inbox', {...}))              pushes a history entry
 // navigate(href(...), { replace: true })      replaces the current entry (filters, stepping, redirects)
 export function navigate(to, { replace = false } = {}) {
   if (replace) {
@@ -118,7 +151,7 @@ export function navigate(to, { replace = false } = {}) {
   }
 }
 
-// Breadcrumb trail for the topbar; the last item has href null (current page).
+// Breadcrumb trail for the run-era context bar; the last item has href null (current page).
 export function crumbs(route, run) {
   const runLabel = run?.label || route.runId || 'Run';
   const runs = { label: 'Runs', href: href('runs') };
