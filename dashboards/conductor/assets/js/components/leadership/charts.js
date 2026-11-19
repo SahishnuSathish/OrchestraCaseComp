@@ -1,5 +1,5 @@
 // Leadership charts. One form: ranked horizontal bars on a shared baseline (a meter list), per the dataviz method:
-// thin bars (12px, never over 24), a 4px rounded data end and a square baseline, the value at the tip in text ink,
+// thin bars (12px, never over 24), a 2px rounded data end and a square baseline, the value at the tip in text ink,
 // a hover and focus tooltip on each bar, and a table view twin. Bars are one neutral hue (slate); a status tone is
 // used only where the bar means a state (for example, past the case baseline), and then it also carries words.
 import { h, icon } from '../../lib.js';
