@@ -185,6 +185,96 @@ def error_bundle(ticket_id, exc):
                 "decision": {"rule": "pipeline_error", "why": f"{type(exc).__name__}: {str(exc)[:160]}", "act_by": None}}
 
 
+def _ticket_records(seq, bundle, ctx, ticket, store):
+    """The row and the instant template brief (no model) for one processed ticket."""
+    facts = summarize.build_facts(bundle, ctx, store=store, raw=ticket)
+    row = row_from_bundle(bundle, ctx, seq, facts)
+    bullets, source, info = summarize.make_brief(facts, None)  # upgraded in the background when a model is available
+    return row, (summarize.facts_hash(facts), bullets, source, info)
+
+
+def store_ticket(run_id, seq, bundle, ctx, ticket=None, store=None):
+    """Save one processed ticket the way a run does: bundle, row, and an instant template brief (no model)."""
+    row, brief = _ticket_records(seq, bundle, ctx, ticket, store)
+    db.save_ticket(run_id, bundle["ticket_id"], seq, bundle, ctx, row)
+    db.save_brief(run_id, bundle["ticket_id"], *brief)
+    return row
+
+
+def _store_many(run_id, records):
+    """The same two inserts as db.save_ticket and db.save_brief, for many tickets in ONE transaction (a commit per ticket is the
+    slow part of a build). records: [(seq, bundle, ctx, row, brief)]."""
+    now = time.time()
+    with db._LOCK:
+        con = db._connect()
+        try:
+            with con:
+                con.executemany("INSERT OR REPLACE INTO tickets (run_id, ticket_id, seq, bundle, ticket, row) VALUES (?,?,?,?,?,?)",
+                                [(run_id, b["ticket_id"], seq, json.dumps(b, ensure_ascii=True, default=sorted),
+                                  json.dumps(c, ensure_ascii=True), json.dumps(r, ensure_ascii=True)) for seq, b, c, r, _ in records])
+                con.executemany("INSERT OR REPLACE INTO briefs (run_id, ticket_id, bundle_hash, body, source, info, updated_at) VALUES (?,?,?,?,?,?,?)",
+                                [(run_id, b["ticket_id"], br[0], json.dumps(br[1]), br[2], json.dumps(br[3] or {}), now)
+                                 for _, b, _, _, br in records])
+        finally:
+            con.close()
+
+
+def validate_tickets_file(path):
+    """Check a single tickets file (the shape of tickets.json) can be read. Never raises."""
+    out = {"path": str(path), "ok": False, "tickets": 0}
+    try:
+        p = Path(path)
+        if not p.is_file():
+            out["error"] = "That path is not a tickets file."
+            return out
+        with open(p, encoding="utf-8") as f:
+            d = json.load(f)
+        tickets = d["tickets"] if isinstance(d, dict) else d
+        if not isinstance(tickets, list) or not tickets or not all(isinstance(t, dict) and "id" in t for t in tickets):
+            out["error"] = "No tickets found in that file."
+            return out
+        out.update(ok=True, tickets=len(tickets))
+    except (OSError, ValueError, KeyError) as e:
+        out["error"] = f"Could not read that file ({type(e).__name__})."
+    return out
+
+
+def make_store(dataset_path=None, tickets_path=None, users=()):
+    """A read-only Store over the dataset, with extra users (a requester overlay) merged in memory. `data/` is never written."""
+    _proto_on_path()
+    from data_layer import FileBackend, Store
+    backend = FileBackend(dataset_path or DEFAULT_DATASET, tickets_path)
+    for u in users:
+        backend.users[u["id"]] = u
+    return Store(backend)
+
+
+def process_tickets(run_id, tickets, store, start_seq=1, extractor=None, on_ticket=None, batch=False):
+    """Run tickets through the pipeline on `store` and save each into `run_id` exactly as a run does. Returns the rows.
+    batch=True saves them all in one transaction at the end (for building a whole run quickly)."""
+    _proto_on_path()
+    from pipeline import process_ticket
+    rows, pending = [], []
+    for n, t in enumerate(tickets, start_seq):
+        ctx = ticket_context(t, lambda uid: store.backend.user(uid))
+        try:
+            bundle = process_ticket(t, store, extractor)
+        except Exception as e:  # one bad ticket must not stop the rest
+            traceback.print_exc()
+            bundle = error_bundle(t.get("id"), e)
+        if batch:
+            row, brief = _ticket_records(n, bundle, ctx, t, store)
+            pending.append((n, bundle, ctx, row, brief))
+        else:
+            row = store_ticket(run_id, n, bundle, ctx, t, store)
+        rows.append(row)
+        if on_ticket:
+            on_ticket(row, bundle)
+    if pending:
+        _store_many(run_id, pending)
+    return rows
+
+
 def _takes_arg(fn):
     try:
         return len(inspect.signature(fn).parameters) >= 1
@@ -242,31 +332,41 @@ class Manager:
         return None
 
     # -- starting a run
-    def start_run(self, dataset_path, use_model=False, limit=None, model_free=False):
+    def start_run(self, dataset_path, use_model=False, limit=None, model_free=False, tickets_file=None):
         """Three model states. use_model: the pipeline reader runs. Neither flag: the regex reader runs, but the brief
         writer may still reword briefs when the model is up. model_free: no model at all, briefs included."""
         if model_free and use_model:
             raise ValueError("A model-free run cannot also use the model.")
         v = validate_dataset(dataset_path)
+        label = Path(v["path"]).name
+        if tickets_file is not None:  # Phase 3 adapter: the tickets come from this file, the records from the dataset folder
+            tickets_file = str(Path(clean_path(tickets_file)))
+            tv = validate_tickets_file(tickets_file)
+            if not tv["ok"]:
+                raise ValueError(tv["error"])
+            v = dict(v, tickets=tv["tickets"], ok=all(f["status"] != "missing" for f in v["files"] if f["required"] and f["name"] != "tickets.json"))
+            if not v["ok"]:
+                raise ValueError("The dataset folder is missing record files the pipeline needs.")
+            label = Path(tickets_file).name
         if not v["ok"]:
             raise ValueError(v.get("error") or "Dataset is not valid.")
         if self.running_run():
             raise RuntimeError("A run is already in progress.")
         run_id = uuid.uuid4().hex[:8]
         total = min(v["tickets"], limit) if limit else v["tickets"]
-        db.create_run(run_id, v["path"], "run", use_model, limit, total, label=Path(v["path"]).name, model_free=model_free)
+        db.create_run(run_id, v["path"], "run", use_model, limit, total, label=label, model_free=model_free)
         live = self.ensure_live(run_id)
-        t = threading.Thread(target=self._work, args=(live, v["path"], use_model, limit, model_free), daemon=True, name=f"run-{run_id}")
+        t = threading.Thread(target=self._work, args=(live, v["path"], use_model, limit, model_free, tickets_file), daemon=True, name=f"run-{run_id}")
         t.start()
         return run_id
 
-    def _work(self, live, path, use_model, limit, model_free=False):
+    def _work(self, live, path, use_model, limit, model_free=False, tickets_file=None):
         run_id = live.id
         try:
             _proto_on_path()
             from data_layer import FileBackend, Store
             from pipeline import process_ticket
-            backend = FileBackend(path)
+            backend = FileBackend(path, tickets_file) if tickets_file else FileBackend(path)
             store = Store(backend)
             extractor = None
             used_model = False
@@ -335,12 +435,7 @@ class Manager:
         db.delete_run(run_id)
 
     def _store_ticket(self, run_id, seq, bundle, ctx, ticket=None, store=None):
-        facts = summarize.build_facts(bundle, ctx, store=store, raw=ticket)
-        row = row_from_bundle(bundle, ctx, seq, facts)
-        db.save_ticket(run_id, bundle["ticket_id"], seq, bundle, ctx, row)
-        bullets, source, info = summarize.make_brief(facts, None)  # instant, no model: upgraded in the background
-        db.save_brief(run_id, bundle["ticket_id"], summarize.facts_hash(facts), bullets, source, info)
-        return row
+        return store_ticket(run_id, seq, bundle, ctx, ticket, store)
 
     def store_for(self, dataset_path):
         """A read-only Store per dataset, built once. None if the dataset cannot be read (briefs fall back)."""
