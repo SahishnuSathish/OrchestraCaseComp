@@ -1,6 +1,6 @@
 # Phase 3, Part A: hand-off
 
-Branch `phase3/integration` (worktree `C:/Users/Sahishnu Sathish/Projects/orchestra-wt/p3-integration`), 105 commits ahead of `main`. **Nothing is merged into `main`.** The Nov 19 stretch run belongs on the untouched `main` checkout.
+Branch `phase3/integration` (worktree `C:/Users/Sahishnu Sathish/Projects/orchestra-wt/p3-integration`), 105 commits ahead of `main` (including this fix). **Nothing is merged into `main`.** The Nov 19 stretch run belongs on the untouched `main` checkout.
 
 ## 1. Start it
 
