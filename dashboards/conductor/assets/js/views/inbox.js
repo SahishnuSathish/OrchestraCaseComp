@@ -46,7 +46,7 @@ export function mount(root, { route, session }) {
     thread: null, wfState: null, threadError: null,
     summary: null, opened: loadOpened(), fresh: new Set(), selectMode: false, checked: new Set(),
     evidenceOpen: ls('ws.evidence') !== 'closed', side: 'message', evTab: 'details',
-    feedback: new Map(), scheduleOpen: new Set(), sync: null, bulkApproved: [],
+    feedback: new Map(), scheduleOpen: new Set(), sync: null, bulkApproved: [], arrived: [],
   };
   let composer = null;
   let actionBar = null;
@@ -143,7 +143,12 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.threads(S.q ? { q: S.q } : { queue: S.queue });
       if (destroyed || seq !== rowsSeq) return;
-      S.rows = r.rows || [];
+      // Emails that arrived while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps
+      // the real time of day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
+      const rows = r.rows || [];
+      const order = [...S.arrived];
+      const top = order.map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
+      S.rows = [...top, ...rows.filter((x) => !S.arrived.includes(x.ticket_id))];
       S.rowsError = null;
     } catch (e) {
       if (seq !== rowsSeq) return;
@@ -271,7 +276,7 @@ export function mount(root, { route, session }) {
       const [t, w] = await Promise.all([inboxApi.thread(id), wf.state(id).catch(() => null)]);
       if (destroyed || seq !== threadSeq) return;
       S.thread = t; S.wfState = w; S.threadError = null;
-      if (t.run_id && !S.runId) { S.runId = t.run_id; rememberInboxRunId(t.run_id); }
+      if (t.run_id && t.run_id !== S.runId) { S.runId = t.run_id; rememberInboxRunId(t.run_id); }
       markOpened(id);
       ticketTabs.open(t);
       if (threadMode(t, role).primary === 'sent' && t.review?.draft?.edited && !S.feedback.has(id) && t.run_id) {
@@ -352,7 +357,7 @@ export function mount(root, { route, session }) {
     evTabs.select(S.evTab);
     evBody.hidden = S.evTab !== 'details';
     chatSlot.hidden = S.evTab !== 'ask';
-    const runId = S.runId || S.thread?.run_id;
+    const runId = S.thread?.run_id || S.runId;
     if (S.evTab === 'ask' && S.thread && runId) mountChat(chatSlot, { runId, ticketId: S.thread.ticket_id });
   }
 
@@ -475,7 +480,7 @@ export function mount(root, { route, session }) {
   }
 
   // ------------------------------------------------------------------ actions
-  const runFor = (t) => S.runId || t.run_id;
+  const runFor = (t) => t.run_id || S.runId; // the thread says which run it lives on (Reset rebuilds the inbox run)
   async function guarded(btn, fn) {
     actionBar?.showError(null);
     if (btn) setBusy(btn, true);
@@ -721,9 +726,10 @@ export function mount(root, { route, session }) {
   }
   async function bulkApprove(btn) {
     const ids = [...S.checked];
-    if (!ids.length || !S.runId) return;
+    if (!ids.length) return;
     setBusy(btn, true);
     try {
+      await loadSummary(); // the inbox run id can change after a Reset
       const r = await api.bulk(S.runId, ids, 'approved');
       S.bulkApproved = r.done || [];
       S.checked.clear();
@@ -760,7 +766,7 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.syncNow();
       if (!(r.arrived || []).length) toast({ message: 'No new email. Zendesk and Outlook are up to date.' });
-      else { r.arrived.forEach((id) => S.fresh.add(id)); await Promise.all([loadQueues(), loadRows({ quiet: true })]); }
+      else { r.arrived.forEach((id) => { S.fresh.add(id); if (!S.arrived.includes(id)) S.arrived.push(id); }); await Promise.all([loadQueues(), loadRows({ quiet: true })]); }
     } catch (e) { toast({ message: e.message || 'Sync did not finish.', tone: 'risk' }); }
     finally { setBusy(syncBtn, false); }
   }
@@ -782,6 +788,7 @@ export function mount(root, { route, session }) {
       case 'queue.counts': loadQueues(); return;
       case 'ticket.arrived':
         S.fresh.add(ev.ticket_id);
+        if (!S.arrived.includes(ev.ticket_id)) S.arrived.push(ev.ticket_id);
         liveRegion.textContent = `New email from ${ev.from_name || 'a sender'}: ${ev.subject || ''}`;
         refreshLists();
         setTimeout(() => { S.fresh.delete(ev.ticket_id); listEl.querySelector(`.ws-row[data-id="${ev.ticket_id}"]`)?.classList.remove('is-new'); }, 8000);
