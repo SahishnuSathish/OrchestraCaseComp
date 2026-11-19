@@ -889,8 +889,23 @@ def api_threads(request: Request, queue: str = "", q: str = "", assignee: str = 
             if needle not in hay:
                 continue
         rows.append(row)
-    rows.sort(key=lambda r: r["received_at"] or "", reverse=True)
+    rows.sort(key=lambda r: _instant(r["received_at"]), reverse=True)
     return {"rows": rows}
+
+
+def _instant(text):
+    """Epoch seconds for an ISO time. Dataset times end in Z and arrivals carry a local offset, so comparing the text
+    put new mail below older tickets before about 11:05 local time. Unparseable or missing sorts last."""
+    import datetime as _dt
+    if not text:
+        return float("-inf")
+    try:
+        d = _dt.datetime.fromisoformat(str(text).replace("Z", "+00:00"))
+        if d.tzinfo is None:
+            d = d.astimezone()
+        return d.timestamp()
+    except ValueError:
+        return float("-inf")
 
 
 @router.get("/api/inbox/threads/{ticket_id}", dependencies=staff_only)
