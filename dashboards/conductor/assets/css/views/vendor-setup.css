@@ -1,1 +1,67 @@
-/* Phase 3 seam stub. Owner: p3/leadership-ui. */
+/* Vendor setup (#/vendor-setup): the W-9 queue and one vendor. Owner: p3/leadership-ui. */
+@import url("../components/leadership.css");
+
+.vs-page { max-width: calc(1320px + var(--page-pad) * 2); }
+.vs-grid { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
+.vs-list { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); max-height: calc(100dvh - var(--topbar-h) - var(--s-6)); }
+.vs-list > .c-pane-head { flex-wrap: wrap; }
+.vs-list-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.vs-row { position: relative; display: flex; flex-direction: column; gap: 4px; padding: var(--s-3) var(--s-4); color: var(--color-text); border-bottom: 1px solid var(--color-border); transition: background-color var(--dur-fast) ease; }
+.vs-row:hover { text-decoration: none; background: var(--color-surface-hover); }
+.vs-row.is-active { background: var(--color-surface-selected); }
+.vs-row.is-active::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--color-chrome); }
+.vs-row:focus-visible { outline-offset: -2px; }
+.vs-row-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-sm); }
+.vs-row-sub { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; font-size: var(--fs-xs); color: var(--color-text-secondary); }
+
+.vs-detail { min-height: 420px; }
+.vs-detail:focus { outline: none; }
+.vs-body { display: flex; flex-direction: column; gap: var(--s-5); padding: var(--s-5); }
+.vs-back { display: none; align-items: center; gap: 4px; width: fit-content; font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--color-text-secondary); }
+.vs-dhead { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
+.vs-dtitles { min-width: 0; }
+.vs-dtitle { font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-xl); font-weight: var(--fw-semibold); line-height: var(--lh-snug); letter-spacing: -0.01em; }
+.vs-dtitles p { margin-top: 2px; font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.vs-section { display: flex; flex-direction: column; gap: var(--s-3); }
+.vs-h3 { display: flex; align-items: center; gap: 0; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.vs-total { margin-left: auto; font-weight: var(--fw-regular); font-size: var(--fs-sm); color: var(--color-text-secondary); }
+
+.vs-card > .c-pane-body { display: flex; flex-direction: column; gap: var(--s-3); }
+.vs-fields th[scope="row"] { font-weight: var(--fw-medium); color: var(--color-text-secondary); white-space: nowrap; }
+.vs-fields td { overflow-wrap: anywhere; }
+.vs-fields tr.vs-diff td:nth-child(2) { color: var(--color-risk-text); font-weight: var(--fw-medium); }
+.vs-hash { font-size: var(--fs-xs); color: var(--color-text-muted); }
+.vs-next { display: flex; flex-direction: column; gap: 2px; padding: var(--s-3) var(--s-4); border: 1px solid var(--color-border); border-left: 3px solid var(--color-action); font-size: var(--fs-sm); }
+.vs-next-label { font-size: var(--fs-xs); color: var(--color-text-secondary); }
+.vs-next strong { font-size: var(--fs-md); }
+.vs-actions { gap: var(--s-2); }
+.vs-foot-note { flex: 1 1 240px; font-size: var(--fs-xs); }
+.vs-req .lv-letter { margin-top: 0; }
+
+.vs-bills { border: 1px solid var(--color-border); max-height: 320px; overflow: auto; }
+.vs-bill { display: grid; grid-template-columns: minmax(96px, max-content) minmax(96px, max-content) minmax(0, 1fr); align-items: center; gap: var(--s-4); padding: 6px var(--s-3); border-top: 1px solid var(--color-border); font-size: var(--fs-sm); }
+.vs-bill:first-child { border-top: 0; }
+.vs-bill .money { text-align: right; }
+.vs-bill-st { min-width: 0; overflow-wrap: anywhere; }
+.vs-uploads { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm); }
+
+@media (max-width: 1023px) {
+  .vs-grid { grid-template-columns: minmax(260px, 300px) minmax(0, 1fr); }
+  .vs-body { padding: var(--s-4); }
+}
+@media (max-width: 767px) {
+  .vs-grid { grid-template-columns: minmax(0, 1fr); }
+  .vs-list { position: static; max-height: none; }
+  .vs-grid[data-open] .vs-list { display: none; }
+  .vs-grid:not([data-open]) .vs-detail { display: none; }
+  .vs-back { display: inline-flex; }
+  .vs-bill { grid-template-columns: minmax(0, 1fr) max-content; }
+  .vs-bill-st { grid-column: 1 / -1; }
+  .vs-fields thead { display: none; }
+  .vs-fields tr { display: grid; grid-template-columns: minmax(0, 1fr) max-content; padding: var(--s-2) 0; border-bottom: 1px solid var(--color-border); }
+  .vs-fields th, .vs-fields td { border: 0 !important; padding: 2px var(--s-2) !important; height: auto !important; }
+  .vs-fields td:nth-child(2), .vs-fields td:nth-child(3) { grid-column: 1 / -1; }
+  .vs-fields td:nth-child(2)::before { content: "W-9: "; color: var(--color-text-muted); }
+  .vs-fields td:nth-child(3)::before { content: "Record: "; color: var(--color-text-muted); }
+  .vs-fields td:last-child { grid-column: 2; grid-row: 1; }
+}
