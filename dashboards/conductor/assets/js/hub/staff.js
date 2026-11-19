@@ -91,11 +91,12 @@ export async function handshake(account) {
     `Signing in as ${account.name}…`,
     'Connecting Zendesk (orchestra-mock.zendesk.com)',
     'Connecting Outlook (ap@orchestra-mock.example)',
-    'NetSuite, read-only',
+    'Connecting NetSuite (read-only)',
     lastLine,
   ];
+  // Each step shows a quiet dot while it waits, a spinner while it runs, then a check. No empty boxes.
   const items = steps.map((text) => h('li', { class: 'hub-step is-waiting' },
-    h('span', { class: 'hub-step-node', 'aria-hidden': 'true' }), h('span', { class: 'hub-step-text' }, text), h('span', { class: 'sr-only hub-step-state' }, 'Waiting')));
+    h('span', { class: 'hub-step-node', 'aria-hidden': 'true' }, h('span', { class: 'hub-step-dot' })), h('span', { class: 'hub-step-text' }, text), h('span', { class: 'sr-only hub-step-state' }, 'Waiting')));
   let skipped = false;
   let answer = null;
   const skip = h('button', { class: 'c-btn c-btn-quiet c-btn-sm hub-skip', type: 'button', onclick: () => { skipped = true; go(); } }, 'Skip', icon('chev-right'));
@@ -114,7 +115,7 @@ export async function handshake(account) {
   const mark = (i, state) => {
     const li = items[i];
     li.className = `hub-step is-${state}`;
-    li.querySelector('.hub-step-node').replaceChildren(state === 'done' ? icon('check') : state === 'active' ? h('span', { class: 'c-spinner' }) : '');
+    li.querySelector('.hub-step-node').replaceChildren(state === 'done' ? icon('circle-check') : state === 'active' ? h('span', { class: 'c-spinner' }) : h('span', { class: 'hub-step-dot' }));
     li.querySelector('.hub-step-state').textContent = state === 'done' ? 'Done' : state === 'active' ? 'In progress' : 'Waiting';
     if (state === 'active') status.textContent = steps[i];
   };
