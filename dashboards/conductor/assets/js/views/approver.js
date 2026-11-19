@@ -75,7 +75,7 @@ export function mount(root, { session }) {
           context: tickets.size ? `${plural(tickets.size, 'vendor ticket')} ${tickets.size === 1 ? 'waits' : 'wait'} on these bills` : 'No vendor is asking about these bills', source: 'Zendesk and NetSuite' }),
         stat({ label: 'Waiting longest', value: oldest ? String(daysSince(oldest)) : '0', unit: 'days', icon: 'clock',
           context: oldest ? `Entered ${fmtDay(oldest)}` : 'Nothing waiting', source: 'NetSuite, read-only' })),
-      notice({ tone: 'info', title: 'For the AP team only', text: `${INTERNAL} Approving a bill still happens in NetSuite.` }));
+      h('p', { class: 'ap-private' }, icon('lock', 'icon-sm'), h('span', null, 'Only our AP team sees your notes and dates.')));
 
     const shown = view === 'blocking' ? blocking : bills;
     const switcher = tabs({
@@ -114,8 +114,10 @@ export function mount(root, { session }) {
       actions.push(ack, button({ label: b.commitment ? 'Change date' : 'Commit to a date', size: 'sm', icon: 'calendar', onClick: () => commit(b),
         attrs: { 'aria-label': `${b.commitment ? 'Change the approval date for' : 'Commit to an approval date for'} ${b.tranId}` } }));
     }
-    actions.push(h('a', { class: 'c-btn c-btn-quiet c-btn-sm ap-ns', role: 'link', 'aria-disabled': 'true', tabindex: '0', title: 'Opens in NetSuite',
-      'aria-label': `Open ${b.tranId} in NetSuite (opens in NetSuite)` }, icon('external'), h('span', { class: 'c-btn-label' }, 'Open in NetSuite')));
+    // A link that can't be followed from here: it looks like a link, greyed, and says why on hover and focus.
+    const nsTip = 'Links to NetSuite are not available here. Open the bill in NetSuite itself.';
+    actions.push(h('span', { class: 'ap-ns', role: 'link', 'aria-disabled': 'true', tabindex: '0', title: nsTip,
+      'aria-label': `Open ${b.tranId} in NetSuite. ${nsTip}` }, h('span', null, 'Open in NetSuite'), icon('external', 'icon-sm')));
     return h('li', { class: 'ap-bill' },
       h('div', { class: 'ap-bill-main' },
         h('div', { class: 'ap-bill-id' }, h('strong', { class: 'mono' }, b.tranId), h('span', { class: 'ap-vendor' }, b.vendor)),
