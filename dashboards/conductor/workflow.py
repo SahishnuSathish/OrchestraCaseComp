@@ -130,8 +130,8 @@ def current_reply_hash(run_id, ticket_id, text=None):
 _CATEGORY_CACHE = {}
 
 
-def _category_for(ticket_id):
-    run_id = inbox_run()
+def _category_for(ticket_id, run_id=None):
+    run_id = run_id or inbox_run()
     if not run_id:
         return None
     key = (run_id, ticket_id)
@@ -535,17 +535,61 @@ def route_kind(bundle):
     return "round_robin"
 
 
-def route(ticket_id):
+_ROUTE_KIND_CACHE = {}   # (run_id, ticket_id) -> route kind; a stored bundle never changes
+
+
+def _route_kind_for(run_id, ticket_id):
+    key = (run_id, ticket_id)
+    if key not in _ROUTE_KIND_CACHE:
+        rec = db.get_ticket(run_id, ticket_id) if run_id else None
+        _ROUTE_KIND_CACHE[key] = route_kind(rec["bundle"]) if rec else None
+    return _ROUTE_KIND_CACHE[key]
+
+
+def route(ticket_id, run_id=None, people=None):
     """Who an unassigned ticket belongs to: the exceptions specialist for exceptions, otherwise round-robin by ticket id."""
-    run_id = inbox_run()
-    rec = db.get_ticket(run_id, ticket_id) if run_id else None
-    people = _people()
-    if not rec or not people:
+    run_id = run_id or inbox_run()
+    kind = _route_kind_for(run_id, ticket_id) if run_id else None
+    people = _people() if people is None else people
+    if not kind or not people:
         return None
     pool = people
-    if route_kind(rec["bundle"]) == "exception":
+    if kind == "exception":
         pool = [p for p in people if p["exceptions"]] or people
     return pool[ticket_id % len(pool)]["email"]
+
+
+def reset_states():
+    """Forget every ticket's workflow state (inbox Reset rebuilds the inbox). The audit log, expertise, outbound
+    items and approver actions are kept: they are history, not ticket state."""
+    with _LOCK:
+        db._exec("DELETE FROM workflow_state")
+        _CATEGORY_CACHE.clear()
+        _ROUTE_KIND_CACHE.clear()
+
+
+def get_states(ticket_ids):
+    """{ticket_id: get_state(ticket_id)} for many tickets with two queries, for the inbox list (CONTRACTS section 5)."""
+    ids = [int(t) for t in ticket_ids]
+    if not ids:
+        return {}
+    run_id = inbox_run()
+    rows, chased = {}, set()
+    for i in range(0, len(ids), 500):
+        chunk = ids[i:i + 500]
+        marks = ",".join("?" * len(chunk))
+        rows.update({r["ticket_id"]: r for r in db._all(f"SELECT * FROM workflow_state WHERE ticket_id IN ({marks})", chunk)})
+        chased |= {r["ticket_id"] for r in db._all(
+            f"SELECT DISTINCT ticket_id FROM outbound WHERE kind='approver_nudge' AND state='sent' AND ticket_id IN ({marks})", chunk)}
+    people = _people()
+    out = {}
+    for tid in ids:
+        row = rows.get(tid)
+        out[tid] = {"state": row["state"] if row else "open",
+                    "category": (row["category"] if row else None) or _category_for(tid, run_id),
+                    "assignee": (row["assignee"] if row else None) or route(tid, run_id, people),
+                    "chased": tid in chased}
+    return out
 
 
 def assign_auto(ticket_id):

@@ -281,7 +281,13 @@ class ThreadAndQueueTests(InboxCase):
         pick = next(r for r in rows if r["invoice_refs"])
         hit = self.get("/api/inbox/threads", params={"q": pick["invoice_refs"][0].lower()})["rows"]
         self.assertIn(pick["ticket_id"], [r["ticket_id"] for r in hit])
-        self.assertEqual(len(self.get("/api/inbox/threads", params={"assignee": "unassigned"})["rows"]), len(rows))
+        # Phase 3 merge: workflow routes every unassigned ticket by expertise, so each thread has an assignee and the
+        # per-person filters partition the inbox ("unassigned" is what is left: nothing, once routing is live).
+        unassigned = self.get("/api/inbox/threads", params={"assignee": "unassigned"})["rows"]
+        self.assertEqual(len(unassigned), sum(1 for r in rows if not r["assignee"]))
+        by_person = sum(len(self.get("/api/inbox/threads", params={"assignee": a})["rows"])
+                        for a in {r["assignee"] for r in rows if r["assignee"]})
+        self.assertEqual(by_person + len(unassigned), len(rows))
         self.assertEqual(self.get("/api/inbox/threads", params={"assignee": "nobody@orchestra-mock.example"})["rows"], [])
 
     def test_thread_detail_headers_evidence_and_masking(self):

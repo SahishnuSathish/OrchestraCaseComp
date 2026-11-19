@@ -186,6 +186,10 @@ def reset():
         db.delete_setting(RUN_KEY)
         db._exec("DELETE FROM inbox_state")
         db._exec("DELETE FROM inbox_users")
+        try:  # workflow rows are keyed by ticket id only, so a rebuilt inbox must not inherit old states
+            workflow.reset_states()
+        except Exception as e:
+            print(f"[inbox] workflow reset failed: {type(e).__name__}: {e}", flush=True)
         _drop_caches()
         connectors.log("Inbox reset: tickets read again from the data", "zendesk")
         new = _build()
@@ -385,12 +389,16 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
     sched = _scheduled(run_id)
     states = _inbox_state()
     groups = _groups(run_id) if with_groups else {}
+    try:  # one batch read instead of several queries per thread (a list of 100 threads took over 2 s)
+        wfs = workflow.get_states([only] if only is not None else list(metas))
+    except Exception:
+        wfs = {}
     out = []
     for tid, m in metas.items():
         if only is not None and tid != only:
             continue
         rv = (reviews.get(tid) or {}).get("state", "pending")
-        wf = _wf(tid)
+        wf = wfs.get(tid) if tid in wfs else _wf(tid)
         st = states.get(tid) or {}
         ctx = m["ctx"]
         gid, gsize = groups.get(tid, (None, 1))
