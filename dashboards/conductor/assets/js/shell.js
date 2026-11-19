@@ -176,7 +176,8 @@ function renderConn() {
   const summary = allOk ? 'Zendesk, Outlook and NetSuite connected' : `Connection problem: ${list.filter((c) => c.status !== 'connected').map((c) => c.name).join(', ')}`;
   const btn = h('button', { class: `c-conn${allOk ? '' : ' has-problem'}`, type: 'button', 'aria-label': `${summary}. Show connections`, title: summary, 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
     list.map((c) => h('span', { class: 'c-conn-item' }, h('span', { class: `c-dot c-dot-${connTone(c.status)}`, 'aria-hidden': 'true' }), h('span', { class: 'c-conn-name' }, c.name))),
-    h('span', { class: 'c-conn-compact', 'aria-hidden': 'true' }, icon('plug'), h('span', { class: `c-dot c-dot-${allOk ? 'settled' : 'risk'}` })));
+    h('span', { class: 'c-conn-compact', 'aria-hidden': 'true' }, icon('plug'), h('span', { class: `c-dot c-dot-${allOk ? 'settled' : 'risk'}` }),
+      h('span', { class: 'c-conn-word' }, allOk ? 'Connected' : 'Check connections')));
   btn.addEventListener('click', () => {
     openMenu({
       anchor: btn, align: 'end', label: 'Connections', width: 320,
@@ -237,7 +238,7 @@ function openTray() {
           h('span', { class: 'c-tray-text' }, h('span', null, e.summary || e.type), h('time', null, timeOf(e))),
           e.read ? null : h('span', { class: 'sr-only' }, 'Unread')))))
       : h('div', { class: 'c-tray-empty' }, icon('bell'), h('strong', null, 'No notifications yet'), h('span', null, 'Arrivals, escalations and replies that need you show up here.')),
-    h('footer', { class: 'c-tray-foot' }, 'Keeps the last 50 updates for this window.'));
+    h('footer', { class: 'c-tray-foot' }, 'Recent updates'));
   tray.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); closeTray({ refocus: true }); } });
   document.body.append(tray);
   document.addEventListener('pointerdown', onTrayOutside, true);

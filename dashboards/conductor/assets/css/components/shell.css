@@ -196,10 +196,11 @@ html[data-no-rail] .c-staff { --bottombar-h: 0px; }
 .c-tray-foot { padding: var(--s-2) var(--s-4); font-size: var(--fs-xs); color: var(--color-text-muted); background: var(--color-surface-subtle); border-top: 1px solid var(--color-border); }
 
 /* ---- responsive ------------------------------------------------------------------------------------- */
+/* Under 1280 px the three named systems fold into one summary: a plug, one dot and a word ("Connected"), never bare dots */
 @media (max-width: 1279px) {
-  .c-conn-name { display: none; }
   .c-conn { gap: 6px; padding: 0 var(--s-2); }
-  .c-conn-item + .c-conn-item::before { display: none; }
+  .c-conn-item { display: none; }
+  .c-conn-compact { display: inline-flex; gap: 6px; }
 }
 @media (max-width: 1023px) {
   .c-user-name, .c-user-caret { display: none; }
@@ -220,8 +221,7 @@ html[data-no-rail] .c-staff { --bottombar-h: 0px; }
   html.c-search-open .c-search-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; background: transparent; border: 0; color: var(--topbar-text); border-radius: var(--radius-control); }
   .c-search-kbd { display: none; }
   .c-conn { border-color: transparent; padding: 0 6px; }
-  .c-conn-item { display: none; }
-  .c-conn-compact { display: inline-flex; }
+  .c-conn-word { display: none; }
   .c-rail-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .c-rail-short { display: inline; }
   .c-rail {
