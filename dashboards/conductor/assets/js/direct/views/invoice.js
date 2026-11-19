@@ -37,27 +37,38 @@ export function mount(root, { route, ctx }) {
       skeleton({ width: '55%', height: 26 }), skeletonText({ lines: 2 }),
       h('div', { class: 'dx-facts' }, Array.from({ length: 4 }, () => h('div', { class: 'dx-fact' }, skeleton({ width: 70, height: 10 }), skeleton({ width: 96, height: 16 })))))));
 
+  // Swap the page body. Moving the heading node drops focus, so keep it on the h1 if it was there.
+  // Call headingFocused() before building the new tree: h() moves the heading node out of the page while building.
+  const headingFocused = () => !!(document.activeElement?.matches?.('h1') && root.contains(document.activeElement));
+  function swap(node, hadFocus) {
+    root.replaceChildren(node);
+    if (hadFocus) node.querySelector('h1')?.focus({ preventScroll: true });
+  }
+
   function notFound() {
     document.title = 'Invoice not found | Conductor: Direct';
-    root.replaceChildren(h('div', { class: 'dx-page dx-detail' },
+    const had = headingFocused();
+    swap(h('div', { class: 'dx-page dx-detail' },
       pageHead({ title: 'Invoice not found', back }),
       h('div', { class: 'dx-panel' }, empty({
         icon: 'search',
         title: "We couldn't find that invoice.",
         text: 'Check the invoice number on your copy. If you sent it recently, it may not be in our records yet.',
         actions: button({ label: 'All invoices', variant: 'secondary', href: back.href }),
-      }))));
+      }))), had);
   }
 
   function failed() {
-    root.replaceChildren(h('div', { class: 'dx-page dx-detail' }, head,
+    const had = headingFocused();
+    swap(h('div', { class: 'dx-page dx-detail' }, head,
       h('div', { class: 'dx-panel' }, empty({
         icon: 'circle-alert', title: "We couldn't load this invoice.", text: 'Please try again in a moment.',
         actions: button({ label: 'Try again', icon: 'refresh', onClick: () => load() }),
-      }))));
+      }))), had);
   }
 
   function render(inv) {
+    const had = headingFocused();
     document.title = `Invoice ${inv.invoice} | Conductor: Direct`;
     const tone = STATUS_TONE[inv.status?.code] || 'neutral';
     const docs = inv.documents || [];
@@ -92,13 +103,13 @@ export function mount(root, { route, ctx }) {
       body: form, class: 'dx-ask',
     });
 
-    root.replaceChildren(h('div', { class: 'dx-page dx-detail' },
+    swap(h('div', { class: 'dx-page dx-detail' },
       head,
       answer,
       h('div', { class: 'dx-detail-grid' },
         h('div', { class: 'dx-detail-main' }, docSection),
         h('aside', { class: 'dx-detail-side', 'aria-label': 'Progress and questions' }, progress, ask)),
-      h('p', { class: 'dx-source' }, icon('database', 'icon-sm'), h('span', null, `Source: ${inv.source || 'Orchestra accounts payable records'}`))));
+      h('p', { class: 'dx-source' }, icon('database', 'icon-sm'), h('span', null, `Source: ${inv.source || 'Orchestra accounts payable records'}`))), had);
   }
 
   async function load() {

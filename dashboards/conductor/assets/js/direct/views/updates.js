@@ -86,6 +86,7 @@ export function mount(root, { ctx }) {
           text: 'When an invoice is scheduled, paid or needs something from you, we post a note here.',
         })));
       if (announce && fresh.size) live.textContent = 'A new update has arrived.';
+      if (fresh.size) setTimeout(() => list.querySelectorAll('.is-new').forEach((n) => n.classList.remove('is-new')), 6000);
       ctx.refreshMe?.();   // reading the list marks it read on the server
     } catch {
       if (!alive) return;

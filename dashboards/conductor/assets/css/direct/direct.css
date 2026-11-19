@@ -238,7 +238,7 @@
 .dx-prefs .c-check { display: flex; gap: var(--s-3); align-items: flex-start; min-height: 44px; cursor: pointer; }
 .dx-prefs .c-check-text > span:first-child { font-weight: var(--fw-medium); }
 .dx-fieldset { display: flex; flex-direction: column; gap: var(--s-3); margin: 0; padding: var(--s-4) 0 0; border: 0; border-top: 1px solid var(--color-border); min-width: 0; }
-.dx-fieldset legend { float: left; width: 100%; margin-bottom: var(--s-3); padding: 0; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-text); }
+.dx-fieldset legend { float: left; width: 100%; margin-bottom: 0; padding: 0; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-text); }
 .dx-prefs-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
 .dx-prefs-foot .c-btn { min-height: 44px; }
 @media (min-width: 768px) { .dx-prefs-foot .c-btn { min-height: var(--btn-h); } }

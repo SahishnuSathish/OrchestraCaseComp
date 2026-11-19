@@ -42,6 +42,7 @@ export function mount(root, { ctx }) {
         list.replaceChildren(h('ul', { class: 'dx-feed', 'aria-label': 'Replies' }, rows.map((m, i) => item(m, fresh.has(keys[i])))));
       }
       if (announce && fresh.size) live.textContent = 'A new reply from our team has arrived.';
+      if (fresh.size) setTimeout(() => list.querySelectorAll('.is-new').forEach((n) => n.classList.remove('is-new')), 6000);
       ctx.refreshMe?.();   // reading the list marks it read on the server
     } catch {
       if (!alive) return;
