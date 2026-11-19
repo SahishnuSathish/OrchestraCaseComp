@@ -167,7 +167,7 @@ class ReadSideTests(unittest.TestCase):
             self.assertNotIn(word, low.replace("ap@orchestra-mock.example", ""))
 
     def test_wording_matches_status_service_for_every_invoice(self):
-        """Same contact and invoice: Direct says exactly what lookup_status says."""
+        """Same contact and invoice: Direct says what lookup_status says, with USD amounts in the $ style."""
         checked = 0
         for vid in ("3023", "3010", "3013", "3019", "3027"):
             contact = as_vendor(vid)
@@ -175,7 +175,8 @@ class ReadSideTests(unittest.TestCase):
                 want = status_service.lookup_status(contact, r["invoice"], STORE)
                 self.assertTrue(want["ok"], r["invoice"])
                 got = client.get(f"/api/direct/invoices/{r['invoice']}").json()
-                self.assertEqual(got["message"], want["message"], (vid, r["invoice"]))
+                self.assertEqual(got["message"], direct.dollar_style(want["message"]), (vid, r["invoice"]))
+                self.assertNotIn("USD ", got["message"])
                 checked += 1
         self.assertGreater(checked, 300)
 
