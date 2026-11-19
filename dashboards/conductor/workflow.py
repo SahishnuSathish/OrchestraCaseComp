@@ -468,6 +468,11 @@ def api_decide(ticket_id: int, body: DecideBody, s=Depends(cfo_guard)):
             scheduler.on_review_change(run_id, ticket_id, "acknowledged")
         except Exception:
             pass
+    try:  # write-back: Zendesk set to Pending with an internal note (inbox owns the connector state)
+        import inbox
+        inbox.on_decided(ticket_id, {"name": s.name, "email": s.subject}, body.decision)
+    except Exception as e:
+        print(f"[workflow] inbox.on_decided failed: {type(e).__name__}: {e}", flush=True)
     _publish("ticket.decided", ticket_id, {"decision": body.decision}, s, subjects=_requesters(ticket_id))
     return _detail_payload(ticket_id)
 

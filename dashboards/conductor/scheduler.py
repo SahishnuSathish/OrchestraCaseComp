@@ -232,11 +232,23 @@ def api_set_schedule(run_id: str, ticket_id: int, body: ScheduleBody):
     db._exec("INSERT OR REPLACE INTO scheduled_send (run_id, ticket_id, send_at, status, attempts, last_error, approved_hash,"
              " created_at, next_attempt_at) VALUES (?,?,?,?,0,NULL,?,?,NULL)",
              (run_id, ticket_id, to_iso(at), "scheduled", h, to_iso(now)))
+    _publish_scheduled(run_id, ticket_id, to_iso(at))
     return _payload(run_id, ticket_id)
+
+
+def _publish_scheduled(run_id, ticket_id, send_at):
+    """Phase 3: tell open dashboards (CONTRACTS section 3, ticket.scheduled). Never fails a schedule change."""
+    try:
+        import live
+        live.publish("ticket.scheduled", {"ticket_id": ticket_id, "run_id": run_id, "send_at": send_at,
+                                          "summary": f"#{ticket_id} " + ("scheduled" if send_at else "schedule cancelled")})
+    except Exception:
+        pass
 
 
 @router.delete("/api/runs/{run_id}/tickets/{ticket_id}/schedule")
 def api_cancel_schedule(run_id: str, ticket_id: int):
     _need_ticket(run_id, ticket_id)
     _cancel_active(run_id, ticket_id, "Cancelled by a person.")
+    _publish_scheduled(run_id, ticket_id, None)
     return _payload(run_id, ticket_id)
