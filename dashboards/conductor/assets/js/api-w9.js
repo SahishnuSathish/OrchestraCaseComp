@@ -19,13 +19,22 @@ export async function sha256Hex(blob) {
 }
 
 // Upload one PDF in chunks. onProgress(fraction 0..1) is called as parts land. Resolves with the server's answer.
+export const cancelUpload = (uploadId) => http.del(`/api/direct/w9/uploads/${enc(uploadId)}`);
+
 export async function uploadFile(file, { onProgress, signal } = {}) {
-  const { upload_id: id, chunk_size: size } = await startUpload({ filename: file.name, size: file.size, mime: file.type });
+  const mime = file.type || (/\.pdf$/i.test(file.name || '') ? 'application/pdf' : '');
+  const { upload_id: id, chunk_size: size } = await startUpload({ filename: file.name, size: file.size, mime });
   const total = Math.max(1, Math.ceil(file.size / size));
-  for (let n = 0; n < total; n++) {
-    if (signal?.aborted) throw new DOMException('Upload cancelled', 'AbortError');
-    await http.request('PUT', `/api/direct/w9/uploads/${enc(id)}/chunks/${n}`, file.slice(n * size, (n + 1) * size), { signal });
-    onProgress?.((n + 1) / total);
+  try {
+    for (let n = 0; n < total; n++) {
+      if (signal?.aborted) throw new DOMException('Upload cancelled', 'AbortError');
+      await http.request('PUT', `/api/direct/w9/uploads/${enc(id)}/chunks/${n}`, file.slice(n * size, (n + 1) * size), { signal });
+      onProgress?.((n + 1) / total);
+    }
+  } catch (err) {
+    // A cancelled or failed upload is closed on the server, so it never blocks later uploads.
+    cancelUpload(id).catch(() => {});
+    throw err;
   }
   return completeUpload(id, await sha256Hex(file));
 }

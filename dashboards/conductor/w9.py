@@ -353,6 +353,16 @@ async def put_chunk(upload_id: str, n: int, request: Request, s=Depends(direct.v
     return {"received": sum(p.stat().st_size for p in _parts(upload_id).values())}
 
 
+@router.delete("/api/direct/w9/uploads/{upload_id}")
+def cancel_upload(upload_id: str, s=Depends(direct.vendor_session)):
+    """The vendor cancelled an unfinished upload: drop its parts so it no longer counts against MAX_OPEN_UPLOADS."""
+    _, up = _mine(upload_id, s)
+    if up["state"] != "uploading":
+        raise HTTPException(409, "This upload is already finished.")
+    _discard(upload_id)
+    return {"ok": True}
+
+
 @router.post("/api/direct/w9/uploads/{upload_id}/complete")
 async def complete_upload(upload_id: str, request: Request, s=Depends(direct.vendor_session)):
     vendor, up = _mine(upload_id, s)

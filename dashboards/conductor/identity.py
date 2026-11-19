@@ -226,8 +226,37 @@ def vendor_for_contact(email):
     return found[0] if len(found) == 1 else None
 
 
+_TICKET_USER_NAMES = None
+
+
+def _ticket_user_names():
+    """email -> name from the `users` list in data/tickets.json (the people who actually write in). Read once."""
+    global _TICKET_USER_NAMES
+    if _TICKET_USER_NAMES is None:
+        names = {}
+        try:
+            import json
+            path = Path(__file__).resolve().parents[2] / "data" / "tickets.json"
+            for u in json.loads(path.read_text(encoding="utf-8")).get("users", []):
+                if u.get("email") and u.get("name"):
+                    names[u["email"].strip().lower()] = u["name"].strip()
+        except Exception:
+            pass
+        _TICKET_USER_NAMES = names
+    return _TICKET_USER_NAMES
+
+
 def _contact_name(email):
+    """A vendor contact's display name: the person on record when the data names them (billing@dovetail… is Zane
+    Vandermeer), otherwise a tidy form of the mailbox name ("Accounts")."""
+    known = _ticket_user_names().get((email or "").strip().lower())
+    if known:
+        return known
     local = (email or "").split("@")[0]
+    mailboxes = {"ar": "Accounts receivable", "ap": "Accounts payable", "billing": "Billing team", "accounts": "Accounts team",
+                 "finance": "Finance team", "invoices": "Invoices team", "payments": "Payments team", "remit": "Remittance team"}
+    if local.lower() in mailboxes:
+        return mailboxes[local.lower()]
     return " ".join(p.capitalize() for p in local.replace(".", " ").replace("_", " ").split()) or email
 
 
