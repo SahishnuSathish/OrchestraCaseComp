@@ -194,6 +194,8 @@ function showInbox(msg) {
   (document.querySelector('.hub-signin-inner') || document.body).append(inboxEl);
   // Bring the whole message into view (it lands under the card, below the fold on a phone and on short desktop screens).
   const el = inboxEl;
-  const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  requestAnimationFrame(() => el.isConnected && el.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' }));
+  const still = document.hidden || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' });
+  // If a smooth scroll did not run (some browsers skip it in a background window), settle it directly.
+  setTimeout(() => { if (el.isConnected && el.getBoundingClientRect().bottom > window.innerHeight) el.scrollIntoView({ block: 'nearest' }); }, 700);
 }
