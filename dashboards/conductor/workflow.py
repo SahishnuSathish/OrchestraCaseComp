@@ -928,18 +928,26 @@ def api_approver_queue(request: Request, approver: str = "", s=Depends(identity.
         except HTTPException:
             index = None
     if index:
+        wanted = {b["internalId"] for em in emails for b in _bill_rows_for(em)}
         for tid, x in index.items():
+            bids = {i["bill"]["internalId"] for i in x["items"] if i["status"] == "found"} & wanted
+            if not bids:
+                continue   # only tickets that block one of these bills are loaded (each record is a large bundle)
             rec = db.get_ticket(run_id, tid)
-            for bid in {i["bill"]["internalId"] for i in x["items"] if i["status"] == "found"}:
+            for bid in bids:
                 blocked.setdefault(bid, []).append({"ticket_id": tid, "subject": (rec or {}).get("ticket", {}).get("subject"),
                                                     "from_name": ((rec or {}).get("row") or {}).get("sender_name")})
         if who:
             import approver_digest
             digest_text = next((d["text"] for d in approver_digest.build(index, store)["digests"] if d["act_by"] == who), None)
+    # The latest acknowledgement and commitment per (bill, approver), in one read instead of two queries per bill.
+    latest = {}
+    for r in db._all("SELECT * FROM approver_actions ORDER BY at"):
+        latest[(r["bill_id"], r["approver"], r["kind"])] = r
     bills = []
     for em in emails:
         for b in _bill_rows_for(em):
-            commit, ack = _approver_action(b["internalId"], em, "commit"), _approver_action(b["internalId"], em, "ack")
+            commit, ack = latest.get((b["internalId"], em, "commit")), latest.get((b["internalId"], em, "ack"))
             bills.append({"bill_id": b["internalId"], "tranId": b["tranId"], "vendor": b["entityName"],
                           "amount": float(b["userTotal"] or 0), "status": b["status"], "since": b["tranDate"], "approver": em,
                           "blocked_tickets": blocked.get(b["internalId"], []),
