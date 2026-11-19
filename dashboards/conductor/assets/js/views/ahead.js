@@ -298,7 +298,7 @@ export function mount(root, { route, session }) {
   // ------------------------------------------------------------------ see it on one invoice
   function invoiceView() {
     if (!demo) return skeletonText({ lines: 4, label: 'Loading' });
-    if (!demo.available) return empty({ icon: 'file', title: 'No invoice qualifies right now', text: demo.message || 'Every candidate invoice is already answered.' });
+    if (!demo.available) return empty({ icon: 'file', title: 'No invoice qualifies right now', text: 'No pending invoice with a vendor question qualifies. Every candidate is already answered or under review.' });
     const inv = demo.invoice;
     const drafted = !!demo.drafted;
     const st = drafted ? demo.state : null;

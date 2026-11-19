@@ -34,6 +34,8 @@
 .lv-section-title { font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-xl); font-weight: var(--fw-semibold); line-height: var(--lh-snug); letter-spacing: -0.01em; }
 .lv-section-sub { margin-top: 2px; font-size: var(--fs-sm); color: var(--color-text-secondary); max-width: 72ch; }
 .lv-section-actions { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.lv-section-actions { min-width: 0; max-width: 100%; }
+.lv-section-actions > .c-tabs { max-width: 100%; overflow-x: auto; }
 
 /* ---- source line, key/value ------------------------------------------------------------------------------ */
 .lv-source { display: flex; align-items: center; gap: 6px; margin-top: var(--s-2); font-size: var(--fs-xs); color: var(--color-text-muted); }

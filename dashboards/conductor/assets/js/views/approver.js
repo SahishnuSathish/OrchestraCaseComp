@@ -69,7 +69,7 @@ export function mount(root, { session }) {
       h('div', { class: 'c-stat-grid ap-stats', role: 'group', 'aria-label': 'Summary' },
         stat({ label: 'Bills waiting on you', value: String(bills.length), icon: 'file', context: readOnly ? 'Across every approver' : 'Pending approval in NetSuite', source: 'NetSuite, read-only' }),
         stat({ label: 'Holding up vendor questions', value: String(blocking.length), icon: 'mail', tone: blocking.length ? 'waiting' : undefined,
-          context: tickets.size ? `${plural(tickets.size, 'vendor ticket')} wait on these bills` : 'No vendor is asking about these bills', source: 'Zendesk and NetSuite' }),
+          context: tickets.size ? `${plural(tickets.size, 'vendor ticket')} ${tickets.size === 1 ? 'waits' : 'wait'} on these bills` : 'No vendor is asking about these bills', source: 'Zendesk and NetSuite' }),
         stat({ label: 'Waiting longest', value: oldest ? String(daysSince(oldest)) : '0', unit: 'days', icon: 'clock',
           context: oldest ? `Entered ${fmtDay(oldest)}` : 'Nothing waiting', source: 'NetSuite, read-only' })),
       notice({ tone: 'info', title: 'For the AP team only', text: `${INTERNAL} Approving a bill still happens in NetSuite.` }));
