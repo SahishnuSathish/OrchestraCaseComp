@@ -57,6 +57,12 @@ export function fmtTime(v) {
   const d = toDate(v);
   return d ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
 }
+/** A server timestamp taken from the real clock (epoch seconds), moved onto the app's calendar so dates agree. */
+export function onAppCalendar(epochSec) {
+  if (!epochSec) return null;
+  return new Date(epochSec * 1000 + (appNow() - Date.now()));
+}
+
 /** <time> element with a full date in its title. */
 export function timeEl(v, text) {
   const d = toDate(v);

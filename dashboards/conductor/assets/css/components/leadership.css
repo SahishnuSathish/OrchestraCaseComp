@@ -120,3 +120,20 @@ a.lv-bar-name { color: var(--color-link); }
   .lv-head { margin-bottom: var(--s-4); }
   .lv-review-actions { width: 100%; }
 }
+
+/* ---- built-in folder list (folder-picker.js) ----------------------------------------------------------------- */
+.lv-fp { display: flex; flex-direction: column; gap: var(--s-3); }
+.lv-fp-path { display: flex; gap: var(--s-2); }
+.lv-fp-path .c-input { flex: 1; min-width: 0; }
+.lv-fp-shortcuts { display: flex; gap: 6px; flex-wrap: wrap; }
+.lv-fp-list { max-height: 320px; overflow: auto; border: 1px solid var(--color-border); }
+.lv-fp-item {
+  display: flex; align-items: center; gap: var(--s-2); width: 100%; min-height: 40px; padding: 0 var(--s-3); border: 0; border-top: 1px solid var(--color-border);
+  background: var(--color-surface); text-align: left; font-size: var(--fs-sm); cursor: pointer;
+}
+.lv-fp-list li:first-child .lv-fp-item { border-top: 0; }
+.lv-fp-item:hover { background: var(--color-surface-hover); }
+.lv-fp-item:focus-visible { outline-offset: -2px; }
+.lv-fp-item .truncate { flex: 1; }
+.lv-fp-empty { padding: var(--s-4); font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.lv-fp-note:empty { display: none; }
