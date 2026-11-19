@@ -156,6 +156,7 @@ export function wsComposer({ thread: t, editable = true, onSave, attachments = [
   el.text = () => body.value;
   el.subject = () => subject.value;
   el.dirty = () => dirty;
+  el.isEditing = () => document.activeElement === body || document.activeElement === subject;
   el.focusBody = () => body.focus();
   el.ticketId = t.ticket_id;
   return el;

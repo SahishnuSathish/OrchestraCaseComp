@@ -288,11 +288,14 @@ export function mount(root, { route, session }) {
       S.threadError = e.status === 404 ? 'This thread is not in the inbox.' : (e.message || 'The message could not be loaded.');
       if (!soft) S.thread = null;
     }
-    if (soft && composer && composer.isConnected && (composer.dirty() || composer.contains(document.activeElement))) { pendingRender = true; return; }
+    if (soft && holdRepaint()) { pendingRender = true; return; }
     paintReading();
   }
+  // A repaint waits only while the person is writing: unsaved text, or the cursor in the subject or the body. Focus on
+  // an action button (they sit inside the composer) does not hold it, or a sign-off request would leave stale buttons.
+  const holdRepaint = () => !!(composer && composer.isConnected && (composer.dirty() || composer.isEditing()));
   function repaintSoon() {
-    if (composer && composer.isConnected && (composer.dirty() || composer.contains(document.activeElement))) { pendingRender = true; return; }
+    if (holdRepaint()) { pendingRender = true; return; }
     paintReading();
   }
   function involve(id) {
@@ -355,7 +358,7 @@ export function mount(root, { route, session }) {
         work));
     readCol.dataset.id = String(t.ticket_id);
     readCol.querySelector('.ws-read-scroll').scrollTop = keepTop;
-    composer?.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && composer && !composer.dirty() && !composer.contains(document.activeElement)) paintReading(); }, 0));
+    composer?.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && !holdRepaint()) paintReading(); }, 0));
     fill(evBody, wsEvidence(t));
     paintEvidenceTab();
   }
@@ -500,7 +503,8 @@ export function mount(root, { route, session }) {
   }
   async function afterChange(id) {
     await Promise.all([loadQueues(), loadRows({ quiet: true }), S.selected === id ? openThread(id, { soft: true }) : null]);
-    if (S.selected === id && pendingRender) paintReading();
+    // The person just acted on this thread, so show its new state now. (Their text was flushed before the action.)
+    if (S.selected === id && S.thread?.ticket_id === id) paintReading();
   }
 
   async function approveAndSend(t, btn) {
