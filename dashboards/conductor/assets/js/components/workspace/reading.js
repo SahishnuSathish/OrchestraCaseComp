@@ -77,7 +77,7 @@ export function wsWorkflowNotices(t, wf, { role } = {}) {
   const last = (action) => [...hist].reverse().find((a) => a.action === action);
   if (st === 'returned') {
     const r = last('return');
-    out.push(notice({ tone: 'waiting', title: `${personName(r?.actor) || 'The CFO'} returned this to you`, text: r?.detail?.guidance ? `Guidance: ${r.detail.guidance}` : 'Read the guidance, then reply or escalate again.' }));
+    out.push(notice({ tone: 'waiting', title: role === 'cfo' ? `You returned this to ${personName(t.assignee) || 'the specialist'}` : `${personName(r?.actor) || 'The CFO'} returned this to you`, text: r?.detail?.guidance ? `Guidance: ${r.detail.guidance}` : 'Read the guidance, then reply or escalate again.' }));
   }
   if (st === 'escalated') {
     const r = last('escalate');

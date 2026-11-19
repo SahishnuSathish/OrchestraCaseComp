@@ -46,7 +46,7 @@ export function mount(root, { route, session }) {
     thread: null, wfState: null, threadError: null,
     summary: null, opened: loadOpened(), fresh: new Set(), selectMode: false, checked: new Set(),
     evidenceOpen: ls('ws.evidence') !== 'closed', side: 'message', evTab: 'details',
-    feedback: new Map(), scheduleOpen: new Set(), sync: null, bulkApproved: [], arrived: [],
+    feedback: new Map(), scheduleOpen: new Set(), sync: null, bulkApproved: [], arrived: [], involved: loadSet('ws.involved'),
   };
   let composer = null;
   let actionBar = null;
@@ -276,6 +276,7 @@ export function mount(root, { route, session }) {
       const [t, w] = await Promise.all([inboxApi.thread(id), wf.state(id).catch(() => null)]);
       if (destroyed || seq !== threadSeq) return;
       S.thread = t; S.wfState = w; S.threadError = null;
+      if ((w?.history || []).some((x) => String(x.actor || '').toLowerCase() === me)) involve(id);
       if (t.run_id && t.run_id !== S.runId) { S.runId = t.run_id; rememberInboxRunId(t.run_id); }
       markOpened(id);
       ticketTabs.open(t);
@@ -293,6 +294,11 @@ export function mount(root, { route, session }) {
   function repaintSoon() {
     if (composer && composer.isConnected && (composer.dirty() || composer.contains(document.activeElement))) { pendingRender = true; return; }
     paintReading();
+  }
+  function involve(id) {
+    if (S.involved.has(id)) return;
+    S.involved.add(id);
+    try { sessionStorage.setItem('ws.involved', JSON.stringify([...S.involved].slice(-200))); } catch { /* storage blocked */ }
   }
   function markOpened(id) {
     if (S.opened.has(id)) return;
@@ -450,7 +456,8 @@ export function mount(root, { route, session }) {
     const cat = t.workflow?.category;
     const st = t.workflow?.state || 'open';
     const items = [];
-    for (const p of SPECIALISTS.filter((x) => x.email !== (t.assignee || '').toLowerCase())) {
+    const open = !m.sent && !['closed', 'decided', 'sent'].includes(st);
+    for (const p of open ? SPECIALISTS.filter((x) => x.email !== (t.assignee || '').toLowerCase()) : []) {
       items.push({ label: p.email === me ? 'Assign to me' : `Assign to ${p.name}`, icon: 'user', onSelect: () => assign(t, p) });
     }
     if (m.kind === 'reply' && t.review?.review?.state === 'approved' && !m.sent && !m.scheduled) {
@@ -657,6 +664,7 @@ export function mount(root, { route, session }) {
         const n = note.control.value.trim();
         if (r === 'other' && !n) throw fieldError(note, 'Add a note when the reason is something else.');
         await wf.escalate(t.ticket_id, r, n);
+        involve(t.ticket_id);
         toast({ title: `Escalated #${t.ticket_id}`, message: 'Elena Lockhart has it in Escalations.' });
         await afterChange(t.ticket_id);
       },
@@ -670,6 +678,7 @@ export function mount(root, { route, session }) {
       onSubmit: async () => {
         await composer?.flush();
         await wf.requestSignoff(t.ticket_id, note.control.value.trim());
+        involve(t.ticket_id);
         toast({ title: 'Sign-off requested', message: `Elena Lockhart has #${t.ticket_id} in Escalations.` });
         await afterChange(t.ticket_id);
       },
@@ -779,6 +788,25 @@ export function mount(root, { route, session }) {
     const secs = Number.isNaN(next) || Number.isNaN(now) ? null : Math.max(0, Math.round((next - now) / 1000));
     syncNote.textContent = secs == null ? 'Connected' : secs < 5 ? 'Checking for new email' : `Next check in about ${secs < 60 ? `${secs} s` : `${Math.round(secs / 60)} min`}`;
   }
+  // The shell toasts events whose `to` names the viewer. Sign-offs, decisions and assignments reach this person's stream
+  // without a `to`, so the inbox says them here, in words addressed to the person, for tickets they asked about or own.
+  function personalToast(ev) {
+    const actor = ev.actor?.email?.toLowerCase();
+    if (!actor || actor === me) return;
+    if ((ev.to || []).some((x) => String(x).toLowerCase() === me)) return;
+    const id = ev.ticket_id;
+    const row = S.rows.find((r) => r.ticket_id === id) || (S.thread?.ticket_id === id ? S.thread : null);
+    const mine = S.involved.has(id) || (row?.assignee || '').toLowerCase() === me;
+    const who = ev.actor?.name || personName(actor);
+    let message = null;
+    if (ev.type === 'ticket.assigned' && String(ev.assignee || '').toLowerCase() === me) message = `${who} assigned #${id} to you.`;
+    else if (!mine) return;
+    else if (ev.type === 'ticket.signed_off') message = `${who} signed off #${id}. You can send it now.`;
+    else if (ev.type === 'ticket.returned') message = `${who} returned #${id} to you with guidance.`;
+    else if (ev.type === 'ticket.decided') message = `${who} decided #${id}${ev.decision ? `: ${String(ev.decision).replace(/_/g, ' ')}` : ''}.`;
+    if (!message) return;
+    toast({ message, tone: 'settled', actionLabel: S.selected === id ? null : 'Open', onAction: () => navigate(urlFor(id)) });
+  }
   const refreshLists = debounce(() => { loadQueues(); loadRows({ quiet: true }); }, 250);
   off.push(live.subscribe((ev) => {
     if (destroyed || !ev) return;
@@ -795,6 +823,7 @@ export function mount(root, { route, session }) {
         return;
       default:
         if (ev.ticket_id == null) return;
+        personalToast(ev);
         refreshLists();
         if (ev.ticket_id === S.selected) openThread(ev.ticket_id, { soft: true });
     }
@@ -851,6 +880,7 @@ export function mount(root, { route, session }) {
   };
 }
 
-function loadOpened() {
-  try { return new Set(JSON.parse(sessionStorage.getItem('ws.opened') || '[]')); } catch { return new Set(); }
+function loadSet(key) {
+  try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); } catch { return new Set(); }
 }
+const loadOpened = () => loadSet('ws.opened');
