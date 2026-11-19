@@ -338,7 +338,7 @@ class Routes(Base):
         r = self.c.get(f"/api/feedback/prompt?run_id={self.rid}&ticket_id={tid}", headers=self.ulla)
         self.assertFalse(r.json()["ask"])
         trends = self.c.get("/api/feedback/trends", headers=self.cfo).json()
-        self.assertEqual(trends["source"], "practice data, snapshot Nov 13")
+        self.assertEqual(trends["source"], "Records as of Nov 13")
         self.assertGreaterEqual(dict((x["category"], x["count"]) for x in trends["by_category"])["tone"], 1)
 
 

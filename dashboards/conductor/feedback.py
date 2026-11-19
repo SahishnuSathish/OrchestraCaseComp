@@ -17,7 +17,7 @@ import identity
 router = APIRouter()
 
 CATEGORIES = ("tone", "facts", "missing_info", "other")
-SOURCE = "practice data, snapshot Nov 13"
+SOURCE = "Records as of Nov 13"
 
 
 def init_schema():
