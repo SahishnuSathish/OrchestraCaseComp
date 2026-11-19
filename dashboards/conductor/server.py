@@ -79,8 +79,13 @@ async def local_only(request: Request, call_next):
     resp.headers["Cache-Control"] = "no-store"
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Referrer-Policy"] = "no-referrer"
-    resp.headers["Content-Security-Policy"] = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
-                                               "connect-src 'self'; frame-ancestors 'none'")
+    # Document routes (documents.py) may relax frame-ancestors to 'self' so the app can preview its own rendered
+    # invoice; they say so with this marker header, which is removed here. Every other response stays 'none'.
+    frame = "'self'" if resp.headers.get("X-Conductor-Frame") == "self" else "'none'"
+    if "X-Conductor-Frame" in resp.headers:
+        del resp.headers["X-Conductor-Frame"]
+    resp.headers["Content-Security-Policy"] = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+                                               f"connect-src 'self'; frame-src 'self' blob:; frame-ancestors {frame}")
     return resp
 
 
@@ -751,6 +756,7 @@ def api_prevention_send(run_id: str, kind: str, key: str):
     except mailer.MailError as e:
         raise HTTPException(502, str(e))
     db.save_prevention_sent(run_id, kind, key, info.get("id"))
+    delivery.notice_sent(run_id, kind, key, item, info)
     return _prevention_payload(run_id)
 
 

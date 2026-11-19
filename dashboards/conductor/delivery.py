@@ -14,6 +14,17 @@ _SEND_LOCK = threading.Lock()  # one send at a time: Send now and the scheduler 
 
 # Phase 3 seam: called after every successful send as fn(run_id, ticket_id, actor, info). Never raises into a send.
 ON_SENT = []
+# Phase 3 seam: called after a Conductor: Ahead notice or digest is sent, as fn(run_id, kind, key, item, info).
+# `item` is the stored notice/digest dict (it has "to", "text" and, for notices, "vendor_id" and "bills").
+ON_NOTICE_SENT = []
+
+
+def notice_sent(run_id, kind, key, item, info):
+    for hook in list(ON_NOTICE_SENT):
+        try:
+            hook(run_id, kind, key, item, info)
+        except Exception as e:
+            print(f"[delivery] on_notice_sent hook {getattr(hook, '__name__', hook)!r} failed: {type(e).__name__}: {e}", flush=True)
 
 
 class DeliveryError(Exception):

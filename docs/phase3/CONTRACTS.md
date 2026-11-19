@@ -124,7 +124,18 @@ Endpoints (`ap_specialist`, `cfo`):
 
 **Advanced** (`cfo` only), also in `inbox.py`: `POST /api/admin/reset`; `POST /api/admin/import {path}` (a tickets file → a normal batch run through `runner.Manager.start_run`); `GET /api/admin/export?run_id=&scope=` (same format as today's export). The existing `/api/runs*` routes stay and are CFO-only.
 
-Tables (owner inbox): `inbox_users`, `inbox_state(ticket_id PK, zendesk_status, assignee, sent_folder INTEGER, arrived_at REAL, source)`, `sync_log(id PK, at, text)`.
+Tables (owner inbox): `inbox_users`, `inbox_state(ticket_id PK, zendesk_status, sent_folder INTEGER, arrived_at REAL, source)`, `sync_log(id PK, at, text)`. The assignee and workflow state live in `workflow` only. The inbox reads them with `workflow.get_state(ticket_id) -> {state, category, assignee, chased}`.
+
+**Queue rules** (computed by inbox from the bundle, review state and `workflow.get_state`):
+- `needs_reply`: a draft reply, workflow `open` or `returned`, review not sent
+- `needs_action`: an internal note, not decided
+- `escalated`: `escalated` or `signoff_requested`
+- `returned`: `returned`, assigned to the viewer
+- `waiting_approver`: the note names a `nextApprover` (pending approval or PO)
+- `waiting_vendor`: we asked the vendor for something (a PDF copy or W-9) and it was sent
+- `scheduled`: has an active scheduled send
+- `sent`: review `sent`
+- `closed`: `no_draft`, `decided` or `closed`
 
 ## 6. Workflow (`workflow.py`, `feedback.py`, owner `p3/identity-live`)
 
@@ -182,7 +193,7 @@ Registered hooks: `workflow` (state → `sent`, audit), `inbox` (write-back), `d
 - `documents.attachments_for(run_id, ticket_id) -> list[tuple]` and the table `draft_attachments(id PK, run_id, ticket_id, kind, bill_id, filename, added_by, added_at)`.
 - Staff: `GET /api/documents/{kind}/{bill_internal_id}.{html|pdf}`. Vendors: through Direct (§9), scoped to their vendor.
 - **Download.** The browser fetches with its headers and opens a `blob:` URL. No document URL carries a secret.
-- **CSP.** Document responses send `frame-ancestors 'self'`. Every other response keeps `frame-ancestors 'none'`. The global CSP adds `blob:` to `img-src` and `frame-src 'self' blob:`.
+- **CSP** (done in the seam). A document route sets the response header `X-Conductor-Frame: self`. The middleware turns that into `frame-ancestors 'self'` and removes the marker. Every other response keeps `frame-ancestors 'none'`. The global CSP already has `img-src 'self' data: blob:` and `frame-src 'self' blob:`.
 - PDFs use reportlab (installed). No other PDF writer.
 
 ## 9. Direct (`direct.py`, owner `p3/direct-w9`)
@@ -221,7 +232,7 @@ Tables: `w9_status`, `w9_uploads(id PK, vendor_id, filename, size, sha256, path,
 
 ## 11. Ahead (prevention)
 
-The existing `prevention.py` routes and `/api/runs/{id}/prevention*` stay, used with the inbox run. The Ahead view reads them, plus `direct.lookup_count()` and `GET /api/inbox/summary.prevented_this_week`. A notice send also adds a `direct_updates` row for that vendor (through an `ON_SENT`-style hook in `direct`). Keep `egress_guard.check_outbound` and the stale-record 409.
+The existing `prevention.py` routes and `/api/runs/{id}/prevention*` stay, used with the inbox run. The Ahead view reads them, plus `direct.lookup_count()` and `GET /api/inbox/summary.prevented_this_week`. Every notice or digest send (the build list and the one-invoice demo) calls `delivery.notice_sent(run_id, kind, key, item, info)`, which runs the `delivery.ON_NOTICE_SENT` hooks (seam). `direct` registers one that adds a `direct_updates` row when `item` has a `vendor_id` (for the demo, it finds the vendor by `item["to"]`). `inbox` registers one that publishes `ahead.sent`. Keep `egress_guard.check_outbound` and the stale-record 409.
 
 ## 12. Pages and front-end modules
 

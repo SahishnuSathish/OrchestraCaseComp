@@ -11,6 +11,11 @@ def init_schema():
     pass
 
 
+def get_state(ticket_id):
+    """{state, category, assignee, chased} for an inbox ticket. The inbox queues read this. Stub: everything open."""
+    return {"state": "open", "category": None, "assignee": None, "chased": False}
+
+
 def signoff_category(bundle):
     return None
 

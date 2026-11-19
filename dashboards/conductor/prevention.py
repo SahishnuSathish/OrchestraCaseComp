@@ -171,4 +171,6 @@ def api_demo_send(run_id: str, request: Request):
     except mailer.MailError as e:
         raise HTTPException(502, str(e))
     db.save_prevention_sent(run_id, DEMO_KIND, view["invoice"]["internal_id"], info.get("id"))
+    import delivery
+    delivery.notice_sent(run_id, DEMO_KIND, view["invoice"]["internal_id"], n, info)
     return _demo_view(run_id, store)
