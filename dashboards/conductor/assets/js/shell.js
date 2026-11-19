@@ -227,7 +227,6 @@ function openTray() {
   tray = h('section', { class: 'c-tray', role: 'dialog', 'aria-label': 'Notifications', tabindex: '-1' },
     h('header', { class: 'c-tray-head' },
       h('h2', null, 'Notifications'),
-      list.some((e) => !e.read) ? h('button', { class: 'c-btn c-btn-quiet c-btn-sm', type: 'button', onclick: () => { markAllRead(); closeTray({ refocus: true }); } }, 'Mark all as read') : null,
       h('button', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm', type: 'button', 'aria-label': 'Close notifications', onclick: () => closeTray({ refocus: true }) }, icon('x'))),
     list.length
       ? h('ol', { class: 'c-tray-list' }, list.map((e) => h('li', { class: `c-tray-item${e.read ? '' : ' is-unread'}` },
@@ -242,14 +241,14 @@ function openTray() {
   document.addEventListener('pointerdown', onTrayOutside, true);
   $('#c-bell').setAttribute('aria-expanded', 'true');
   tray.focus();
-  markAllRead({ render: false });
+  markAllRead();
 }
-function markAllRead({ render = true } = {}) {
+// Opening the tray clears the count; the items that were new keep their marker until the tray is next opened.
+function markAllRead() {
   S.events.forEach((e) => { e.read = true; });
   S.unread = 0;
   saveEvents();
   renderBell();
-  void render;
 }
 
 function iconFor(type = '') {

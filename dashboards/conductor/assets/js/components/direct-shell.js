@@ -1,6 +1,6 @@
 // The Conductor: Direct page frame (vendor dashboard). Navy-led, outward-facing.
 // It shows the Direct lockup, the vendor's company, the signed-in contact and Sign out. No staff navigation,
-// no internal names, no ticket IDs. The Direct page (owner p3/direct-ui) fills `node.slot`.
+// no internal names, no ticket IDs. The Direct page (owner p3/direct-ui) fills `node.main`.
 import { h, icon } from '../lib.js';
 import { lockup } from './marks.js';
 import { avatar } from './badges.js';
@@ -12,8 +12,8 @@ import { ensureIcons } from './icons.js';
  *   vendor:  { name, subsidiary? }      contact: { name, email }
  *   nav:     optional section links for the vendor's own pages: [{ id, label, href, count? }]
  *   current: the id of the current section
- *   content: nodes for the content slot (or fill node.slot later)
- * Returns the frame. node.slot is the <main> element; node.update({ vendor, contact, current }) refreshes the header.
+ *   content: nodes for the content slot (or fill node.main later)
+ * Returns the frame. node.main is the <main> element; node.update({ vendor, contact, current }) refreshes the header.
  */
 export function directShell({ vendor = {}, contact = {}, onSignOut, nav = [], current = null, content = null } = {}) {
   ensureIcons();
@@ -66,7 +66,7 @@ export function directShell({ vendor = {}, contact = {}, onSignOut, nav = [], cu
     }
   }
   update();
-  root.slot = slot;
+  root.main = slot; // not "slot": Element.slot is a built-in string attribute
   root.update = update;
   return root;
 }

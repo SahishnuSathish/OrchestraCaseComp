@@ -97,11 +97,11 @@ export function setFieldError(fieldNode, message) {
   ctl.setAttribute('aria-describedby', [helpId, message ? err.id : null].filter(Boolean).join(' '));
 }
 
-/** checkbox({ label, checked, onChange, help }) - a labelled checkbox row. */
+/** checkbox({ label, checked, onChange, help }) - a labelled checkbox row (a <label>; node.control is the input). */
 export function checkbox({ label, name, checked = false, onChange, help, id = nextId('cb') } = {}) {
   const input = h('input', { type: 'checkbox', class: 'c-check-input', id, name, checked: checked || null, onchange: onChange });
   const node = h('label', { class: 'c-check', for: id }, input, h('span', { class: 'c-check-box', 'aria-hidden': 'true' }, icon('check')),
     h('span', { class: 'c-check-text' }, h('span', null, label), help ? h('span', { class: 'c-field-help' }, help) : null));
-  node.control = input;
+  // A <label> already exposes its input as node.control (built in), like field() does.
   return node;
 }
