@@ -1,1 +1,46 @@
-/* Phase 3 seam stub. Owner: p3/leadership-ui. */
+/* Waiting on you (#/approver): the budget approver's page. Owner: p3/leadership-ui. */
+@import url("../components/leadership.css");
+
+.ap-page { max-width: calc(1120px + var(--page-pad) * 2); }
+.ap-top { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-5); }
+.ap-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ap-listhead { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-3); }
+
+.ap-list { display: flex; flex-direction: column; background: var(--color-surface); border: 1px solid var(--color-border); }
+.ap-bill { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4); border-top: 1px solid var(--color-border); }
+.ap-bill:first-child { border-top: 0; }
+.ap-bill-main {
+  display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(110px, max-content) minmax(0, 1.4fr) auto;
+  align-items: center; gap: var(--s-2) var(--s-5);
+}
+.ap-bill-id { display: flex; flex-direction: column; min-width: 0; }
+.ap-bill-id strong { font-size: var(--fs-md); }
+.ap-vendor { font-size: var(--fs-sm); color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-amount { font-size: var(--fs-md); text-align: right; }
+.ap-status { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; min-width: 0; }
+.ap-since { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.ap-old { color: var(--color-waiting-text); font-weight: var(--fw-medium); }
+.ap-approver { font-size: var(--fs-sm); text-align: right; }
+
+.ap-blocking { padding: var(--s-2) var(--s-3); background: var(--color-surface-subtle); border-left: 2px solid var(--color-waiting); font-size: var(--fs-sm); }
+.ap-blocking-label { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-semibold); }
+.ap-blocking ul { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+.ap-blocking li { overflow-wrap: anywhere; }
+
+.ap-bill-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; }
+.ap-response { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-sm); }
+.ap-actions { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.ap-ns { cursor: not-allowed; }
+.ap-ns:hover { text-decoration: none; }
+.ap-commit { display: flex; flex-direction: column; gap: var(--s-3); }
+
+@media (max-width: 860px) {
+  .ap-bill-main { grid-template-columns: minmax(0, 1fr) max-content; }
+  .ap-status { grid-column: 1 / -1; }
+  .ap-approver { grid-column: 1 / -1; text-align: left; }
+}
+@media (max-width: 560px) {
+  .ap-bill { padding: var(--s-3); }
+  .ap-actions { width: 100%; }
+  .ap-actions .c-btn { flex: 1 1 auto; }
+}
