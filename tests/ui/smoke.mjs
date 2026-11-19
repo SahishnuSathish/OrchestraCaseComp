@@ -17,19 +17,19 @@
  *
  * Prerequisites
  *   - Node 22 (plain ESM, no package.json, no new dependencies).
- *   - Python 3 with the app's dependencies (fastapi, uvicorn, pydantic ...): `python3 webapp/server.py` must start.
+ *   - Python 3 with the app's dependencies (fastapi, uvicorn, pydantic ...): `python3 dashboards/conductor/server.py` must start.
  *   - The `playwright` package with a Chromium build already installed. If `playwright` cannot be loaded the test
  *     prints "skipped: Playwright is not installed" and exits 0. This script never runs `playwright install`.
  *
  * Isolation
  *   The test starts its own Conductor (random free port, CONDUCTOR_STATE_DIR in a fresh temp dir) and its own fake Ollama
- *   (tests/fake_ollama.py, no inference). Nothing is written inside the repository: the tracked webapp/state/ and out/
+ *   (tests/fake_ollama.py, no inference). Nothing is written inside the repository: the tracked dashboards/conductor/state/ and out/
  *   are never touched (a final check compares `git status` for those paths before and after). Both child processes and
  *   the temp dir are removed in `finally`, also on SIGINT/SIGTERM.
  *
  * Test 13 and the model cache
  *   The pipeline caches model readings in out/.cache/model (tracked files) and there is no override for that
- *   directory (prototype/cache.py: DEFAULT_DIR is fixed, webapp/runner.py does not pass one). A cache entry is only
+ *   directory (src/cache.py: DEFAULT_DIR is fixed, dashboards/conductor/runner.py does not pass one). A cache entry is only
  *   written when the model returned a valid reading, so test 13 talks to a dedicated fake Ollama started with
  *   `--fail http500`: every /api/chat answers HTTP 500, no reading is ever produced and nothing is cached. The model
  *   selection is still observable (run.model, the overview header and the `model` of every /api/chat request).
@@ -1322,11 +1322,11 @@ test('14 reduced motion switches toasts and spinners off @1280', async (t) => {
 });
 
 // ---------------------------------------------------------------------------------------------- repository hygiene (runs last)
-const gitState = () => spawnSync('git', ['-C', REPO, 'status', '--short', '--untracked-files=all', '--', 'webapp/state', 'out'],
+const gitState = () => spawnSync('git', ['-C', REPO, 'status', '--short', '--untracked-files=all', '--', 'dashboards/conductor/state', 'out'],
   { encoding: 'utf8' }).stdout;
 let gitBefore = '';
-test('git status shows nothing new under webapp/state or out', async () => {
-  assert.equal(gitState(), gitBefore, 'files under webapp/state or out/ changed while the test ran');
+test('git status shows nothing new under dashboards/conductor/state or out', async () => {
+  assert.equal(gitState(), gitBefore, 'files under dashboards/conductor/state or out/ changed while the test ran');
 });
 
 // ================================================================================================ main
@@ -1343,7 +1343,7 @@ async function main() {
       env.OLLAMA_URL = `http://127.0.0.1:${A.modelDeadPort}`;
       console.log('note: something listens on 127.0.0.1:11434; the app is pointed at a closed port instead');
     }
-    const app = startChild('ap-desk', ['webapp/server.py', '--port', String(A.port)], env);
+    const app = startChild('ap-desk', ['dashboards/conductor/server.py', '--port', String(A.port)], env);
     await waitHttp(BASE(), app);
     A.token = /name="ap-token" content="([^"]+)"/.exec(await (await fetch(BASE())).text())?.[1];
     assert.ok(A.token, 'could not read the ap-token from /');

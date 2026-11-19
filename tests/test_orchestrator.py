@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "prototype"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 
 import orchestrator  # noqa: E402
 import pipeline  # noqa: E402

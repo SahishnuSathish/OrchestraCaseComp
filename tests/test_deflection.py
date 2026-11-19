@@ -6,14 +6,19 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "prototype"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 
 import approver_digest  # noqa: E402
 import batch_groups  # noqa: E402
 import deflection_report  # noqa: E402
 import egress_guard  # noqa: E402
 import notices as notices_mod  # noqa: E402
-import portal_server  # noqa: E402
+import importlib.util  # noqa: E402
+
+# Loaded by path under a unique name: the portal's server.py and Conductor's server.py share a file name.
+_spec = importlib.util.spec_from_file_location("vendor_portal_server", ROOT / "dashboards" / "vendor_portal" / "server.py")
+portal_server = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(portal_server)  # noqa: E402
 import rules  # noqa: E402
 import status_service  # noqa: E402
 from data_layer import FileBackend, Store  # noqa: E402

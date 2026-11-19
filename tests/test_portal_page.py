@@ -8,10 +8,15 @@ from http.server import HTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "prototype"))
+sys.path.insert(0, str(ROOT / "src"))
 
-import portal_page  # noqa: E402
-import portal_server  # noqa: E402
+import importlib.util  # noqa: E402
+
+# Loaded by path under a unique name: the portal's server.py and Conductor's server.py share a file name.
+_spec = importlib.util.spec_from_file_location("vendor_portal_server", ROOT / "dashboards" / "vendor_portal" / "server.py")
+portal_server = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(portal_server)  # also puts the portal folder on sys.path, so its page module is importable
+portal_page = portal_server.page
 from data_layer import FileBackend, Store  # noqa: E402
 
 
@@ -103,7 +108,7 @@ class HttpTests(unittest.TestCase):
                  "/static/fonts/geist-mono-latin-wght-normal.woff2", "/static/../../data/vendors.csv",
                  "/static/fonts/../../data/vendors.csv", "/static/fonts/%2e%2e/%2e%2e/data/vendors.csv",
                  "/static/fonts/..%2f..%2fdata%2fvendors.csv", "/static/fonts/..\\..\\data\\vendors.csv",
-                 "/static/fonts/nope.woff2?x=geist-latin-wght-normal.woff2", "/../prototype/portal_server.py", "//etc/passwd"]
+                 "/static/fonts/nope.woff2?x=geist-latin-wght-normal.woff2", "/../dashboards/vendor_portal/server.py", "//etc/passwd"]
         for p in paths:
             st, h, body = self.get(p)
             self.assertEqual(st, 404, p)

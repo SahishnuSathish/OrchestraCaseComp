@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 // chat.js pulls in api.js, which reads the page's token meta tag at load time.
 globalThis.document = { querySelector: () => null };
 let C;
-before(async () => { C = await import('../../webapp/static/js/chat.js'); });
+before(async () => { C = await import('../../dashboards/conductor/assets/js/chat.js'); });
 
 describe('chat helpers', () => {
   it('keys a panel by run and ticket', () => {

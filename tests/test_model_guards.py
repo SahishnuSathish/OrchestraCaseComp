@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "prototype"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 
 from data_layer import FileBackend, Store  # noqa: E402
 from extract_model import ModelReading, OllamaExtractor, redact  # noqa: E402

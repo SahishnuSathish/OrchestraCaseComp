@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 process.env.TZ = 'America/New_York';
 const { localInputToUtc, utcToLocalInput, toLocalInput, windowError, checkInput, MIN_AHEAD_MS, MAX_AHEAD_MS, mailHint } =
-  await import('../../webapp/static/js/schedule.js');
+  await import('../../dashboards/conductor/assets/js/schedule.js');
 
 describe('local time <-> UTC', () => {
   it('converts a local summer time to UTC', () => {

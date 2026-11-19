@@ -1,0 +1,4 @@
+# Documentation stays out of git. Only this file and README.md are tracked.
+*
+!.gitignore
+!README.md

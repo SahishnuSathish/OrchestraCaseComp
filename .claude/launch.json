@@ -4,7 +4,7 @@
     {
       "name": "ap-desk",
       "runtimeExecutable": "C:\\Users\\Sahishnu Sathish\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
-      "runtimeArgs": ["webapp/server.py", "--port", "8790"],
+      "runtimeArgs": ["dashboards/conductor/server.py", "--port", "8790"],
       "port": 8790
     }
   ]

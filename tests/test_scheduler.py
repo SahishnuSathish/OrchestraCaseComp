@@ -1,4 +1,4 @@
-"""Tests for scheduled send (webapp/scheduler.py, webapp/delivery.py). No Ollama, no network.
+"""Tests for scheduled send (dashboards/conductor/scheduler.py, dashboards/conductor/delivery.py). No Ollama, no network.
 
 The clock is injected and tick() is driven by hand, so nothing waits. Run from the repo root:
     python -m unittest tests.test_scheduler -v
@@ -11,14 +11,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "webapp"))
-sys.path.insert(0, str(ROOT / "prototype"))
+sys.path.insert(0, str(ROOT / "dashboards" / "conductor"))
+sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
 import db  # noqa: E402
 
 _TMP = tempfile.TemporaryDirectory()
-db.STATE_DIR = Path(_TMP.name)          # never touch the real webapp/state/app.db
+db.STATE_DIR = Path(_TMP.name)          # never touch the real dashboards/conductor/state/app.db
 db.DB_PATH = db.STATE_DIR / "app.db"
 db.init()
 

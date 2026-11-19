@@ -2,8 +2,8 @@
 __pycache__/
 *.py[cod]
 
-# Webapp runtime state (SQLite db + outbox). Seed files already committed stay tracked.
-webapp/state/
+# Dashboard runtime state (Conductor's SQLite db and outbox, the portal's log).
+dashboards/*/state/
 
 # Pipeline model/embedding cache. Files already committed stay tracked.
 out/.cache/

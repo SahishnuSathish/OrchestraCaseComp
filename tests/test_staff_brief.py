@@ -1,5 +1,5 @@
 """Staff brief pane: structured facts, code-chosen next action, retrieval status and the validator.
-No Ollama needed. Uses out/regex/bundles.json (run `python prototype/run_all.py --out out/regex` first).
+No Ollama needed. Uses out/regex/bundles.json (run `python src/run_all.py --out out/regex` first).
 """
 import json
 import sys
@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "prototype"), str(ROOT / "webapp"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "src"), str(ROOT / "dashboards" / "conductor"), str(ROOT)]
 
 import brief_facts  # noqa: E402
 import runner  # noqa: E402

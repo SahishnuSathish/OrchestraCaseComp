@@ -1,4 +1,4 @@
-"""Tests for the ticket chat (webapp/chat.py). Uses tests/fake_ollama.py (no inference).
+"""Tests for the ticket chat (dashboards/conductor/chat.py). Uses tests/fake_ollama.py (no inference).
 
     python -m unittest tests.test_chat -v
 """
@@ -13,15 +13,15 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "webapp"))
-sys.path.insert(0, str(ROOT / "prototype"))
+sys.path.insert(0, str(ROOT / "dashboards" / "conductor"))
+sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(ROOT))
 
 import db  # noqa: E402
 
 _TMP = tempfile.TemporaryDirectory()
-db.STATE_DIR = Path(_TMP.name)          # never touch the real webapp/state/app.db
+db.STATE_DIR = Path(_TMP.name)          # never touch the real dashboards/conductor/state/app.db
 db.DB_PATH = db.STATE_DIR / "app.db"
 db.init()
 

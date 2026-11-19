@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parse, href, crumbs } from '../../webapp/static/js/router.js';
+import { parse, href, crumbs } from '../../dashboards/conductor/assets/js/router.js';
 
 const RUN = 'ab12cd34';
 const LAST = { lastRunId: RUN };

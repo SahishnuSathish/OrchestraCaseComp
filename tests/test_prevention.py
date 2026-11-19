@@ -6,12 +6,12 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "webapp"), str(ROOT / "prototype"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "dashboards" / "conductor"), str(ROOT / "src"), str(ROOT)]
 
 import db  # noqa: E402
 
 _TMP = tempfile.TemporaryDirectory()
-db.STATE_DIR = Path(_TMP.name)          # never touch the real webapp/state/app.db
+db.STATE_DIR = Path(_TMP.name)          # never touch the real dashboards/conductor/state/app.db
 db.DB_PATH = db.STATE_DIR / "app.db"
 db.init()
 

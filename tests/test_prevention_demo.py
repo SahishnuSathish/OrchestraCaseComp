@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "webapp"), str(ROOT / "prototype"), str(ROOT)]
+sys.path[:0] = [str(ROOT / "dashboards" / "conductor"), str(ROOT / "src"), str(ROOT)]
 
 import db  # noqa: E402
 
@@ -121,7 +121,7 @@ class Api(unittest.TestCase):
 class Headless(unittest.TestCase):
     def test_exits_zero_and_prints_four_steps(self):
         with tempfile.TemporaryDirectory() as out:
-            r = subprocess.run([sys.executable, str(ROOT / "prototype" / "demo_prevention.py"), "--out", out],
+            r = subprocess.run([sys.executable, str(ROOT / "src" / "demo_prevention.py"), "--out", out],
                                capture_output=True, text=True, timeout=120)
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             for n in ("1. Draft", "2. Approve", "3. Send", "4. Vendor lookup"):
