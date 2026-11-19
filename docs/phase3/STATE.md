@@ -15,7 +15,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 | `phase3/integration` | `orchestra-wt/p3-integration` | `a357880` + this STATE commit | seam done |
 | `p3/identity-live` | `orchestra-wt/p3-identity-live` | from `a357880` | running (Sonnet) |
 | `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | from `a357880` | running (Sonnet) |
-| `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | from `a357880` | running (Sonnet) |
+| `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | `0e863d7` | done, all 3 tiers; 277 tests OK, 100/100; waiting to merge (after identity, inbox). Demo vendor: Dovetail Lane Printing, billing@dovetaillaneprinti.example (W-9 missing) |
 | `p3/design-shell` | `orchestra-wt/p3-design-shell` | from `a357880` | running (Opus) |
 
 ## Worker agents
