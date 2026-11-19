@@ -21,7 +21,7 @@ import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from fastapi.testclient import TestClient  # noqa: E402
 
 DATA = ROOT / "data"
-H = signin.headers()
+H = signin.headers("cfo")
 
 
 def finished_run(c):

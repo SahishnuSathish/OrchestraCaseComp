@@ -33,6 +33,9 @@ from pydantic import BaseModel, Field  # noqa: E402
 import chat  # noqa: E402
 import db  # noqa: E402
 import delivery  # noqa: E402
+import feedback  # noqa: E402
+import identity  # noqa: E402
+import live as live_bus  # noqa: E402  (the run-progress stream below has a local called `live`)
 import local_model  # noqa: E402
 import mailer  # noqa: E402
 import native_dialog  # noqa: E402
@@ -40,6 +43,7 @@ import prevention  # noqa: E402
 import reply_checks  # noqa: E402
 import runner  # noqa: E402
 import scheduler  # noqa: E402
+import workflow  # noqa: E402
 
 TOKEN = secrets.token_urlsafe(18)
 STATIC = HERE / "assets"                     # this dashboard's page: index.html, js/, css/
@@ -89,13 +93,39 @@ async def local_only(request: Request, call_next):
     return resp
 
 
+PUBLIC_API = ("/api/health", "/api/session")                       # no session needed
+VENDOR_API = ("/api/direct", "/api/session", "/api/live", "/api/health")  # the only prefixes a vendor session may use
+_TICKET_ROUTES = re.compile(r"^/api/(live|runs/[^/]+/events)$")
+
+
+def _under(path, prefixes):
+    return any(path == p or path.startswith(p + "/") for p in prefixes)
+
+
 def auth(request: Request):
+    """The per-launch token on every /api call, then a session on every route that is not public.
+    A vendor session may only reach VENDOR_API, whatever a route's own guard says (defence in depth).
+    A single-use stream ticket (EventSource cannot send headers) stands in for both on the two stream routes,
+    which check the ticket themselves."""
+    path = request.url.path
+    if request.query_params.get("ticket") and _TICKET_ROUTES.match(path):
+        return
     tok = request.headers.get("x-ap-token") or request.query_params.get("token")
     if not tok or not secrets.compare_digest(tok, TOKEN):
         raise HTTPException(401, "missing or bad token")
+    if path.startswith("/api/") and not _under(path, PUBLIC_API):
+        s = identity.current(request)
+        if s is None:
+            raise HTTPException(401, identity.SIGNED_OUT)
+        if s.role == "vendor" and not _under(path, VENDOR_API):
+            raise HTTPException(403, identity.NOT_ALLOWED)
 
 
 api = [Depends(auth)]
+staff_guard = identity.require_role("ap_specialist", "cfo")
+cfo_guard = identity.require_role("cfo")
+staff = [Depends(auth), Depends(staff_guard)]   # specialists and the CFO
+cfo_only = [Depends(auth), Depends(cfo_guard)]
 app.state.get_manager = get_manager  # for routers in other modules: request.app.state.get_manager()
 
 
@@ -143,7 +173,7 @@ def _status_payload(force=False):
     return v
 
 
-@app.get("/api/model/status", dependencies=api)
+@app.get("/api/model/status", dependencies=staff)
 def api_model_status(force: bool = False):
     return _status_payload(force)
 
@@ -155,7 +185,7 @@ def _settings_payload():
     return out
 
 
-@app.get("/api/settings", dependencies=api)
+@app.get("/api/settings", dependencies=staff)
 def api_settings():
     return _settings_payload()
 
@@ -166,7 +196,7 @@ class ModelSettingsBody(BaseModel):
     timeout_s: Optional[int] = None
 
 
-@app.put("/api/settings/model", dependencies=api)
+@app.put("/api/settings/model", dependencies=cfo_only)
 def api_save_model_settings(body: ModelSettingsBody):
     given = {k: getattr(body, k) for k in body.model_fields_set if k in ("url", "model", "timeout_s")}
     try:
@@ -185,7 +215,7 @@ def _sse(event, data):
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
 
-@app.post("/api/model/test", dependencies=api)
+@app.post("/api/model/test", dependencies=staff)
 async def api_model_test(body: ModelTestBody, request: Request):
     """Stream one reading from the local model. A worker thread does the blocking read and feeds a queue; this
     coroutine relays it and, if the browser goes away, closes the upstream connection so Ollama stops generating."""
@@ -224,7 +254,7 @@ async def api_model_test(body: ModelTestBody, request: Request):
     return StreamingResponse(gen(), media_type="text/event-stream", headers={"X-Accel-Buffering": "no"})
 
 
-@app.get("/api/fs/list", dependencies=api)
+@app.get("/api/fs/list", dependencies=cfo_only)
 def api_fs_list(path: str = ""):
     """Directories only. The server is bound to localhost, so this lists the machine the app runs on."""
     shortcuts = [{"name": "Practice dataset (data)", "path": str(runner.DEFAULT_DATASET)},
@@ -269,7 +299,7 @@ class PickBody(BaseModel):
     start: str = ""
 
 
-@app.post("/api/fs/pick", dependencies=api)
+@app.post("/api/fs/pick", dependencies=cfo_only)
 def api_fs_pick(body: PickBody):
     """Open the operating system's own folder window on this computer and wait for the choice. The server only listens
     on localhost, so that window appears on the person's own screen. 501 means no native window can be shown here (the
@@ -287,7 +317,7 @@ class PathBody(BaseModel):
     path: str
 
 
-@app.post("/api/dataset/validate", dependencies=api)
+@app.post("/api/dataset/validate", dependencies=cfo_only)
 def api_validate(body: PathBody):
     return runner.validate_dataset(body.path)
 
@@ -342,13 +372,13 @@ def _run_payload(r):
     return out
 
 
-@app.get("/api/runs", dependencies=api)
+@app.get("/api/runs", dependencies=cfo_only)
 def api_runs(limit: int = 50):
     return {"runs": [_run_payload(r) for r in db.list_runs(max(1, min(limit, 200)))], "importable": runner.list_importable(),
             "active": get_manager().running_run()}
 
 
-@app.post("/api/runs", dependencies=api)
+@app.post("/api/runs", dependencies=cfo_only)
 def api_start_run(body: RunBody):
     try:
         run_id = get_manager().start_run(body.path, body.use_model, body.limit if body.limit and body.limit > 0 else None,
@@ -360,7 +390,7 @@ def api_start_run(body: RunBody):
     return {"run_id": run_id}
 
 
-@app.post("/api/runs/import", dependencies=api)
+@app.post("/api/runs/import", dependencies=cfo_only)
 def api_import(body: ImportBody):
     try:
         return {"run_id": get_manager().import_run(body.path, body.dataset_path, body.label)}
@@ -375,12 +405,12 @@ def _run_or_404(run_id):
     return r
 
 
-@app.get("/api/runs/{run_id}", dependencies=api)
+@app.get("/api/runs/{run_id}", dependencies=staff)
 def api_run(run_id: str):
     return _run_payload(_run_or_404(run_id))
 
 
-@app.delete("/api/runs/{run_id}", dependencies=api)
+@app.delete("/api/runs/{run_id}", dependencies=cfo_only)
 def api_delete_run(run_id: str):
     _run_or_404(run_id)
     try:
@@ -390,14 +420,21 @@ def api_delete_run(run_id: str):
     return {"deleted": True}
 
 
-@app.post("/api/runs/{run_id}/cancel", dependencies=api)
+@app.post("/api/runs/{run_id}/cancel", dependencies=staff)
 def api_cancel(run_id: str):
     _run_or_404(run_id)
     return {"cancelled": get_manager().cancel(run_id)}
 
 
 @app.get("/api/runs/{run_id}/events")
-async def api_events(run_id: str, request: Request, after: int = -1, _=Depends(auth)):
+async def api_events(run_id: str, request: Request, after: int = -1, ticket: str = "", _=Depends(auth)):
+    # Staff only. A stream ticket (POST /api/live/ticket) replaces the old ?token=; auth() has already checked the token
+    # and session header when no ticket is given.
+    sess = live_bus.consume_ticket(ticket) if ticket else identity.current(request)
+    if sess is None:
+        raise HTTPException(401, identity.SIGNED_OUT)
+    if sess.role not in identity.STAFF:
+        raise HTTPException(403, identity.NOT_ALLOWED)
     _run_or_404(run_id)
     live = get_manager().ensure_live(run_id)
     after = max(after, int(request.headers.get("last-event-id", -1) or -1))
@@ -425,7 +462,7 @@ async def api_events(run_id: str, request: Request, after: int = -1, _=Depends(a
 
 
 # ---------------------------------------------------------------------------- tickets
-@app.get("/api/runs/{run_id}/tickets", dependencies=api)
+@app.get("/api/runs/{run_id}/tickets", dependencies=staff)
 def api_tickets(run_id: str):
     _run_or_404(run_id)
     rows = db.list_rows(run_id)
@@ -479,13 +516,13 @@ def _detail(run_id, tid):
     }
 
 
-@app.get("/api/runs/{run_id}/tickets/{ticket_id}", dependencies=api)
+@app.get("/api/runs/{run_id}/tickets/{ticket_id}", dependencies=staff)
 def api_ticket(run_id: str, ticket_id: int):
     _run_or_404(run_id)
     return _detail(run_id, ticket_id)
 
 
-@app.post("/api/runs/{run_id}/tickets/{ticket_id}/brief", dependencies=api)
+@app.post("/api/runs/{run_id}/tickets/{ticket_id}/brief", dependencies=staff)
 def api_regen_brief(run_id: str, ticket_id: int):
     run = _run_or_404(run_id)
     if run.get("model_free"):
@@ -495,7 +532,7 @@ def api_regen_brief(run_id: str, ticket_id: int):
     return {"queued": get_manager().briefs.enqueue(run_id, ticket_id, force=True)}
 
 
-@app.post("/api/runs/{run_id}/briefs/upgrade", dependencies=api)
+@app.post("/api/runs/{run_id}/briefs/upgrade", dependencies=staff)
 def api_upgrade_briefs(run_id: str):
     run = _run_or_404(run_id)
     if run.get("model_free") or not runner.model_status()["usable"]:
@@ -523,7 +560,7 @@ def _edit_problems(original, edited, recipient):
         raise HTTPException(503, str(e))
 
 
-def _apply_review(run_id, tid, state, text=None, note=None):
+def _apply_review(run_id, tid, state, text=None, note=None, session=None):
     rec = db.get_ticket(run_id, tid)
     if not rec:
         raise HTTPException(404, f"ticket {tid} not found")
@@ -539,6 +576,10 @@ def _apply_review(run_id, tid, state, text=None, note=None):
         raise HTTPException(409, "This reply was already sent and can't be changed.")
     if state == "approved" and BLOCK_APPROVE_FLAGS & flags:
         raise HTTPException(409, "flagged tickets cannot be approved here; a person must handle them")
+    if state in ("approved", "acknowledged"):
+        blocked = workflow.can_approve(session, run_id, tid, state, text=text)  # sign-off categories need the CFO
+        if blocked:
+            raise HTTPException(409, blocked)
     if state == "returned" and not (note or "").strip():
         raise HTTPException(400, "a reason is required when returning a reply")
     cur = db.get_review(run_id, tid)
@@ -554,23 +595,27 @@ def _apply_review(run_id, tid, state, text=None, note=None):
             raise HTTPException(422, "The edited reply can't be approved: it adds " + "; ".join(problems) + ". Remove that and try again.")
     db.save_review(run_id, tid, state, edited, (note or "").strip() or None)
     scheduler.on_review_change(run_id, tid, state)
+    if text is not None and edited is not None:
+        workflow.draft_changed(run_id, tid, session)  # remember the edit for "What was off?" and void a stale sign-off
 
 
-@app.put("/api/runs/{run_id}/review/{ticket_id}", dependencies=api)
-def api_review(run_id: str, ticket_id: int, body: ReviewBody):
+@app.put("/api/runs/{run_id}/review/{ticket_id}", dependencies=staff)
+def api_review(run_id: str, ticket_id: int, body: ReviewBody, session=Depends(staff_guard)):
     _run_or_404(run_id)
-    _apply_review(run_id, ticket_id, body.state, body.text, body.note)
+    _apply_review(run_id, ticket_id, body.state, body.text, body.note, session)
     get_manager().emit(run_id, "review", {"ticket_id": ticket_id, "state": body.state})
-    return _detail(run_id, ticket_id)
+    out = _detail(run_id, ticket_id)
+    out["feedback_prompt"] = feedback.should_ask(run_id, ticket_id)
+    return out
 
 
-@app.post("/api/runs/{run_id}/review/bulk", dependencies=api)
-def api_review_bulk(run_id: str, body: BulkBody):
+@app.post("/api/runs/{run_id}/review/bulk", dependencies=staff)
+def api_review_bulk(run_id: str, body: BulkBody, session=Depends(staff_guard)):
     _run_or_404(run_id)
     done, skipped = [], []
     for tid in body.ids[:500]:
         try:
-            _apply_review(run_id, tid, body.state)
+            _apply_review(run_id, tid, body.state, session=session)
             done.append(tid)
         except HTTPException as e:
             skipped.append({"ticket_id": tid, "reason": e.detail})
@@ -608,8 +653,8 @@ def _reply_for_edit(run_id, tid):
     return rec, res, cur
 
 
-@app.put("/api/runs/{run_id}/review/{ticket_id}/draft", dependencies=api)
-def api_save_draft(run_id: str, ticket_id: int, body: DraftBody):
+@app.put("/api/runs/{run_id}/review/{ticket_id}/draft", dependencies=staff)
+def api_save_draft(run_id: str, ticket_id: int, body: DraftBody, session=Depends(staff_guard)):
     """Autosave the employee's edits to the reply. Never changes the review state."""
     _run_or_404(run_id)
     rec, res, cur = _reply_for_edit(run_id, ticket_id)
@@ -624,6 +669,8 @@ def api_save_draft(run_id: str, ticket_id: int, body: DraftBody):
         one_line = re.sub(r"\s+", " ", body.subject).strip()[:200]
         subject = None if (not one_line or one_line == default_subject) else one_line
     db.save_draft(run_id, ticket_id, text, subject)
+    if text is not None or subject is not None:
+        workflow.draft_changed(run_id, ticket_id, session)
     problems = []
     if text is not None:
         problems += _problems_safe(original, text, res.get("recipient"))
@@ -632,25 +679,27 @@ def api_save_draft(run_id: str, ticket_id: int, body: DraftBody):
     return {"saved": True, "edited": text is not None, "subject_edited": subject is not None, "problems": problems}
 
 
-@app.get("/api/mail/status", dependencies=api)
+@app.get("/api/mail/status", dependencies=staff)
 def api_mail_status():
     return _mail_info({})
 
 
-@app.post("/api/runs/{run_id}/tickets/{ticket_id}/send", dependencies=api)
-def api_send(run_id: str, ticket_id: int):
+@app.post("/api/runs/{run_id}/tickets/{ticket_id}/send", dependencies=staff)
+def api_send(run_id: str, ticket_id: int, session=Depends(staff_guard)):
     """Send the approved reply through the mail adapter. Recipient, subject and body all come from the server's
     own records, never from the request."""
     _run_or_404(run_id)
     try:
-        delivery.deliver_reply(run_id, ticket_id)
+        delivery.deliver_reply(run_id, ticket_id, actor=session.actor)
     except delivery.DeliveryError as e:
         raise HTTPException(e.status, e.message)
     get_manager().emit(run_id, "review", {"ticket_id": ticket_id, "state": "sent"})
-    return _detail(run_id, ticket_id)
+    out = _detail(run_id, ticket_id)
+    out["feedback_prompt"] = feedback.should_ask(run_id, ticket_id)
+    return out
 
 
-@app.get("/api/runs/{run_id}/export", dependencies=api)
+@app.get("/api/runs/{run_id}/export", dependencies=staff)
 def api_export(run_id: str, scope: str = "signed_off"):
     run = _run_or_404(run_id)
     reviews = db.review_states(run_id)
@@ -695,13 +744,13 @@ def _prevention_state(run_id, kind, key):
     return (db.prevention_states(run_id).get((kind, key)) or {}).get("state", "pending")
 
 
-@app.get("/api/runs/{run_id}/prevention", dependencies=api)
+@app.get("/api/runs/{run_id}/prevention", dependencies=staff)
 def api_prevention(run_id: str):
     _run_or_404(run_id)
     return _prevention_payload(run_id)
 
 
-@app.post("/api/runs/{run_id}/prevention/build", dependencies=api)
+@app.post("/api/runs/{run_id}/prevention/build", dependencies=staff)
 def api_prevention_build(run_id: str):
     run = _run_or_404(run_id)
     if run["status"] != "done":
@@ -713,7 +762,7 @@ def api_prevention_build(run_id: str):
     return _prevention_payload(run_id)
 
 
-@app.put("/api/runs/{run_id}/prevention/{kind}/{key}", dependencies=api)
+@app.put("/api/runs/{run_id}/prevention/{kind}/{key}", dependencies=staff)
 def api_prevention_set_state(run_id: str, kind: str, key: str, body: PreventionStateBody):
     _run_or_404(run_id)
     _prevention_item(run_id, kind, key)
@@ -725,7 +774,7 @@ def api_prevention_set_state(run_id: str, kind: str, key: str, body: PreventionS
     return _prevention_payload(run_id)
 
 
-@app.post("/api/runs/{run_id}/prevention/{kind}/{key}/send", dependencies=api)
+@app.post("/api/runs/{run_id}/prevention/{kind}/{key}/send", dependencies=staff)
 def api_prevention_send(run_id: str, kind: str, key: str):
     """Recipient, subject and body come from the stored build, never from the request, and are checked again here."""
     run = _run_or_404(run_id)
@@ -761,9 +810,9 @@ def api_prevention_send(run_id: str, kind: str, key: str):
 
 
 # ---------------------------------------------------------------------------- feature routers (chat, scheduled send, prevention)
-app.include_router(chat.router, dependencies=api)
-app.include_router(scheduler.router, dependencies=api)
-app.include_router(prevention.router, dependencies=api)
+app.include_router(chat.router, dependencies=staff)
+app.include_router(scheduler.router, dependencies=staff)
+app.include_router(prevention.router, dependencies=staff)
 
 # ---------------------------------------------------------------------------- Phase 3 routers (docs/phase3/CONTRACTS.md)
 # Each module's routes declare their own roles with identity.require_role(...). The per-launch token applies to all.
