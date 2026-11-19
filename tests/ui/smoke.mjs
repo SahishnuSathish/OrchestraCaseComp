@@ -231,7 +231,7 @@ test('3 sign-off: the Schedule button on a priority reply is refused in the page
   await toast(ulla, 'Sign-off requested').first().waitFor();
   // the thread should now say it is waiting for Elena (this is where the pane stays stale)
   await read.getByText(/Waiting for Elena Lockhart to sign off/).first().waitFor({ timeout: 5000 });
-}, { known: 'After a refused Schedule on a priority reply, Request sign-off succeeds (toast, server state signoff_requested) but the reading pane does not repaint: it keeps showing Request sign-off and Schedule, and no "Waiting for Elena Lockhart to sign off" notice, until the page is reloaded (views/inbox.js).' });
+});
 
 // ================================================================================================ 4. fraud
 test('4 fraud: banner, no composer, no approve @1280', async (t) => {
@@ -315,7 +315,7 @@ test('6 ahead: self-serve lookups are visible to an AP specialist too @1280', as
   await gotoApp(ulla, '#/ahead');
   await ulla.getByText(/tickets prevented/).first().waitFor();
   await ulla.getByText('Self-serve lookups').first().waitFor({ timeout: 4000 });
-}, { known: 'Ahead hides the Self-serve lookups line from AP specialists: views/ahead.js fills it from GET /api/team/overview, which is CFO-only, although /api/inbox/summary already returns self_serve_lookups to staff.' });
+});
 
 // ================================================================================================ 7. vendor
 test('7 vendor: Microsoft SSO by email lands on /direct, status chips, no totals @1280', async (t) => {
@@ -492,7 +492,7 @@ test('9 live arrivals: Sync now brings a new row in at the top @1280', async (t)
   const first = (await messageList(page).getByRole('option').first().innerText()).replace(/\s+/g, ' ');
   assert.ok(first.includes(`#${newest.ticket_id}`), `the newest thread #${newest.ticket_id} (${newest.received_at}) should be first in ${queue}; the top row is: ${first.slice(0, 90)}; the API's first row is #${rows[0].ticket_id} (${rows[0].received_at})`);
   if (newest.ticket_id === id) assert.equal(rows[0].ticket_id, id, `the new arrival #${id} is the newest thread, so it must be first`);
-}, { known: 'Depends on the time of day: threads are sorted by comparing received_at as text, and an arrival is stamped with the app clock in a local offset (for example 10:54:50-06:00) while dataset rows end in Z (for example 11:05:00Z), so an arrival made before 11:05 local time lands below older tickets.' });
+});
 
 test('9 live arrivals: held-back tickets also arrive on their own, and the open inbox shows them @1280', async (t) => {
   A.live = await startApp({ port: PORT_LIVE, cadence: [2, 3], label: 'live' });
