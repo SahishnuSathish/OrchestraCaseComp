@@ -82,7 +82,7 @@ export function mount(root, { route, session }) {
   });
   const evCol = h('aside', { class: 'ws-col ws-col-ev', 'aria-label': 'Ticket details' },
     h('div', { class: 'ws-ev-tabs' }, evTabs,
-      iconButton({ icon: 'x', label: 'Close details', size: 'sm', onClick: () => { if (window.matchMedia('(max-width: 1359px)').matches) { S.side = 'message'; paintLayout(); readCol.querySelector('.ws-side-toggle')?.select?.('message'); } else toggleEvidence(false); }, attrs: { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm ws-ev-hide' } })),
+      iconButton({ icon: 'x', label: 'Close details', size: 'sm', onClick: () => { if (window.matchMedia('(max-width: 1599px)').matches) { S.side = 'message'; paintLayout(); readCol.querySelector('.ws-side-toggle')?.select?.('message'); } else toggleEvidence(false); }, attrs: { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm ws-ev-hide' } })),
     h('div', { class: 'ws-ev-scroll' }, evBody, chatSlot));
   const shell = h('div', { class: 'ws-inbox' }, header, queuesEl, listCol, readCol, evCol, liveRegion);
   fill(root, shell);

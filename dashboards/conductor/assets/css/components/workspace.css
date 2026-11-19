@@ -141,7 +141,7 @@
 .ws-receipt-note { flex-basis: 100%; font-size: var(--fs-xs); color: var(--color-text-secondary); }
 
 /* ---- composer ---------------------------------------------------------------------------------------------- */
-.ws-work { display: flex; flex-direction: column; gap: var(--s-3); }
+.ws-work { display: flex; flex-direction: column; gap: var(--s-3); container: ws-work / inline-size; }
 .ws-composer { background: var(--color-surface); border: 1px solid var(--color-border-strong); }
 .ws-composer:focus-within { border-color: var(--color-text-secondary); }
 .ws-comp-head { display: flex; align-items: center; gap: var(--s-2); min-height: 38px; padding: 0 var(--s-4); font-size: var(--fs-sm); font-weight: var(--fw-semibold); border-bottom: 1px solid var(--color-border); background: var(--color-surface-subtle); }
@@ -152,17 +152,20 @@
 .ws-comp-row { display: flex; align-items: center; gap: var(--s-3); min-height: 42px; padding: 0 var(--s-4); border-bottom: 1px solid var(--color-border); }
 .ws-comp-label { flex: none; width: 56px; font-size: var(--fs-sm); color: var(--color-text-muted); }
 .ws-comp-recips { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
-.ws-recip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 28px; padding: 0 8px 0 2px; font-size: var(--fs-sm); background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.ws-recip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; white-space: nowrap; min-height: 28px; padding: 0 8px 0 2px; font-size: var(--fs-sm); background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
 .ws-recip .c-avatar-sm { width: 22px; height: 22px; font-size: 10px; }
-.ws-recip-email { color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-recip > span:not(.ws-recip-email) { flex: none; }
+.ws-recip-email { min-width: 0; color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-recip .c-avatar, .ws-recip-lock { flex: none; }
 .ws-recip-lock { width: 12px; height: 12px; color: var(--color-text-muted); }
-.ws-comp-from { flex: none; font-size: var(--fs-xs); color: var(--color-text-muted); }
+.ws-comp-from { flex: none; font-size: var(--fs-xs); color: var(--color-text-muted); white-space: nowrap; }
 .ws-comp-subject-input { flex: 1; min-width: 0; height: 40px; padding: 0; border: 0; background: transparent; font-size: var(--fs-md); color: var(--color-text); }
 .ws-comp-subject-input:focus-visible { outline: none; box-shadow: inset 0 -2px 0 var(--color-focus); }
 .ws-comp-toolbar { display: flex; align-items: center; gap: 2px; min-height: 38px; padding: 0 var(--s-2); border-bottom: 1px solid var(--color-border); }
+.ws-comp-toolbar .c-btn, .ws-comp-toolbar .c-btn-label { flex: none; white-space: nowrap; }
 .ws-comp-sep { width: 1px; height: 18px; margin: 0 var(--s-1); background: var(--color-border); }
 .ws-comp-spacer { flex: 1; }
-.ws-comp-plain { font-size: var(--fs-xs); color: var(--color-text-muted); padding-right: var(--s-2); border-right: 1px solid var(--color-border); margin-right: var(--s-2); }
+.ws-comp-plain { white-space: nowrap; font-size: var(--fs-xs); color: var(--color-text-muted); padding-right: var(--s-2); border-right: 1px solid var(--color-border); margin-right: var(--s-2); }
 .ws-comp-save { font-size: var(--fs-xs); color: var(--color-text-secondary); padding-right: var(--s-2); white-space: nowrap; }
 .ws-comp-save[data-state="error"] { color: var(--color-risk-text); }
 .ws-comp-body {
@@ -183,8 +186,10 @@
 .ws-schedule-slot { padding: 0 var(--s-4) var(--s-3); }
 
 .ws-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--s-4); }
-.ws-actions-buttons { display: flex; flex-wrap: wrap; gap: var(--s-2); }
-.ws-actions-status { display: flex; align-items: center; min-width: 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+/* The buttons stay on one line; the status line (a reason or a waiting badge) takes the next line when it does not fit. */
+.ws-actions-buttons { display: flex; flex-wrap: nowrap; gap: var(--s-2); }
+.ws-actions-buttons .c-btn, .ws-actions-buttons .c-btn-label { flex: none; white-space: nowrap; }
+.ws-actions-status { flex: 1 1 240px; display: flex; align-items: center; min-width: 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
 .ws-actions-error { flex-basis: 100%; display: flex; align-items: flex-start; gap: 6px; font-size: var(--fs-sm); color: var(--color-risk-text); }
 .ws-actions-error .icon { flex: none; width: 15px; height: 15px; margin-top: 2px; }
 .ws-why { font-size: var(--fs-sm); color: var(--color-text-secondary); }
@@ -293,6 +298,14 @@
 .ws-doc-frame { flex: 1; width: 100%; min-height: 60vh; border: 1px solid var(--color-border); background: var(--p-white); }
 .ws-skipped { display: flex; flex-direction: column; gap: var(--s-2); font-size: var(--fs-sm); }
 .ws-skipped li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: var(--s-3); }
+
+/* (Kept last so it wins over the base rules.) A narrow reading column (1024 to about 1180, or a phone): buttons may wrap, and the toolbar keeps its icons only. */
+@container ws-work (max-width: 599px) {
+  .ws-actions-buttons { flex-wrap: wrap; }
+  .ws-comp-plain { display: none; }
+  .ws-comp-toolbar .c-btn-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .ws-comp-row .ws-comp-from { display: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .ws-row.is-new .ws-row-link { animation: none; }
