@@ -104,7 +104,7 @@ export function mount(root, { route, ctx }) {
     resultLine.textContent = describe();
     more.replaceChildren(shown < rows.length
       ? button({ label: 'Show more invoices', variant: 'secondary', icon: 'chev-down', onClick: showMore })
-      : null);
+      : '');
   }
 
   function showMore() {

@@ -15,7 +15,7 @@ import * as documentsView from './views/documents.js';
 import * as updatesView from './views/updates.js';
 
 const NEXT_KEY = 'conductor.direct.next';   // where a signed-out visitor was headed (sessionStorage, this tab only)
-const TITLES = { invoices: 'Invoices', messages: 'Messages', documents: 'Documents and W-9', updates: 'Updates' };
+const TITLES = { invoices: 'Invoices', messages: 'Messages', documents: 'Documents & W-9', updates: 'Updates' };
 const VIEWS = { invoices: invoicesView, messages: messagesView, documents: documentsView, updates: updatesView };
 
 // The phone nav shows a short label; screen readers always get the full one.
