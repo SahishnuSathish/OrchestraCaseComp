@@ -1,107 +1,166 @@
-/* Conductor design tokens. Semantic names only: components never use raw hex. Light workspace; the navigation rail is the one dark surface (--ink). */
+/* Orchestra Conductor design tokens.
+   Three layers: primitive (raw brand values) -> semantic (what a value is for) -> component (one control's knobs).
+   Components and views use semantic or component tokens only. Raw hex lives in the primitive layer and nowhere else.
+   Contrast (WCAG 2.2) was measured for every text pair named below; the ratio is noted beside it.
+   Shape: surfaces are square (radius 0). Controls, inputs and badges round to 2px at most. Hairlines, not shadows;
+   a shadow marks a floating layer only (menu, toast, modal). Color carries status meaning only:
+   green = settled, navy = scheduled, peach = waiting, crimson = risk.
+   The legacy names at the end keep the existing views and the old vendor portal (dashboards/vendor_portal/page.py) working. */
 :root {
   color-scheme: light;
 
-  /* paper surfaces */
-  --bg: #f2f4f1;
-  --surface: #ffffff;
-  --surface-2: #fafbfa;
-  --surface-hover: #f3f6f4;
-  --border: #e1e6e2;
-  --border-strong: #c9d2cd;
+  /* ======================================================================== 1. primitive: the Orchestra palette */
+  --p-ink: #222222;
+  --p-grey-800: #333333;
+  --p-grey-600: #555555;
+  --p-grey-500: #666666;
+  --p-grey-450: #8c8c8c;
+  --p-grey-400: #bdbdbd;
+  --p-grey-300: #d8d8d8;
+  --p-grey-200: #e6e6e6;
+  --p-paper: #efefef;
+  --p-grey-50: #f7f7f7;
+  --p-white: #ffffff;
 
-  /* text (all >= 4.5:1 on --surface and --bg) */
-  --text: #0f1715;
-  --text-2: #4e5d58;
-  --text-3: #5d6b66;
-  --text-on-accent: #ffffff;
+  --p-green-950: #182404;
+  --p-green-900: #223307;   /* Orchestra green */
+  --p-green-800: #2e4410;
+  --p-green-700: #3a5617;
+  --p-green-600: #2e6b12;
+  --p-green-300: #b8c7ab;
+  --p-green-200: #c9f2b1;
+  --p-mint: #e7ffd9;
+  --p-mint-50: #f3ffec;
 
-  /* accent: teal on light surfaces. #0d7a6f is AA for text on white; --ring is for focus and large graphics only */
-  --accent: #0d7a6f;
-  --accent-hover: #0a655c;
-  --accent-press: #08524b;
-  --accent-tint: #e2f5f1;
-  --accent-border: #b6e3da;
-  --accent-ink: #0a5f56; /* text on --accent-tint */
-  --ring: #0d9488;
+  --p-navy-950: #143452;
+  --p-navy-900: #1f4c76;    /* navy */
+  --p-navy-800: #183c5e;
+  --p-navy-200: #b9cfe2;
+  --p-navy-100: #d3e2ee;
+  --p-navy-50: #eaf1f7;
+  --p-sky: #b5e6ec;
+  --p-sky-50: #e4f1f5;
+  --p-slate: #27455c;
 
-  /* status: always paired with an icon and text, never color alone */
-  --success: #1b6a3e;
-  --success-tint: #e3f4e9;
-  --success-border: #bfe3cc;
-  --warning: #8a5409;
-  --warning-tint: #fbefd5;
-  --warning-border: #eed49c;
-  --danger: #a8261c;
-  --danger-tint: #fcebe8;
-  --danger-border: #f1c3bd;
-  --note: #4338ca; /* internal notes */
-  --note-tint: #ecebfc;
-  --neutral-tint: #eaeeeb;
-  --track: #e6ebe8; /* segmented-control track */
+  --p-peach: #fcc4ab;
+  --p-peach-200: #f6c9b4;
+  --p-peach-50: #fde7dc;
+  --p-peach-ink: #7a3417;
 
-  /* outcome chart colors: marks and swatches only (>= 3:1 on white, separable for colour-blind viewers), never text */
-  --viz-reply: #0d9488;
-  --viz-note: #5b5bd6;
-  --viz-none: #b8860b;
-  --viz-failed: #c4321f;
+  --p-crimson: #a53548;
+  --p-crimson-800: #8f2a3c;
+  --p-crimson-100: #f0ccd3;
+  --p-crimson-50: #f9e8eb;
 
-  /* ink rail: the dark navigation surface and its mint signal */
-  --ink: #0b1210;
-  --ink-2: #111b18;
-  --ink-3: #17231f;
-  --ink-line: #1f2e29;
-  --rail-text: #9db0a9;
-  --rail-dim: #7b9188;
-  --rail-hover: #17231f;
-  --signal: #34e0bd;
-  --signal-ink: #052019;
-  --signal-tint: rgb(52 224 189 / 0.13);
-  --wordmark: #eefaf6;
-  --console-text: #c9e8df; /* model output console text on --ink */
-  --on-ink: #ffffff; /* text and icons on --ink, --accent and the dark toast */
-  --rail-strong: #f2fbf8;
-  --rail-active: #effffb;
-  --ink-hover: #1b2a25;
-  --ink-press: #26382f;
-  --danger-on-ink: #ff8a7d;
-  --veil: rgb(255 255 255 / 0.14); /* translucent chips on ink and accent fills */
-  --veil-border: rgb(255 255 255 / 0.3);
-  --veil-hover: rgb(255 255 255 / 0.1);
-  --live: #14b8a6;
-  --live-glow: rgb(20 184 166 / 0.2);
-  --quiet-hover: #e8ece9;
-  --input-border: #cfd8d3;
-  --danger-wash: #fff8f6;
-  --brief-text: #1f3a35;
-  --shadow-tab: 0 1px 2px rgb(15 23 21 / 0.1);
+  --p-shadow-rgb: 34 34 34;
 
-  /* tempo bar: progress drawn as beats */
-  --tick: #d7dfdb;
-  --tick-on: #0d9488;
-  --tick-rail: #26382f;
+  /* ======================================================================== 2. semantic */
+  /* surfaces */
+  --color-canvas: var(--p-paper);              /* the page behind panes */
+  --color-surface: var(--p-white);             /* panes, tables, cards */
+  --color-surface-subtle: var(--p-grey-50);    /* headers, footers */
+  --color-surface-hover: var(--p-grey-50);
+  --color-surface-selected: var(--p-mint-50);  /* the open row: a mint highlight, as in the chrome */
+  --color-surface-sunken: var(--p-grey-200);
 
-  /* shape: tags 7, controls 10, cards 14, dialogs 18, status pills fully round */
-  --r-sm: 7px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
-  --r-pill: 999px;
+  /* lines */
+  --color-border: var(--p-grey-300);           /* hairline 1px */
+  --color-border-strong: var(--p-grey-400);
+  --color-border-input: var(--p-grey-450);     /* 3.36:1 on white: non-text contrast for fields */
 
-  /* type: serif for people (page titles, wordmark), sans for work, mono for ids and rules */
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --font-sans: Geist, Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* text */
+  --color-text: var(--p-ink);                  /* 15.91:1 on white, 13.6:1 on paper */
+  --color-text-secondary: var(--p-grey-600);   /* 7.46:1 on white, 6.48:1 on paper */
+  --color-text-muted: var(--p-grey-500);       /* 5.74:1 on white, 4.99:1 on paper */
+  --color-text-inverse: var(--p-white);
+  --color-link: var(--p-navy-900);             /* 8.92:1 on white */
+  --color-link-hover: var(--p-navy-800);
+
+  /* action: the one main action is Orchestra green */
+  --color-action: var(--p-green-900);          /* white on it: 13.6:1 */
+  --color-action-hover: var(--p-green-800);
+  --color-action-press: var(--p-green-950);
+  --color-on-action: var(--p-white);
+
+  /* focus */
+  --color-focus: var(--p-navy-900);
+  --color-focus-on-dark: var(--p-mint);        /* on green or navy chrome: 12.76:1 / 8.37:1 */
+
+  /* brand chrome */
+  --color-chrome: var(--p-green-900);          /* Conductor top bar and rail */
+  --color-chrome-raised: var(--p-green-800);
+  --color-chrome-line: var(--p-green-700);
+  --color-chrome-text: var(--p-white);
+  --color-chrome-text-muted: var(--p-green-300);  /* 7.64:1 on green */
+  --color-chrome-highlight: var(--p-mint);
+  --color-direct: var(--p-navy-900);           /* Conductor: Direct chrome */
+  --color-direct-raised: var(--p-navy-800);
+  --color-direct-line: var(--p-navy-950);
+  --color-direct-text-muted: var(--p-navy-200);
+  --color-direct-highlight: var(--p-sky);
+  --color-ahead: var(--p-mint);                /* Conductor: Ahead accent */
+  --color-ahead-ink: var(--p-green-900);
+
+  /* status: always with an icon and words, never color alone */
+  --color-settled: var(--p-green-600);          /* marks and icons; 6.51:1 on white */
+  --color-settled-text: var(--p-green-900);     /* on settled-bg: 12.76:1 */
+  --color-settled-bg: var(--p-mint);
+  --color-settled-border: var(--p-green-200);
+  --color-scheduled: var(--p-navy-900);
+  --color-scheduled-text: var(--p-navy-900);    /* on scheduled-bg: 7.73:1 */
+  --color-scheduled-bg: var(--p-sky-50);
+  --color-scheduled-border: var(--p-sky);
+  --color-waiting: var(--p-peach);              /* marks only; never text */
+  --color-waiting-text: var(--p-peach-ink);     /* on waiting-bg: 7.57:1 */
+  --color-waiting-bg: var(--p-peach-50);
+  --color-waiting-border: var(--p-peach-200);
+  --color-risk: var(--p-crimson);               /* 6.56:1 on white */
+  --color-risk-text: var(--p-crimson-800);      /* on risk-bg: 6.93:1 */
+  --color-risk-bg: var(--p-crimson-50);
+  --color-risk-border: var(--p-crimson-100);
+  --color-neutral-text: var(--p-grey-600);
+  --color-neutral-bg: var(--p-grey-200);
+  --color-neutral-border: var(--p-grey-300);
+  --color-info-text: var(--p-navy-900);         /* reference chips (source, Zendesk #): navy, the link color */
+  --color-info-bg: var(--p-navy-50);
+  --color-info-border: var(--p-navy-100);
+
+  /* overlays */
+  --color-scrim: rgb(var(--p-shadow-rgb) / 0.48);
+  --shadow-float: 0 12px 32px rgb(var(--p-shadow-rgb) / 0.16), 0 1px 3px rgb(var(--p-shadow-rgb) / 0.12);
+
+  /* shape */
+  --radius-surface: 0;
+  --radius-control: 2px;
+  --radius-badge: 2px;
+  --radius-round: 50%;       /* status dots only */
+  --focus-ring: 2px solid var(--color-focus);
+  --focus-offset: 2px;
+
+  /* type */
+  --font-display: "Bricolage Grotesque", "Geist", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --font-sans: "Geist", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+  --fs-2xs: 11px;
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-md: 14px;
   --fs-lg: 16px;
   --fs-xl: 20px;
-  --fs-2xl: 32px;
-  --fs-display: 42px;
+  --fs-2xl: 28px;
+  --fs-3xl: 34px;
+  --fs-display: 40px;
   --fs-display-sm: 30px;
+  --lh-tight: 1.15;
+  --lh-snug: 1.35;
+  --lh-body: 1.5;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
 
-  /* 4/8 spacing */
+  /* space: 4/8 */
+  --s-0: 2px;
   --s-1: 4px;
   --s-2: 8px;
   --s-3: 12px;
@@ -109,36 +168,176 @@
   --s-5: 24px;
   --s-6: 32px;
   --s-7: 48px;
+  --s-8: 64px;
 
-  /* layout */
-  --rail-w: 248px;
-  --topbar-h: 54px;
-  --page-max: 1200px;
-  --page-pad: 36px;
-  --banner-h: 0px; /* set by the shell while a global banner is showing */
-  --queue-w: 320px;
-  --original-w: 380px;
-  --detail-w: 560px;
+  /* motion: 120 to 200 ms, no bounce. base.css removes movement under prefers-reduced-motion */
+  --dur-fast: 120ms;
+  --dur-base: 160ms;
+  --dur-slow: 200ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
-  /* elevation: borders do the work; one faint shadow for floating layers only */
-  --shadow-float: 0 8px 24px rgb(11 18 16 / 0.14), 0 1px 2px rgb(11 18 16 / 0.08);
-  --shadow-focus: 0 0 0 3px rgb(13 122 111 / 0.14);
-  --scrim: rgb(11 18 16 / 0.5);
-
-  /* z-index scale */
+  /* layers */
   --z-sticky: 10;
   --z-rail: 20;
+  --z-topbar: 30;
   --z-scrim: 40;
   --z-drawer: 45;
   --z-toast: 60;
   --z-menu: 90;
   --z-modal: 100;
+  --z-progress: 110;
 
-  /* motion */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --t-press: 120ms;
-  --t-hover: 150ms;
-  --t-pop: 160ms;
-  --t-modal: 200ms;
+  /* layout */
+  --topbar-h: 52px;          /* the staff shell sets this to the height of everything above <main> */
+  --chrome-h: 52px;          /* the green top bar itself */
+  --rail-w: 64px;
+  --tabstrip-h: 36px;
+  --page-max: 1200px;
+  --page-pad: 32px;
+  --banner-h: 0px;           /* set by the shell while a global banner is showing */
+  --queue-w: 320px;
+  --original-w: 380px;
+  --detail-w: 560px;
+
+  /* ======================================================================== 3. component */
+  --btn-h: 36px;
+  --btn-h-sm: 30px;
+  --btn-h-lg: 44px;
+  --btn-radius: var(--radius-control);
+  --btn-primary-bg: var(--color-action);
+  --btn-primary-bg-hover: var(--color-action-hover);
+  --btn-primary-bg-press: var(--color-action-press);
+  --btn-primary-text: var(--color-on-action);
+  --btn-secondary-bg: var(--color-surface);
+  --btn-secondary-bg-hover: var(--color-surface-subtle);
+  --btn-secondary-border: var(--color-border-input);
+  --btn-secondary-text: var(--color-text);
+  --btn-quiet-text: var(--color-text-secondary);
+  --btn-quiet-bg-hover: var(--color-surface-sunken);
+  --btn-danger-bg: var(--color-risk);
+  --btn-danger-bg-hover: var(--color-risk-text);
+  --btn-danger-text: var(--p-white);           /* 6.56:1 */
+
+  --input-h: 36px;
+  --input-bg: var(--color-surface);
+  --input-border: var(--color-border-input);
+  --input-border-focus: var(--color-focus);
+  --input-border-error: var(--color-risk);
+  --input-radius: var(--radius-control);
+  --input-placeholder: var(--color-text-muted);
+
+  --badge-h: 22px;
+  --badge-radius: var(--radius-badge);
+
+  --table-row-h: 44px;
+  --table-row-h-dense: 36px;
+  --table-head-bg: var(--color-surface-subtle);
+  --table-row-hover: var(--color-surface-hover);
+  --table-row-selected: var(--color-surface-selected);
+
+  --topbar-bg: var(--color-chrome);
+  --topbar-text: var(--color-chrome-text);
+  --topbar-muted: var(--color-chrome-text-muted);
+  --topbar-control-bg: var(--color-chrome-raised);
+  --topbar-control-line: var(--color-chrome-line);
+  --rail-bg: var(--color-surface);
+  --rail-icon: var(--color-text-secondary);
+  --rail-icon-active: var(--color-chrome);
+  --rail-item-hover: var(--color-surface-hover);
+  --rail-item-active-bg: var(--color-surface-selected);
+  --rail-indicator: var(--color-chrome);
+
+  --modal-w: 560px;
+  --modal-bg: var(--color-surface);
+  --menu-bg: var(--color-surface);
+  --toast-bg: var(--p-ink);
+  --toast-text: var(--p-white);                /* 15.91:1 */
+  --toast-accent: var(--p-mint);
+  --skeleton-base: var(--p-grey-200);
+  --skeleton-tip: var(--p-grey-50);
+  --progress-bar: var(--p-mint);
+  --avatar-bg: var(--p-navy-50);
+  --avatar-text: var(--p-navy-900);
+  --avatar-bg-chrome: var(--p-mint);
+  --avatar-text-chrome: var(--p-green-900);
+  --split-handle: var(--color-border);
+  --split-handle-active: var(--color-focus);
+
+  /* ======================================================================== legacy names (existing views, old portal) */
+  --bg: var(--color-canvas);
+  --surface: var(--color-surface);
+  --surface-2: var(--color-surface-subtle);
+  --surface-hover: var(--color-surface-hover);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --text: var(--color-text);
+  --text-2: var(--color-text-secondary);
+  --text-3: var(--color-text-muted);
+  --text-on-accent: var(--p-white);
+  --accent: var(--color-link);
+  --accent-hover: var(--color-link-hover);
+  --accent-press: var(--p-navy-950);
+  --accent-tint: var(--p-navy-50);
+  --accent-border: var(--p-navy-100);
+  --accent-ink: var(--p-navy-900);
+  --ring: var(--color-focus);
+  --success: var(--color-settled);
+  --success-tint: var(--color-settled-bg);
+  --success-border: var(--color-settled-border);
+  --warning: var(--color-waiting-text);
+  --warning-tint: var(--color-waiting-bg);
+  --warning-border: var(--color-waiting-border);
+  --danger: var(--color-risk);
+  --danger-tint: var(--color-risk-bg);
+  --danger-border: var(--color-risk-border);
+  --danger-wash: var(--color-risk-bg);
+  --note: var(--p-slate);
+  --note-tint: var(--p-navy-50);
+  --neutral-tint: var(--color-neutral-bg);
+  --track: var(--p-grey-200);
+  --viz-reply: var(--color-settled);
+  --viz-note: var(--p-navy-900);
+  --viz-none: var(--p-grey-450);
+  --viz-failed: var(--color-risk);
+  --ink: var(--p-ink);
+  --ink-2: var(--p-grey-800);
+  --ink-3: var(--p-grey-800);
+  --ink-line: var(--p-grey-600);
+  --ink-hover: var(--p-grey-800);
+  --ink-press: var(--p-ink);
+  --on-ink: var(--p-white);
+  --rail-text: var(--color-chrome-text-muted);
+  --rail-dim: var(--color-chrome-text-muted);
+  --rail-hover: var(--color-chrome-raised);
+  --rail-strong: var(--p-white);
+  --rail-active: var(--p-mint);
+  --signal: var(--p-mint);
+  --signal-ink: var(--p-green-900);
+  --signal-tint: var(--color-chrome-raised);
+  --wordmark: var(--p-white);
+  --console-text: var(--p-mint);
+  --danger-on-ink: var(--p-crimson-100);
+  --veil: rgb(255 255 255 / 0.14);
+  --veil-border: rgb(255 255 255 / 0.3);
+  --veil-hover: rgb(255 255 255 / 0.1);
+  --live: var(--color-settled);
+  --live-glow: var(--color-settled-border);
+  --quiet-hover: var(--color-surface-sunken);
+  --brief-text: var(--color-text);
+  --shadow-tab: none;
+  --shadow-focus: 0 0 0 1px var(--color-focus);
+  --scrim: var(--color-scrim);
+  --tick: var(--p-grey-300);
+  --tick-on: var(--color-action);
+  --tick-rail: var(--color-chrome-line);
+  --r-sm: var(--radius-control);
+  --r-md: var(--radius-control);
+  --r-lg: var(--radius-surface);
+  --r-xl: var(--radius-surface);
+  --r-pill: var(--radius-badge);
+  --t-press: var(--dur-fast);
+  --t-hover: var(--dur-fast);
+  --t-pop: var(--dur-base);
+  --t-modal: var(--dur-slow);
 }

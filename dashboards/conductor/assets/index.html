@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="ap-token" content="__AP_TOKEN__">
   <title>Conductor</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2334e0bd'/%3E%3Cpolygon points='9,20.6 13.4,23 24.3,8.7 23.3,7.7' fill='%23052019'/%3E%3Ccircle cx='9.6' cy='22.4' r='3.2' fill='%23052019'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23223307'/%3E%3Cpolygon points='9.6,20.8 11.9,23.1 24.9,8.6 23.9,7.6' fill='%23e7ffd9'/%3E%3Crect x='6.6' y='21.4' width='5.2' height='5.2' transform='rotate(45 9.2 24)' fill='%23e7ffd9'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/shared/css/fonts.css">
   <link rel="stylesheet" href="/shared/css/tokens.css">
   <link rel="stylesheet" href="/static/css/base.css">
   <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/components/shell.css">
+  <link rel="stylesheet" href="/static/css/components/styleguide.css">
   <link rel="stylesheet" href="/static/css/views/runs.css">
   <link rel="stylesheet" href="/static/css/views/tickets.css">
   <link rel="stylesheet" href="/static/css/views/review.css">
@@ -27,7 +29,7 @@
   <link rel="stylesheet" href="/static/css/views/styleguide.css">
   <script type="module" src="/static/js/app.js"></script>
 </head>
-<body>
+<body class="c-staff">
   <!-- Lucide icon sprite (ISC license). One stroke weight, no emoji. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <symbol id="i-run" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></symbol>
@@ -92,44 +94,21 @@
 
   <a class="skip" href="#main">Skip to main content</a>
 
-  <div class="shell" id="shell">
-    <nav class="sidebar" id="sidebar" aria-label="Primary">
-      <div class="side-top">
-        <div class="brand">
-          <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" role="img" aria-label="Conductor" focusable="false">
-            <rect width="32" height="32" rx="9" fill="#34e0bd"/>
-            <path d="M25.4 14.6A8.6 8.6 0 0 1 17.6 24.4" fill="none" stroke="#052019" stroke-opacity=".38" stroke-width="1.7" stroke-linecap="round"/>
-            <polygon points="10,19.6 12.4,22 24.3,8.7 23.3,7.7" fill="#052019"/>
-            <circle cx="23.8" cy="8.2" r=".7" fill="#052019"/>
-            <circle cx="9.6" cy="22.4" r="2.8" fill="#052019"/>
-          </svg>
-          <span class="brand-text">Conductor</span>
-        </div>
-        <button class="rail-toggle" id="rail-toggle" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
-          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left-close"/></svg>
-        </button>
-        <button class="rail-toggle drawer-close" id="drawer-close" type="button" aria-label="Close menu" title="Close menu">
-          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>
-        </button>
+  <!-- Staff shell (shell.js): green top bar, section rail by role, ticket tabs, then the view in <main>. -->
+  <div class="c-app" id="app" aria-busy="true">
+    <header class="c-topbar" id="topbar"></header>
+    <nav class="c-rail" id="rail" aria-label="Sections"></nav>
+    <div class="c-work" id="work">
+      <div class="c-workhead" id="workhead">
+        <nav class="c-tabstrip" id="ticket-tabs" aria-label="Open tickets" hidden></nav>
+        <div class="c-subbar" id="subbar" hidden></div>
       </div>
-      <div class="side-body" id="side-body"></div>
-    </nav>
-    <div class="scrim" id="scrim" aria-hidden="true"></div>
-    <div class="main-col" id="main-col">
-      <header class="topbar" id="topbar">
-        <button class="btn btn-quiet btn-icon menu-btn" id="menu-btn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu">
-          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"/></svg>
-        </button>
-        <div class="crumbs-slot" id="crumbs"></div>
-        <div class="spacer"></div>
-        <div class="status-slot" id="status-area"></div>
-      </header>
       <div class="global-banners" id="banners"></div>
       <main id="main" tabindex="-1"></main>
     </div>
   </div>
 
-  <div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+  <div class="toasts" id="toasts" aria-hidden="true"></div>
   <div id="modal-root"></div>
   <noscript><p style="padding:24px">Conductor needs JavaScript.</p></noscript>
 </body>
