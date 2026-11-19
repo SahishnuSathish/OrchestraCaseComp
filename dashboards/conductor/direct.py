@@ -166,6 +166,11 @@ def status_chip(o):
             "label": LABELS["under_review" if code in DATED else code]}
 
 
+def dollar_style(text):
+    """The one money format Direct shows: 'USD 41,775.42' -> '$41,775.42'. Other currencies keep their code."""
+    return re.sub(r"(?<![A-Za-z])USD ([0-9][0-9,]*[.][0-9]{2})", lambda m: "$" + m.group(1), text)
+
+
 def answer_for(o):
     """The vendor-facing sentence for one classified bill, built exactly as status_service.lookup_status builds it.
     Returns (message, state). Anything it cannot say safely becomes the standard needs-review line."""
@@ -180,7 +185,7 @@ def answer_for(o):
     msg = f"{msg} {bal}" if bal else msg
     if egress_guard.check_outbound(msg, [o], [o["ref"]]) or not status_service._amounts_ok(msg, o):
         return status_service.NEEDS_REVIEW, o["outcome"]
-    return msg, o["outcome"]
+    return dollar_style(msg), o["outcome"]
 
 
 def _balance(o, code):

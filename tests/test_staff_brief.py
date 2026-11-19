@@ -103,10 +103,9 @@ class Validator(unittest.TestCase):
         bad = summarize.validate(bullets_for(f, Next="Escalate to Someone Else for approval."), f)
         self.assertTrue(any("who acts" in p for p in bad), bad)
 
-    def test_rejects_missing_retrieval_word(self):
-        f = FACTS[first(lambda b: b["decision"]["rule"] == "paid")["ticket_id"]]
-        bad = summarize.validate(bullets_for(f, Sources="NetSuite had the bill and the payment system had the payment."), f)
-        self.assertTrue(any("retrieval" in p for p in bad), bad)
+    def test_sources_text_has_no_retrieval_sentence(self):
+        for f in FACTS.values():
+            self.assertNotIn("Retrieval:", summarize.template_bullets(f)[1]["text"])
 
     def test_rejects_an_amount(self):
         f = FACTS[first(lambda b: b["decision"]["rule"] == "paid")["ticket_id"]]

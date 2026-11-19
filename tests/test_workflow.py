@@ -439,10 +439,10 @@ class Tier2(Base):
         self.assertEqual(r.status_code, 200, r.text)
         o = r.json()
         for k in ("queues", "aging", "first_reply", "follow_up_rate", "bottlenecks"):
-            self.assertEqual(o[k]["source"], "practice data, snapshot Nov 13", k)
+            self.assertEqual(o[k]["source"], "Records as of Nov 13", k)
         self.assertEqual(o["first_reply"]["baseline_days"], 1.5)
-        self.assertEqual(o["ahead"]["self_serve_lookups"]["source"], "practice data, snapshot Nov 13")
-        self.assertEqual(o["feedback"]["source"], "practice data, snapshot Nov 13")
+        self.assertEqual(o["ahead"]["self_serve_lookups"]["source"], "Records as of Nov 13")
+        self.assertEqual(o["feedback"]["source"], "Records as of Nov 13")
         self.assertEqual(self.c.get("/api/team/overview", headers=self.ulla).status_code, 403)
 
 

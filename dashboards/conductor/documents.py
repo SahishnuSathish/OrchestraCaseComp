@@ -50,9 +50,9 @@ def init_schema():
 
 # ---------------------------------------------------------------------------- masking
 def mask_account(value):
-    """Last 4 digits at most: '1234567890' -> '****7890'. Nothing usable -> '****'."""
+    """Last 4 digits at most: '1234567890' -> '••••7890'. Nothing usable -> '••••'."""
     digits = re.sub(r"\D", "", str(value or ""))
-    return "****" + digits[-4:] if len(digits) >= 4 else "****"
+    return "••••" + digits[-4:] if len(digits) >= 4 else "••••"
 
 
 def account_masked(payment):
@@ -144,13 +144,14 @@ def _remittance_doc(r):
         when = ("Settled", pay.get("custbody_settled_date") or pay.get("tranDate"))
     else:
         when = ("Released", pay.get("custbody_released_date") or pay.get("tranDate"))
-    acct = account_masked(pay) or "****"
+    acct = account_masked(pay)
+    method = pay.get("paymentMethod") or ""
     meta = [("Payment number", pay["tranId"]), ("Payment date", _date(pay.get("tranDate"))),
-            (when[0] + " on", _date(when[1])), ("Method", pay.get("paymentMethod") or ""),
-            ("Reference", pay.get("referenceNumber") or ""), ("Paid to bank account", acct)]
+            (when[0] + " on", _date(when[1])), ("Method", method),
+            ("Reference", pay.get("referenceNumber") or ""), ("Paid to bank account", acct or "")]
     lines = [(f"Invoice {b['tranId']}" + (f" - {b['memo']}" if b.get("memo") else ""), _money(b.get("userTotal"), b.get("currency")))
              for b in (r["applied"] or [bill])]
-    notes = ["Bank account details are masked. Only the last 4 digits are shown."]
+    notes = [] if acct else [f"Paid by {method or 'bank transfer'} to the bank account on file."]
     if status == "Released":
         notes.append("This payment has been released and has not settled yet. Settlement can take a few business days.")
     return {

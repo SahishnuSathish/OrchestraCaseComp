@@ -289,20 +289,8 @@ def _rec_phrase(r):
     return out
 
 
-def _retrieval_text(retrieval):
-    st = (retrieval or {}).get("status") or "complete"
-    if st == "partial":
-        return "Retrieval: partial (missing " + ", ".join((retrieval or {}).get("missing") or ["a record"]) + ")."
-    if st == "skipped":
-        return "Retrieval: skipped (stopped at the pre-checks)."
-    if st == "failed":
-        return "Retrieval: failed."
-    return "Retrieval: complete."
-
-
 def _sources_text(facts, limit=480):
-    """Per platform: what each lookup returned, in words, always ending with the retrieval status."""
-    ret = _retrieval_text(facts.get("retrieval"))
+    """Per platform: what each lookup returned, in words. The retrieval status stays in the facts, not in the text."""
     parts = []
     for g in facts["sources"]:
         names = []
@@ -316,8 +304,7 @@ def _sources_text(facts, limit=480):
         body += ". Records: " + "; ".join(_rec_phrase(r) for r in recs[:3]) + (f"; +{len(recs) - 3} more" if len(recs) > 3 else "")
     for h in facts.get("history") or []:
         body += f". Zendesk linked ticket #{h['id']} ({h['status']}{', answered' if h.get('answered') else ''})"
-    body = _clip(body.rstrip(".") + ".", limit - len(ret) - 1)
-    return f"{body} {ret}"
+    return _clip(body.rstrip(".") + ".", limit)
 
 
 def template_bullets(facts):
@@ -448,8 +435,6 @@ def _check_retrieval(text, facts):
     if not ret or not text:
         return []
     probs = []
-    if not re.search(r"\b" + ret["status"] + r"\b", text, re.I):
-        probs.append(f"Sources does not state the retrieval status ({ret['status']})")
     recs = facts.get("records") or []
     if recs and all(r.get("payment") in (None, "none") for r in recs) and re.search(
             r"payment[^.;]{0,25}\b(found|settled|released)\b|\b(found|settled|released)\b[^.;]{0,15}\bpayment\b", text, re.I) \
@@ -473,9 +458,8 @@ Write plain sentences, 25 words or fewer per bullet:
   and never use the word "send" unless next_action.kind is review_and_send or send_holding_and_escalate.
   If next_action.who_name is not empty, name that person.
 - watch: only if flags, an advisory, a failed draft check or priority apply; otherwise an empty string.
-In sources, describe what each record said using the records list (bill status, payment, run) and end with the
-retrieval status word from retrieval.status (complete, partial, failed or skipped). Do not say a payment or run was
-found when its value is none.
+In sources, describe what each record said using the records list (bill status, payment, run). Do not write a
+retrieval status sentence. Do not say a payment or run was found when its value is none.
 Do not mention bank details, links or email addresses."""
 
 SCHEMA = {
@@ -526,7 +510,7 @@ class OllamaSummarizer:
         finally:
             info["ms"] = round((time.perf_counter() - t0) * 1000)
         bullets = [{"label": "Issue", "text": (out.get("issue") or "").strip()},
-                   {"label": "Sources", "text": (out.get("sources") or "").strip()},
+                   {"label": "Sources", "text": re.sub(r"\s*Retrieval:[^.]*\.?\s*$", "", (out.get("sources") or "").strip(), flags=re.I)},
                    {"label": "Reply", "text": (out.get("reply") or "").strip()},
                    {"label": "Next", "text": (out.get("next") or "").strip()}]
         if (out.get("watch") or "").strip():
