@@ -17,7 +17,7 @@ export const SECTIONS = {
   team: { label: 'Team', icon: 'team', href: '#/team' },
   ahead: { label: 'Ahead', icon: 'ahead', href: '#/ahead', title: 'Conductor: Ahead' },
   'vendor-setup': { label: 'Vendor setup', short: 'Vendors', icon: 'vendor-setup', href: '#/vendor-setup' },
-  approver: { label: 'Waiting on you', short: 'Waiting', icon: 'approver', href: '#/approver' },
+  approver: { label: 'Approvals', icon: 'approver', href: '#/approver' },
   settings: { label: 'Settings', icon: 'settings', href: '#/settings' },
 };
 const RAIL = {
@@ -91,6 +91,8 @@ export function startShell({ session }) {
   };
   S.unread = S.events.filter((e) => !e.read).length;
   document.documentElement.dataset.role = session.role;
+  // A role with one destination (an approver) needs no section rail, and no bottom tab bar on a phone.
+  document.documentElement.toggleAttribute('data-no-rail', (RAIL[session.role] || []).length <= 1);
   renderTopbar();
   renderRail();
   renderTabs();
@@ -174,7 +176,8 @@ function renderConn() {
   const summary = allOk ? 'Zendesk, Outlook and NetSuite connected' : `Connection problem: ${list.filter((c) => c.status !== 'connected').map((c) => c.name).join(', ')}`;
   const btn = h('button', { class: `c-conn${allOk ? '' : ' has-problem'}`, type: 'button', 'aria-label': `${summary}. Show connections`, title: summary, 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
     list.map((c) => h('span', { class: 'c-conn-item' }, h('span', { class: `c-dot c-dot-${connTone(c.status)}`, 'aria-hidden': 'true' }), h('span', { class: 'c-conn-name' }, c.name))),
-    h('span', { class: 'c-conn-compact', 'aria-hidden': 'true' }, icon('plug'), h('span', { class: `c-dot c-dot-${allOk ? 'settled' : 'risk'}` })));
+    h('span', { class: 'c-conn-compact', 'aria-hidden': 'true' }, icon('plug'), h('span', { class: `c-dot c-dot-${allOk ? 'settled' : 'risk'}` }),
+      h('span', { class: 'c-conn-word' }, allOk ? 'Connected' : 'Check connections')));
   btn.addEventListener('click', () => {
     openMenu({
       anchor: btn, align: 'end', label: 'Connections', width: 320,
@@ -184,7 +187,7 @@ function renderConn() {
           h('span', { class: `c-dot c-dot-${connTone(c.status)}`, 'aria-hidden': 'true' }),
           h('div', { class: 'c-conn-row-text' },
             h('strong', null, c.name, h('span', { class: 'c-conn-state' }, c.status === 'connected' ? 'Connected' : c.status === 'syncing' ? 'Syncing' : 'Not connected')),
-            h('span', { class: 'mono' }, c.detail), h('span', null, c.scope),
+            h('span', { class: 'c-conn-detail' }, c.detail), h('span', null, c.scope),
             c.last_sync ? h('span', null, `Last sync ${relTime(c.last_sync)}`) : null)) })),
         { separator: true },
         { label: 'Manage connections', icon: 'plug', href: '#/connections' },
@@ -235,7 +238,7 @@ function openTray() {
           h('span', { class: 'c-tray-text' }, h('span', null, e.summary || e.type), h('time', null, timeOf(e))),
           e.read ? null : h('span', { class: 'sr-only' }, 'Unread')))))
       : h('div', { class: 'c-tray-empty' }, icon('bell'), h('strong', null, 'No notifications yet'), h('span', null, 'Arrivals, escalations and replies that need you show up here.')),
-    h('footer', { class: 'c-tray-foot' }, 'Keeps the last 50 updates for this window.'));
+    h('footer', { class: 'c-tray-foot' }, 'Recent updates'));
   tray.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); closeTray({ refocus: true }); } });
   document.body.append(tray);
   document.addEventListener('pointerdown', onTrayOutside, true);
@@ -325,6 +328,7 @@ let railSig = '';
 function renderRail() {
   const role = S.session.role;
   const items = RAIL[role] || [];
+  if (items.length <= 1) { mount($('#rail')); return; }
   const routeName = S.route?.name;
   const active = SECTION_OF[routeName] || routeName;
   const sig = `${role}|${active}`;

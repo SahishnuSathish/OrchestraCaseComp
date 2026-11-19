@@ -55,7 +55,7 @@ export function openVendorSignIn({ provider = 'microsoft', onUseCode } = {}) {
     last && !error ? h('div', { class: 'hub-last' },
       h('p', { class: 'hub-last-label' }, 'Last used on this browser'),
       h('div', { class: 'hub-last-row' },
-        h('button', { class: 'hub-last-account', type: 'button', onclick: () => stepChecking(last) }, avatar({ name: last.split('@')[0], size: 'sm' }), h('span', { class: 'mono' }, last)),
+        h('button', { class: 'hub-last-account', type: 'button', onclick: () => stepChecking(last) }, avatar({ name: last.split('@')[0], size: 'sm' }), h('span', { class: 'hub-email' }, last)),
         h('button', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm', type: 'button', 'aria-label': `Forget ${last} on this browser`, title: 'Forget on this browser', onclick: (e) => { forgetEmail(); e.currentTarget.closest('.hub-last').remove(); f.control.focus(); } }, icon('x')))) : null,
     f,
     h('p', { class: 'hub-provider-note' }, `Use the ${p.account} you use with Orchestra.`),
@@ -70,7 +70,7 @@ export function openVendorSignIn({ provider = 'microsoft', onUseCode } = {}) {
   async function stepChecking(email) {
     mount(body, h('div', { class: 'hub-provider-wait', role: 'status' },
       h('h2', { class: 'hub-provider-title' }, 'Signing you in'),
-      h('p', { class: 'hub-provider-sub mono' }, email),
+      h('p', { class: 'hub-provider-sub hub-email' }, email),
       h('div', { class: 'hub-provider-spin' }, h('span', { class: 'c-spinner', 'aria-hidden': 'true' }), h('span', null, 'Checking your account'))));
     let answer = null;
     try {
@@ -161,7 +161,7 @@ export function codePanel({ onBack } = {}) {
           setFieldError(code, err.status === 401 ? 'That code is not valid or has expired.' : (err.message || 'Try again in a moment.'));
           code.control.select();
         }
-      } }, h('p', { class: 'hub-code-to' }, 'Code sent for ', h('span', { class: 'mono' }, sentTo.email)), code, verify,
+      } }, h('p', { class: 'hub-code-to' }, 'Code sent for ', h('span', { class: 'hub-email' }, sentTo.email)), code, verify,
       h('button', { class: 'hub-link', type: 'button', onclick: () => { closeInbox(); form.hidden = false; mount(stage); email.control.focus(); } }, 'Use a different email or invoice')));
     code.control.addEventListener('input', () => setFieldError(code, null));
     code.control.focus();
@@ -185,11 +185,17 @@ function showInbox(msg) {
       h('button', { class: 'hub-inbox-close', type: 'button', 'aria-label': 'Close inbox', onclick: closeInbox }, icon('x'))),
     h('div', { class: 'hub-inbox-msg', role: 'status', 'aria-live': 'polite' },
       h('div', { class: 'hub-inbox-from' }, lockup({ product: 'direct', tone: 'light', orchestra: false, size: 'sm' })),
-      h('p', { class: 'hub-inbox-meta' }, h('strong', null, 'Orchestra Accounts Payable'), h('span', { class: 'mono' }, 'ap@orchestra-mock.example')),
+      h('p', { class: 'hub-inbox-meta' }, h('strong', null, 'Orchestra Accounts Payable'), h('span', { class: 'hub-email' }, 'ap@orchestra-mock.example')),
       h('p', { class: 'hub-inbox-subject' }, msg.subject || 'Your Orchestra sign-in code'),
-      h('p', { class: 'hub-inbox-to' }, 'To ', h('span', { class: 'mono' }, msg.to)),
+      h('p', { class: 'hub-inbox-to' }, 'To ', h('span', { class: 'hub-email' }, msg.to)),
       h('p', { class: 'hub-inbox-body' }, 'Your sign-in code is'),
       h('p', { class: 'hub-inbox-code', 'aria-label': `Code ${String(msg.code).split('').join(' ')}` }, msg.code),
       h('p', { class: 'hub-inbox-body' }, 'It expires in 10 minutes. If you did not ask for it, you can ignore this email.')));
   (document.querySelector('.hub-signin-inner') || document.body).append(inboxEl);
+  // Bring the whole message into view (it lands under the card, below the fold on a phone and on short desktop screens).
+  const el = inboxEl;
+  const still = document.hidden || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' });
+  // If a smooth scroll did not run (some browsers skip it in a background window), settle it directly.
+  setTimeout(() => { if (el.isConnected && el.getBoundingClientRect().bottom > window.innerHeight) el.scrollIntoView({ block: 'nearest' }); }, 700);
 }

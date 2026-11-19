@@ -57,7 +57,7 @@ function chooseCard() {
         h('p', null, 'See the status of the invoices you sent us, with the documents behind each answer.')),
       h('div', { class: 'hub-choice-actions' }, msBtn, gBtn),
       h('button', { class: 'hub-link', type: 'button', onclick: showCode }, icon('key'), 'Use a sign-in code instead')),
-    h('p', { class: 'hub-help' }, 'Need access? Write to Orchestra accounts payable at ', h('span', { class: 'mono' }, 'ap@orchestra-mock.example'), '.'));
+    h('p', { class: 'hub-help' }, 'Need access? Write to Orchestra accounts payable at ', h('span', { class: 'hub-email' }, 'ap@orchestra-mock.example'), '.'));
 }
 
 function showChoose({ focus = false } = {}) {

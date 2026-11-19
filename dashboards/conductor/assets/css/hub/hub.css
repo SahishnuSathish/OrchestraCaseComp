@@ -50,6 +50,7 @@
 .hub-link .icon { width: 14px; height: 14px; }
 .hub-link:hover { text-decoration: underline; text-underline-offset: 2px; }
 .hub-help { margin-top: 28px; font-size: var(--fs-xs); color: var(--color-text-muted); }
+.hub-email { overflow-wrap: anywhere; } /* addresses use the interface font; mono is for IDs and amounts */
 
 .hub-back { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; margin: -8px 0 12px -2px; padding: 0; background: none; border: 0; color: var(--color-text-secondary); font-size: var(--fs-sm); font-weight: var(--fw-medium); }
 .hub-back:hover { color: var(--color-text); }
@@ -98,14 +99,14 @@ dialog.hub-provider.c-modal-sm { --modal-w: 440px; }
 .hub-account-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .hub-account-name { font-size: var(--fs-lg); font-weight: var(--fw-semibold); line-height: 1.3; }
 .hub-account-role { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--color-text); }
-.hub-account-email { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-account-email { font-size: var(--fs-sm); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hub-account-go { color: var(--color-text-muted); }
 
 .hub-last { display: flex; flex-direction: column; gap: 6px; }
 .hub-last-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--color-text-muted); }
 .hub-last-row { display: flex; align-items: center; gap: 4px; border: 1px solid var(--color-border); }
 .hub-last-account { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; background: transparent; border: 0; text-align: left; font-size: var(--fs-sm); color: var(--color-text); }
-.hub-last-account .mono { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-last-account .hub-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hub-last-account:hover { background: var(--color-surface-hover); }
 .hub-last-account:focus-visible { outline-offset: -2px; }
 
@@ -120,18 +121,16 @@ dialog.hub-provider.c-modal-sm { --modal-w: 440px; }
 .hub-handshake-who span { font-size: var(--fs-sm); color: var(--color-text-secondary); }
 .hub-steps { display: flex; flex-direction: column; gap: 12px; }
 .hub-step { display: flex; align-items: center; gap: 12px; font-size: var(--fs-md); color: var(--color-text-muted); transition: color var(--dur-base) ease; }
-.hub-step-node { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border: 1px solid var(--color-border-strong); color: var(--color-action); transition: background-color var(--dur-base) ease, border-color var(--dur-base) ease; }
-.hub-step-node .icon { width: 13px; height: 13px; stroke-width: 2.6; }
-.hub-step-node .c-spinner { width: 12px; height: 12px; }
-.hub-step.is-active { color: var(--color-text); }
-.hub-step.is-active .hub-step-node { border-color: transparent; }
-.hub-step.is-done { color: var(--color-text); }
-.hub-step.is-done .hub-step-node { background: var(--color-action); border-color: var(--color-action); color: var(--color-on-action); }
+.hub-step-node { display: grid; place-items: center; flex: none; width: 20px; height: 20px; color: var(--color-action); }
+.hub-step-node .icon { width: 18px; height: 18px; stroke-width: 2; }
+.hub-step-node .c-spinner { width: 14px; height: 14px; }
+.hub-step-dot { width: 6px; height: 6px; border-radius: var(--radius-round); background: var(--color-border-strong); }
+.hub-step.is-active, .hub-step.is-done { color: var(--color-text); }
 .hub-handshake-actions { display: flex; }
 
 /* ---- the simulated mailbox ------------------------------------------------------------------------- */
 .hub-inbox {
-  margin-top: var(--s-4);
+  margin-top: var(--s-4); scroll-margin: var(--s-4);
   background: var(--color-surface); border: 1px solid var(--color-border); border-top: 3px solid var(--color-direct); box-shadow: var(--shadow-float);
   opacity: 1; transform: none; transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
   @starting-style { opacity: 0; transform: translateY(8px); }
@@ -143,7 +142,7 @@ dialog.hub-provider.c-modal-sm { --modal-w: 440px; }
 .hub-inbox-msg { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
 .hub-inbox-from { margin-bottom: 6px; }
 .hub-inbox-meta { display: flex; flex-wrap: wrap; column-gap: 8px; font-size: var(--fs-sm); }
-.hub-inbox-meta .mono { color: var(--color-text-muted); font-size: var(--fs-xs); align-self: center; }
+.hub-inbox-meta .hub-email { color: var(--color-text-muted); font-size: var(--fs-xs); align-self: center; }
 .hub-inbox-subject { font-weight: var(--fw-semibold); }
 .hub-inbox-to { font-size: var(--fs-xs); color: var(--color-text-muted); margin-bottom: 8px; }
 .hub-inbox-body { font-size: var(--fs-sm); color: var(--color-text-secondary); }
@@ -164,8 +163,12 @@ dialog.hub-provider.c-modal-sm { --modal-w: 440px; }
 }
 @media (max-width: 520px) {
   .hub-card { padding: 24px 20px; }
-  .hub-provider-frame { padding: 16px 20px 20px; }
-  .hub-picker-list { margin: 0 -20px; padding: 0 20px; max-height: 56dvh; }
+  /* On a phone the provider window is a full-height sheet: the account list takes the space left, no blank band below */
+  dialog.hub-provider { height: 100dvh; max-height: 100dvh; margin: 0; border-width: 0; }
+  dialog.hub-provider .c-modal-frame { height: 100%; }
+  dialog.hub-provider .c-modal-body { display: flex; flex-direction: column; }
+  .hub-provider-frame { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 16px 20px max(20px, env(safe-area-inset-bottom)); }
+  .hub-picker-list { flex: 1; min-height: 0; max-height: none; margin: 0 -20px; padding: 0 20px; }
   .hub-handshake-card { padding: 20px; }
   .hub-brand .c-lockup-lg .c-lockup-parent, .hub-brand .c-lockup-lg .c-lockup-product { font-size: 20px; }
 }

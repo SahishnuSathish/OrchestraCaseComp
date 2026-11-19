@@ -72,7 +72,7 @@
 .c-conn-row-text { display: flex; flex-direction: column; gap: 1px; font-size: var(--fs-xs); color: var(--color-text-secondary); min-width: 0; }
 .c-conn-row-text strong { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-md); color: var(--color-text); }
 .c-conn-state { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--color-settled-text); }
-.c-conn-row .mono { color: var(--color-text); }
+.c-conn-detail { color: var(--color-text); overflow-wrap: anywhere; }
 
 /* user */
 .c-user {
@@ -86,6 +86,10 @@
 .c-user-caret { width: 14px; height: 14px; color: var(--topbar-muted); }
 
 /* ---- rail -------------------------------------------------------------------------------------------- */
+/* one destination (approvers): no rail on desktop, no bottom tab bar on a phone */
+html[data-no-rail] .c-app { grid-template-columns: minmax(0, 1fr); }
+html[data-no-rail] .c-rail { display: none; }
+html[data-no-rail] .c-staff { --bottombar-h: 0px; }
 .c-rail {
   position: sticky; top: var(--chrome-h); height: calc(100dvh - var(--chrome-h)); z-index: var(--z-rail);
   display: flex; flex-direction: column; justify-content: space-between; padding: var(--s-2) 0;
@@ -113,6 +117,12 @@
 .c-conn-compact .icon { width: 16px; height: 16px; }
 
 /* ---- work area --------------------------------------------------------------------------------------- */
+/* The standard page container. Every document-style view renders <div class="page …">; this sets one max width and one
+   gutter for all of them, so a page title's left edge is the same on every page (104 px from the window edge at 1440).
+   It deliberately outranks a view's own .xx-page { max-width } so views pick it up without being edited.
+   --page-pad comes from tokens.css (32 px, 16 px under 900 px via base.css). */
+.c-staff { --page-max: 1320px; }
+.c-staff .page { width: 100%; max-width: calc(var(--page-max) + var(--page-pad) * 2); margin-inline: auto; padding-inline: var(--page-pad); }
 .c-work { min-width: 0; display: flex; flex-direction: column; }
 .c-workhead { position: sticky; top: var(--chrome-h); z-index: var(--z-sticky); }
 .c-work > main { flex: 1; min-width: 0; padding-bottom: var(--bottombar-h); }
@@ -186,10 +196,11 @@
 .c-tray-foot { padding: var(--s-2) var(--s-4); font-size: var(--fs-xs); color: var(--color-text-muted); background: var(--color-surface-subtle); border-top: 1px solid var(--color-border); }
 
 /* ---- responsive ------------------------------------------------------------------------------------- */
+/* Under 1280 px the three named systems fold into one summary: a plug, one dot and a word ("Connected"), never bare dots */
 @media (max-width: 1279px) {
-  .c-conn-name { display: none; }
   .c-conn { gap: 6px; padding: 0 var(--s-2); }
-  .c-conn-item + .c-conn-item::before { display: none; }
+  .c-conn-item { display: none; }
+  .c-conn-compact { display: inline-flex; gap: 6px; }
 }
 @media (max-width: 1023px) {
   .c-user-name, .c-user-caret { display: none; }
@@ -210,8 +221,7 @@
   html.c-search-open .c-search-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; background: transparent; border: 0; color: var(--topbar-text); border-radius: var(--radius-control); }
   .c-search-kbd { display: none; }
   .c-conn { border-color: transparent; padding: 0 6px; }
-  .c-conn-item { display: none; }
-  .c-conn-compact { display: inline-flex; }
+  .c-conn-word { display: none; }
   .c-rail-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .c-rail-short { display: inline; }
   .c-rail {
