@@ -50,9 +50,9 @@ class MaskingTests(unittest.TestCase):
         documents._load = self._load
 
     def test_mask_helper(self):
-        self.assertEqual(documents.mask_account(ACCOUNT), "****9012")
-        self.assertEqual(documents.mask_account("12"), "****")
-        self.assertEqual(documents.mask_account(None), "****")
+        self.assertEqual(documents.mask_account(ACCOUNT), "••••9012")
+        self.assertEqual(documents.mask_account("12"), "••••")
+        self.assertEqual(documents.mask_account(None), "••••")
 
     def test_no_full_account_or_routing_number_in_html_or_pdf(self):
         for kind in ("remittance", "invoice"):
@@ -62,8 +62,8 @@ class MaskingTests(unittest.TestCase):
                 self.assertNotIn(ACCOUNT, text, f"{kind} {name}")
                 self.assertNotIn(ROUTING, text, f"{kind} {name}")
                 self.assertEqual(long_digit_runs(text), [], f"{kind} {name}: a long number appeared")
-        self.assertIn("****9012", documents.render("remittance", "50000", "html")[0].decode("utf-8"))
-        self.assertIn("****9012", pdf_text(documents.render("remittance", "50000", "pdf")[0]))
+        self.assertIn("••••9012", documents.render("remittance", "50000", "html")[0].decode("utf-8"))
+        self.assertRegex(pdf_text(documents.render("remittance", "50000", "pdf")[0]), r"Paid to bank account\n.{4}9012")
 
     def test_documents_carry_nothing_internal(self):
         html = documents.render("invoice", "50000", "html")[0].decode("utf-8").lower()
@@ -72,6 +72,15 @@ class MaskingTests(unittest.TestCase):
 
 
 class RemittanceRulesTests(unittest.TestCase):
+    def test_no_account_on_record_says_bank_account_on_file(self):
+        html = documents.render("remittance", "50000", "html")[0].decode("utf-8")
+        pdf = pdf_text(documents.render("remittance", "50000", "pdf")[0])
+        for text in (html, pdf):
+            self.assertRegex(text, r"Paid by \w+ to the bank account on file")
+            self.assertNotIn("last 4", text)
+            self.assertNotIn("****", text)
+            self.assertNotIn("masked", text)
+
     def test_remittance_for_settled_and_released(self):
         data, mime, name = documents.render("remittance", "50000", "pdf")  # Settled
         self.assertEqual(mime, "application/pdf")
