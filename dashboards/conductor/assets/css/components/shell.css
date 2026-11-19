@@ -108,6 +108,9 @@
 .c-rail-item[aria-current="page"] .icon { color: var(--rail-icon-active); stroke-width: 2; }
 .c-rail-item[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: var(--rail-indicator); }
 .c-rail-label { max-width: 64px; overflow-wrap: anywhere; }
+.c-rail-short { display: none; }
+.c-conn-compact { display: none; align-items: center; gap: 4px; }
+.c-conn-compact .icon { width: 16px; height: 16px; }
 
 /* ---- work area --------------------------------------------------------------------------------------- */
 .c-work { min-width: 0; display: flex; flex-direction: column; }
@@ -206,7 +209,11 @@
   html.c-search-open .c-search-icon { left: 22px; }
   html.c-search-open .c-search-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; background: transparent; border: 0; color: var(--topbar-text); border-radius: var(--radius-control); }
   .c-search-kbd { display: none; }
-  .c-conn { border-color: transparent; }
+  .c-conn { border-color: transparent; padding: 0 6px; }
+  .c-conn-item { display: none; }
+  .c-conn-compact { display: inline-flex; }
+  .c-rail-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .c-rail-short { display: inline; }
   .c-rail {
     position: fixed; inset: auto 0 0 0; top: auto; height: var(--bottombar-h); z-index: var(--z-drawer);
     flex-direction: row; justify-content: stretch; padding: 0 0 env(safe-area-inset-bottom);

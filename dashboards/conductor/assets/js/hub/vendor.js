@@ -174,7 +174,7 @@ export function codePanel({ onBack } = {}) {
     form, stage);
 }
 
-// The simulated mailbox: a small notification-style panel, so the flow is self-contained on this computer.
+// The simulated mailbox: a small notification-style panel under the card, so the flow is self-contained on this computer.
 let inboxEl = null;
 function closeInbox() { inboxEl?.remove(); inboxEl = null; }
 function showInbox(msg) {
@@ -191,5 +191,5 @@ function showInbox(msg) {
       h('p', { class: 'hub-inbox-body' }, 'Your sign-in code is'),
       h('p', { class: 'hub-inbox-code', 'aria-label': `Code ${String(msg.code).split('').join(' ')}` }, msg.code),
       h('p', { class: 'hub-inbox-body' }, 'It expires in 10 minutes. If you did not ask for it, you can ignore this email.')));
-  document.body.append(inboxEl);
+  (document.querySelector('.hub-signin-inner') || document.body).append(inboxEl);
 }

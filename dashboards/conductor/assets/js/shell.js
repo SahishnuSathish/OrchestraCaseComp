@@ -16,8 +16,8 @@ export const SECTIONS = {
   inbox: { label: 'Inbox', icon: 'inbox', href: '#/inbox' },
   team: { label: 'Team', icon: 'team', href: '#/team' },
   ahead: { label: 'Ahead', icon: 'ahead', href: '#/ahead', title: 'Conductor: Ahead' },
-  'vendor-setup': { label: 'Vendor setup', icon: 'vendor-setup', href: '#/vendor-setup' },
-  approver: { label: 'Waiting on you', icon: 'approver', href: '#/approver' },
+  'vendor-setup': { label: 'Vendor setup', short: 'Vendors', icon: 'vendor-setup', href: '#/vendor-setup' },
+  approver: { label: 'Waiting on you', short: 'Waiting', icon: 'approver', href: '#/approver' },
   settings: { label: 'Settings', icon: 'settings', href: '#/settings' },
 };
 const RAIL = {
@@ -173,7 +173,8 @@ function renderConn() {
   const allOk = list.every((c) => c.status === 'connected');
   const summary = allOk ? 'Zendesk, Outlook and NetSuite connected' : `Connection problem: ${list.filter((c) => c.status !== 'connected').map((c) => c.name).join(', ')}`;
   const btn = h('button', { class: `c-conn${allOk ? '' : ' has-problem'}`, type: 'button', 'aria-label': `${summary}. Show connections`, title: summary, 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
-    list.map((c) => h('span', { class: 'c-conn-item' }, h('span', { class: `c-dot c-dot-${connTone(c.status)}`, 'aria-hidden': 'true' }), h('span', { class: 'c-conn-name' }, c.name))));
+    list.map((c) => h('span', { class: 'c-conn-item' }, h('span', { class: `c-dot c-dot-${connTone(c.status)}`, 'aria-hidden': 'true' }), h('span', { class: 'c-conn-name' }, c.name))),
+    h('span', { class: 'c-conn-compact', 'aria-hidden': 'true' }, icon('plug'), h('span', { class: `c-dot c-dot-${allOk ? 'settled' : 'risk'}` })));
   btn.addEventListener('click', () => {
     openMenu({
       anchor: btn, align: 'end', label: 'Connections', width: 320,
@@ -333,7 +334,7 @@ function renderRail() {
   const link = (id) => {
     const s = SECTIONS[id];
     return h('a', { class: `c-rail-item${id === 'settings' ? ' is-foot' : ''}`, href: s.href, 'aria-current': active === id ? 'page' : null, title: s.title || s.label },
-      icon(s.icon), h('span', { class: 'c-rail-label' }, s.label));
+      icon(s.icon), h('span', { class: 'c-rail-label' }, s.short ? [h('span', { class: 'c-rail-full' }, s.label), h('span', { class: 'c-rail-short', 'aria-hidden': 'true' }, s.short)] : s.label));
   };
   mount($('#rail'), h('div', { class: 'c-rail-items' }, items.filter((i) => i !== 'settings').map(link)),
     items.includes('settings') ? h('div', { class: 'c-rail-foot' }, link('settings')) : null);
