@@ -405,7 +405,8 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
         row = {
             "ticket_id": tid, "from_name": ctx.get("sender_name"), "from_email": ctx.get("sender_email"), "company": m["company"],
             "subject": ctx.get("subject"), "snippet": m["snippet"],
-            "received_at": appclock.iso(st["arrived_at"]) if st.get("arrived_at") else ctx.get("received_at"), "source": "Outlook",
+            "received_at": appclock.iso(st["arrived_at"]) if st.get("arrived_at") else ctx.get("received_at"),
+            "source": "Conductor: Direct" if st.get("source") == "direct" else "Outlook",
             "zendesk_status": st.get("zendesk_status") or ctx.get("status") or "open", "outcome": m["outcome"],
             "intent": m["row"].get("intent"), "invoice_refs": list(m["refs"]), "flags": list(m["flags"]),
             "sender_verified": m["sender_verified"], "assignee": wf.get("assignee"), "workflow_state": wf.get("state") or "open",

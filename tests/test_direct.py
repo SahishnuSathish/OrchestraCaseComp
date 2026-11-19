@@ -465,8 +465,10 @@ class UpdatesAndPreferencesTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["body"], "Invoice X is approved.")
         self.assertEqual(set(rows[0]), {"at", "title", "body"})
-        self.assertEqual(pub.call_args.args[0], "direct.update")
-        self.assertEqual(pub.call_args.kwargs["vendor_id"], "3023")
+        # Other ON_NOTICE_SENT hooks publish too (inbox: ahead.sent), so look for Direct's event among all calls.
+        updates = [c for c in pub.call_args_list if c.args and c.args[0] == "direct.update"]
+        self.assertEqual(len(updates), 1)
+        self.assertEqual(updates[0].kwargs["vendor_id"], "3023")
         as_vendor("3010")
         self.assertEqual(client.get("/api/direct/updates").json()["rows"], [])
 
