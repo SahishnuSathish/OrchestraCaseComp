@@ -221,7 +221,9 @@ class ThreadAndQueueTests(InboxCase):
 
     def test_summary_shape_and_numbers(self):
         s = self.get("/api/inbox/summary")
-        self.assertEqual(set(s), {"run_id", "read", "drafts_ready", "action_needed", "no_reply", "held_back", "prevented_this_week", "connected_at"})
+        self.assertEqual(set(s), {"run_id", "read", "drafts_ready", "action_needed", "no_reply", "held_back", "prevented_this_week",
+                                  "self_serve_lookups", "connected_at"})
+        self.assertIsInstance(s["self_serve_lookups"], int)
         self.assertEqual(s["read"], len(file_tickets()) - 8)
         self.assertEqual(s["drafts_ready"] + s["action_needed"] + s["no_reply"], s["read"])
         self.assertEqual(s["held_back"], 8)

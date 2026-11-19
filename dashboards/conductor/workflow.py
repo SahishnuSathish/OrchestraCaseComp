@@ -1015,15 +1015,27 @@ def api_team_overview(request: Request, s=Depends(cfo_guard)):
     by_state, by_person, ages, replies, follow = {}, {}, [], [], 0
     rows = db.list_rows(run_id)
     now = appclock.now()
+    states = get_states([r["ticket_id"] for r in rows])
+    try:
+        import inbox
+        raw_ticket = inbox._raw_ticket   # the Zendesk ticket as it arrived (the stored record is a processed view)
+    except Exception:
+        raw_ticket = lambda _tid: None  # noqa: E731
     for r in rows:
         tid = r["ticket_id"]
-        st = get_state(tid)
+        st = states.get(tid) or get_state(tid)
         rv = reviews.get(tid) or {}
-        rec = db.get_ticket(run_id, tid)
-        ticket = rec["ticket"] if rec else {}
+        ticket = raw_ticket(tid)
+        if not ticket:
+            rec = db.get_ticket(run_id, tid)
+            ticket = rec["ticket"] if rec else {}
         created = _ts(ticket.get("created_at"))
         linked = next((f.get("value") for f in (ticket.get("custom_fields") or []) if f.get("id") == "linked_ticket_ids"), None)
-        follow += bool(linked)
+        # A follow-up (the case's "requesters follow up on more than 25%"): the requester wrote again on the same
+        # ticket, or the ticket links an earlier one about the same thing.
+        req = ticket.get("requester_id")
+        again = sum(1 for c in (ticket.get("comments") or []) if c.get("author_id") == req and c.get("public", True)) > 1
+        follow += bool(linked) or again
         done = rv.get("state") in ("sent", "acknowledged", "closed") or st["state"] in ("sent", "closed", "decided")
         state = "sent" if rv.get("state") == "sent" else st["state"]
         by_state[state] = by_state.get(state, 0) + 1
@@ -1049,7 +1061,7 @@ def api_team_overview(request: Request, s=Depends(cfo_guard)):
                           "waiting_now_median_days": waiting,
                           "beats_baseline": (med <= BASELINE_DAYS) if med is not None else None, "source": SOURCE}
     out["follow_up_rate"] = {"pct": round(100 * follow / len(rows), 1) if rows else None, "follow_ups": follow, "tickets": len(rows),
-                             "basis": "tickets that point to an earlier ticket", "source": SOURCE}
+                             "basis": "tickets where the requester wrote again, or that point to an earlier ticket", "source": SOURCE}
     out["bottlenecks"] = _bottlenecks(request, run_id)
     out["ahead"] = _ahead(run_id)
     return out

@@ -71,7 +71,7 @@ class Message:
 
 class OutboxMailer:
     mode = "simulated"
-    label = "Simulated: saved to the outbox folder, nothing leaves this computer"
+    label = "Outbox folder: each sent message is saved as an .eml file on this computer"
 
     def __init__(self, outbox=None):
         self.outbox = Path(outbox) if outbox else OUTBOX_DIR

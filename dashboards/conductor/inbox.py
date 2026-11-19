@@ -497,13 +497,21 @@ def _prevented_tickets(run_id, metas):
 def summary():
     run_id = inbox_run_id()
     metas = _meta(run_id)
-    arrived = set(_inbox_state())
+    # Only tickets that arrived after connect are left out of the backlog card. A write-back (send, decide) also adds an
+    # inbox_state row, but that ticket was still read while the person was away.
+    arrived = {t for t, st in _inbox_state().items() if st["arrived_at"]}
     backlog = [m for t, m in metas.items() if t not in arrived]
     c = {k: sum(1 for m in backlog if m["outcome"] == k) for k in ("draft_ready", "action_needed", "no_reply")}
     connected = db.get_setting(CONNECTED_KEY)
+    try:
+        import direct
+        lookups = direct.lookup_count()
+    except Exception:
+        lookups = 0
     return {"run_id": run_id, "read": len(backlog), "drafts_ready": c["draft_ready"], "action_needed": c["action_needed"],
             "no_reply": c["no_reply"], "held_back": len(_pending_ids(run_id)),
             "prevented_this_week": len(_prevented_tickets(run_id, metas)),
+            "self_serve_lookups": lookups,   # vendors who checked an invoice in Direct; never counted as prevented
             "connected_at": appclock.iso(connected) if connected else None}
 
 
