@@ -5,7 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **3 running**: `p3/smoke` (Sonnet, a7d3257b95365272b); polish review done (`docs/phase3/REVIEW.md`); four fix workers from `57d490e`: `p3/fix-inbox` (ab910f3ea7ca99902), `p3/fix-leadership` (a8f8589ef76c1d4b2), `p3/fix-hub-shell` (ac2417bc7be40a03b), `p3/fix-backend` (a9a846542d6e1d0f5). Merge each when it reports, gate, then smoke, final gate, HANDOFF. All five hit the usage limit ~12:40 and were resumed at 13:32 Nov 19 (same agent ids). Earlier: wave 2 was started (smoke rewrite on `p3/smoke`, then QA walk, polish, hand-off). Wave 2 was started (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
+- **HAND-OFF DONE** (Nov 19, 2026). Part A complete: all branches merged into `phase3/integration`; final gate green; see `HANDOFF.md`. Part B starts cold from this file and HANDOFF.md.
 - Wave 2 hit the usage limit early (all three were still reading code; reset 3:30 am). Resumed with SendMessage, same agent ids, at 23:55. (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
@@ -48,6 +48,7 @@ If the session was interrupted, these agents are gone: check each branch's `git 
 | After design-shell (wave 1 complete) | 383 run, **OK** (1 skip) | 75/75 | **100% / 100%** | Browser: hub → Microsoft picker → Ulla → handshake → `/app#/inbox`, no console errors | old suite retired |
 | After direct-ui (+fix `3ef75c6`) | 383 run, OK (1 skip) | 75/75 | 100% / 100% | | |
 | After wave 2 (all UI merged, + fixes `763bf72`, `b571416`) | 383 run, **OK** (1 skip) | **85/85** (router tests rewritten for the new routes) | **100% / 100%** | Browser (me): hub → Ulla → inbox → open #41478 → Approve & send → toast, Solved, Sent 1, receipt; Ahead page renders | p3/smoke being rewritten |
+| **Final (`61417f7`)** | **384 run, OK** (1 skip) | **85/85** | **100% / 100%** | app on 8790 with fresh state `conductor-p3-handoff` | **23/23** in 134 s (`tests/ui/smoke.mjs`) |
 | Seam | 218 run: 217 pass, 1 skip, 0 fail (the flaky test passed this time). One legitimate test change: `test_webapp.BrandTests` now reads `/app` (the workspace moved; `/` is the hub) | 75/75 | 100% / 100% | `/` hub, `/app`, `/direct`, `/api/health` all answer | not run: the old suite targets `/` as the workspace. Rewritten in wave 3 (`p3/smoke`) |
 
 Gate rule: **no new failures**. The flaky model-selection test is a known baseline issue, not to be masked.
@@ -68,7 +69,7 @@ Gate rule: **no new failures**. The flaky model-selection test is a known baseli
 - `workflow_state` is keyed by ticket id only, so Advanced → Reset now calls `workflow.reset_states()`; a rebuilt inbox no longer inherits old states.
 - `test_inbox` assignee-filter test updated to routed assignees (it assumed the workflow stub).
 
-## Open problems
+## Open problems (carried to Part B; details in HANDOFF.md section 5)
 
 - **User decision:** the word "Mock" in subsidiary names and `orchestra-mock.example` / `mailbox-mock.example` addresses comes from the data pack; not rewritten on screen (recipient chips must match records). Review items #1 and #2.
 
