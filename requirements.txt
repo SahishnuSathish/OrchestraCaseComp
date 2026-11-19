@@ -1,0 +1,7 @@
+# Conductor runtime (Python 3.13). Local only: nothing here calls a cloud service.
+fastapi>=0.141
+uvicorn>=0.53
+pydantic>=2.13
+httpx>=0.28        # FastAPI TestClient (tests)
+reportlab>=5.0     # invoice copies and remittance advice as PDF
+pypdf>=6.19        # reading uploaded W-9 PDFs

@@ -17,6 +17,7 @@ from starlette.testclient import TestClient  # noqa: E402
 import folder_dialog_tk  # noqa: E402
 import native_dialog  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 
 
 class HelperTests(unittest.TestCase):
@@ -171,7 +172,7 @@ class EndpointTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = {"x-ap-token": server.TOKEN}
+        cls.h = signin.headers()
 
     def post(self, start=""):
         return self.c.post("/api/fs/pick", json={"start": start}, headers=self.h)

@@ -17,10 +17,11 @@ db.init()
 
 import prevention  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from fastapi.testclient import TestClient  # noqa: E402
 
 DATA = ROOT / "data"
-H = {"x-ap-token": server.TOKEN}
+H = signin.headers()
 
 
 def finished_run(c):

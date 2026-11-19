@@ -25,6 +25,7 @@ db.init()
 import mailer  # noqa: E402
 import scheduler  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from fastapi.testclient import TestClient  # noqa: E402
 
 DATA = ROOT / "data"
@@ -43,7 +44,7 @@ class ScheduleTests(unittest.TestCase):
         db.DB_PATH = db.STATE_DIR / "app.db"
         db.init()
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = {"x-ap-token": server.TOKEN}
+        cls.h = signin.headers()
         r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False}, headers=cls.h)
         assert r.status_code == 200, r.text
         cls.rid = r.json()["run_id"]

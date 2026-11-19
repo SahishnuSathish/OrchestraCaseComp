@@ -13,10 +13,21 @@ import * as reviewView from './views/review.js';
 import * as preventView from './views/prevent.js';
 import * as settingsView from './views/settings.js';
 import * as notFoundView from './views/not-found.js';
+// Phase 3 views (docs/phase3/CONTRACTS.md section 12)
+import * as inboxView from './views/inbox.js';
+import * as escalationsView from './views/escalations.js';
+import * as teamView from './views/team.js';
+import * as approverView from './views/approver.js';
+import * as aheadView from './views/ahead.js';
+import * as vendorSetupView from './views/vendor-setup.js';
+import * as connectionsView from './views/connections.js';
+import * as styleguideView from './views/styleguide.js';
 
 const VIEWS = {
   runs: runsView, 'run-new': runNewView, overview: overviewView, tickets: ticketsView,
   review: reviewView, prevent: preventView, settings: settingsView, 'not-found': notFoundView,
+  inbox: inboxView, escalations: escalationsView, team: teamView, approver: approverView, ahead: aheadView,
+  'vendor-setup': vendorSetupView, connections: connectionsView, styleguide: styleguideView,
 };
 
 const root = document.documentElement;

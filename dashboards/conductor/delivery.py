@@ -12,6 +12,9 @@ import reply_checks
 
 _SEND_LOCK = threading.Lock()  # one send at a time: Send now and the scheduler can never both send the same reply
 
+# Phase 3 seam: called after every successful send as fn(run_id, ticket_id, actor, info). Never raises into a send.
+ON_SENT = []
+
 
 class DeliveryError(Exception):
     """The reply was not sent. `status` is the HTTP status Send now answers with."""
@@ -56,13 +59,19 @@ def prepare(run_id, ticket_id):
         raise DeliveryError(503, str(e))
     if problems:
         raise DeliveryError(422, "This reply can't be sent: it adds " + "; ".join(problems) + ". Reopen it and remove that.")
+    import workflow  # Phase 3: sign-off rules apply to Send now and to scheduled send alike
+    blocked = workflow.can_send(run_id, ticket_id, reply_hash(res["recipient"], subject, body_text))
+    if blocked:
+        raise DeliveryError(409, blocked)
+    import documents
     msg = mailer.Message(sender=mailer.default_sender(rec["ticket"].get("to")), to=res["recipient"], subject=subject,
-                         body=body_text, ticket_id=ticket_id)
+                         body=body_text, ticket_id=ticket_id, attachments=list(documents.attachments_for(run_id, ticket_id)))
     return msg
 
 
-def deliver_reply(run_id, ticket_id, expect_hash=None):
-    """Send the approved reply and record it as sent. With `expect_hash`, refuse if the reply no longer matches it."""
+def deliver_reply(run_id, ticket_id, expect_hash=None, actor=None):
+    """Send the approved reply and record it as sent. With `expect_hash`, refuse if the reply no longer matches it.
+    `actor` is {name, email} for a person's send, None for a scheduled send."""
     with _SEND_LOCK:
         msg = prepare(run_id, ticket_id)
         if expect_hash is not None and reply_hash(msg.to, msg.subject, msg.body) != expect_hash:
@@ -77,4 +86,9 @@ def deliver_reply(run_id, ticket_id, expect_hash=None):
         scheduler.on_sent(run_id, ticket_id)
     except Exception:
         pass
+    for hook in list(ON_SENT):
+        try:
+            hook(run_id, ticket_id, actor, info)
+        except Exception as e:  # a hook (write-back, Direct messages) must never undo or fail a send
+            print(f"[delivery] on_sent hook {getattr(hook, '__name__', hook)!r} failed: {type(e).__name__}: {e}", flush=True)
     return info

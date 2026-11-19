@@ -30,6 +30,7 @@ db.init()
 import local_model  # noqa: E402
 import runner  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 import summarize  # noqa: E402
 from fake_ollama import FakeOllama  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -61,7 +62,7 @@ class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = {"x-ap-token": server.TOKEN}
+        cls.h = signin.headers()
         cls.fake = FakeOllama(models=[A, B]).start()
 
     @classmethod
@@ -491,7 +492,7 @@ class CancelTests(Base):
     def open_stream(self):
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         conn.request("POST", "/api/model/test", json.dumps({"text": "Where is INV-9?"}),
-                     {"Content-Type": "application/json", "x-ap-token": server.TOKEN})
+                     {"Content-Type": "application/json", **signin.headers()})
         return conn, conn.getresponse()
 
     def test_disconnect_while_waiting_for_the_first_token(self):

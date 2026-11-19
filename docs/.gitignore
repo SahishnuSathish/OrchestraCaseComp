@@ -1,4 +1,6 @@
-# Documentation stays out of git. Only this file and README.md are tracked.
+# Documentation stays out of git. Only this file, README.md and the Phase 3 working docs are tracked.
 *
 !.gitignore
 !README.md
+!phase3/
+!phase3/**

@@ -20,12 +20,13 @@ import egress_guard  # noqa: E402
 import notices  # noqa: E402
 import rules  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from data_layer import FileBackend, Store  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from trace import NullTrace  # noqa: E402
 
 DATA = ROOT / "data"
-H = {"x-ap-token": server.TOKEN}
+H = signin.headers()
 STORE = Store(FileBackend(DATA))
 DEMO = notices.build_demo(STORE)
 

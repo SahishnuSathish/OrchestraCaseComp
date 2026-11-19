@@ -69,6 +69,10 @@ def init():
     import scheduler
     chat.init_schema()
     scheduler.init_schema()
+    # Phase 3 modules (docs/phase3/CONTRACTS.md): each creates its own tables.
+    import connectors, direct, documents, feedback, identity, inbox, live, w9, workflow  # noqa: E401
+    for mod in (identity, live, workflow, feedback, connectors, inbox, documents, direct, w9):
+        mod.init_schema()
 
 
 # Tables with a run_id column that delete_run() clears. Feature tables may not exist yet, so missing ones are skipped.

@@ -24,6 +24,7 @@ db.init()                               # (also when another test module already
 import runner  # noqa: E402
 import summarize  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from fastapi.testclient import TestClient  # noqa: E402
 
 DATA = ROOT / "data"
@@ -198,7 +199,7 @@ class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = {"x-ap-token": server.TOKEN}
+        cls.h = signin.headers()
         r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False}, headers=cls.h)
         assert r.status_code == 200, r.text
         cls.rid = r.json()["run_id"]
@@ -461,8 +462,9 @@ class LiveStateTests(unittest.TestCase):
 class BrandTests(unittest.TestCase):
     def test_page_and_app_are_named_conductor(self):
         c = TestClient(server.app, base_url="http://localhost")
-        html = c.get("/").text
+        html = c.get("/app").text  # Phase 3: "/" is the sign-in hub; the staff workspace is at /app
         self.assertIn("<title>Conductor</title>", html)
+        self.assertNotIn("AP Desk", c.get("/").text)
         self.assertNotIn("AP Desk", html)
         self.assertEqual(server.app.title, "Conductor")
 

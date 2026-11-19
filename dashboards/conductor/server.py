@@ -95,10 +95,27 @@ app.state.get_manager = get_manager  # for routers in other modules: request.app
 
 
 # ---------------------------------------------------------------------------- pages
+def _page(name):
+    html = (STATIC / name).read_text(encoding="utf-8")
+    return HTMLResponse(html.replace("__AP_TOKEN__", TOKEN))
+
+
 @app.get("/", response_class=HTMLResponse)
 def index():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
-    return HTMLResponse(html.replace("__AP_TOKEN__", TOKEN))
+    """The sign-in hub."""
+    return _page("hub.html")
+
+
+@app.get("/app", response_class=HTMLResponse)
+def staff_app():
+    """The staff workspace (Conductor)."""
+    return _page("index.html")
+
+
+@app.get("/direct", response_class=HTMLResponse)
+def direct_app():
+    """The vendor dashboard (Conductor: Direct)."""
+    return _page("direct.html")
 
 
 if SHARED.is_dir():
@@ -741,6 +758,25 @@ def api_prevention_send(run_id: str, kind: str, key: str):
 app.include_router(chat.router, dependencies=api)
 app.include_router(scheduler.router, dependencies=api)
 app.include_router(prevention.router, dependencies=api)
+
+# ---------------------------------------------------------------------------- Phase 3 routers (docs/phase3/CONTRACTS.md)
+# Each module's routes declare their own roles with identity.require_role(...). The per-launch token applies to all.
+import connectors  # noqa: E402
+import direct  # noqa: E402
+import documents  # noqa: E402
+import feedback  # noqa: E402
+import identity  # noqa: E402
+import inbox  # noqa: E402
+import live  # noqa: E402
+import w9  # noqa: E402
+import workflow  # noqa: E402
+
+for _mod in (identity, live, workflow, feedback, connectors, inbox, documents, direct, w9):
+    app.include_router(_mod.router, dependencies=api)
+
+# One clock for everything a person sees: the snapshot date with the real time of day.
+import appclock  # noqa: E402
+scheduler.set_clock(appclock.now)
 
 
 def main():

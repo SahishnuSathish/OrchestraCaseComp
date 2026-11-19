@@ -1,5 +1,7 @@
 // Thin fetch wrapper. The per-launch token is injected into index.html by the server.
 // Connection health is reported through onApiState so the shell can show "restarted" / "can't reach" banners.
+import { headers as sessionHeaders } from './http.js'; // token + this tab's session (Phase 3)
+
 const token = document.querySelector('meta[name="ap-token"]')?.content || '';
 
 export class ApiError extends Error {
@@ -52,7 +54,7 @@ async function send(method, path, body, { signal, timeout = 30000 } = {}) {
   try {
     const res = await fetch(path, {
       method, signal: ctl.signal,
-      headers: { 'X-AP-Token': token, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
+      headers: sessionHeaders(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     return res;

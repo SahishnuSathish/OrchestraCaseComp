@@ -43,6 +43,7 @@ class Message:
     body: str
     ticket_id: int = 0
     headers: dict = field(default_factory=dict)
+    attachments: list = field(default_factory=list)  # [(filename, mime, bytes)], rendered from records only
 
     def validate(self):
         for label, addr in (("sender", self.sender), ("recipient", self.to)):
@@ -61,6 +62,10 @@ class Message:
         for k, v in self.headers.items():
             m[k] = re.sub(r"[\r\n]+", " ", str(v))
         m.set_content(self.body)
+        for filename, mime, data in self.attachments:
+            maintype, _, subtype = (mime or "application/octet-stream").partition("/")
+            safe = re.sub(r"[^A-Za-z0-9._-]+", "_", filename or "attachment")[:100]
+            m.add_attachment(data, maintype=maintype, subtype=subtype or "octet-stream", filename=safe)
         return m
 
 

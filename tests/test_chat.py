@@ -28,6 +28,7 @@ db.init()
 import chat  # noqa: E402
 import local_model  # noqa: E402
 import server  # noqa: E402
+import signin  # noqa: E402  (Phase 3: token + a signed-in session)
 from fake_ollama import FakeOllama  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -76,7 +77,7 @@ class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = {"x-ap-token": server.TOKEN}
+        cls.h = signin.headers()
         cls.fake = FakeOllama(models=[A]).start()
         cls.fake._content = lambda body: REPLY
         seed()
@@ -299,7 +300,7 @@ class CancelTests(Base):
         self.fake.token_delay = 0.2
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         conn.request("POST", self.url, json.dumps({"message": "Tell me more."}),
-                     {"Content-Type": "application/json", "x-ap-token": server.TOKEN})
+                     {"Content-Type": "application/json", **signin.headers()})
         resp = conn.getresponse()
         self.assertEqual(resp.status, 200)
         seen = b""

@@ -50,6 +50,14 @@ export function parse(hash, opts = {}) {
 
   if (!seg.length || (a === 'run' && seg.length === 1)) return { name: 'runs', query, redirect: '#/runs' };
   if (a === 'settings' && seg.length === 1) return { name: 'settings', query };
+  // Phase 3 routes (docs/phase3/CONTRACTS.md section 12). workspace-ui owns this file in wave 2.
+  if (a === 'settings' && b === 'advanced' && seg.length === 2) return { name: 'connections', section: 'advanced', query };
+  if ((a === 'inbox' || a === 'escalations') && seg.length <= 2) {
+    if (b !== undefined && !TICKET_ID.test(b)) return notFound(query);
+    return { name: a, ticketId: b === undefined ? undefined : Number(b), query };
+  }
+  if (a === 'vendor-setup' && seg.length <= 2) return { name: 'vendor-setup', vendorId: b, query };
+  if (['team', 'approver', 'ahead', 'styleguide', 'connections'].includes(a) && seg.length === 1) return { name: a, query };
   if (a === 'runs') {
     if (seg.length === 1) return { name: 'runs', query };
     if (b === 'new' && seg.length === 2) return { name: 'run-new', query };
@@ -73,7 +81,7 @@ export function parse(hash, opts = {}) {
 }
 
 // href('tickets', { runId, ticketId, query }) -> '#/runs/ab12cd34/tickets/41259?from=review'. Empty and default query values are dropped.
-export function href(name, { runId, ticketId, query } = {}) {
+export function href(name, { runId, ticketId, vendorId, query } = {}) {
   const qs = queryString(query);
   switch (name) {
     case 'run-new': return `#/runs/new${qs}`;
@@ -82,6 +90,15 @@ export function href(name, { runId, ticketId, query } = {}) {
     case 'review': return `#/runs/${runId}/${name}${ticketId ? `/${ticketId}` : ''}${qs}`;
     case 'prevent': return `#/runs/${runId}/prevent${qs}`;
     case 'settings': return `#/settings${qs}`;
+    case 'inbox':
+    case 'escalations': return `#/${name}${ticketId ? `/${ticketId}` : ''}${qs}`;
+    case 'vendor-setup': return `#/vendor-setup${vendorId ? `/${vendorId}` : ''}${qs}`;
+    case 'advanced': return `#/settings/advanced${qs}`;
+    case 'team':
+    case 'approver':
+    case 'ahead':
+    case 'styleguide':
+    case 'connections': return `#/${name}${qs}`;
     default: return `#/runs${qs}`;
   }
 }
@@ -120,6 +137,15 @@ export function crumbs(route, run) {
     }
     case 'prevent': return [runs, runCrumb, { label: 'Prevent', href: null }];
     case 'settings': return [{ label: 'Settings', href: null }];
+    case 'inbox': return route.ticketId ? [{ label: 'Inbox', href: href('inbox') }, { label: `#${route.ticketId}`, href: null }] : [{ label: 'Inbox', href: null }];
+    case 'escalations': return route.ticketId ? [{ label: 'Escalations', href: href('escalations') }, { label: `#${route.ticketId}`, href: null }] : [{ label: 'Escalations', href: null }];
+    case 'team': return [{ label: 'Team', href: null }];
+    case 'approver': return [{ label: 'Waiting on you', href: null }];
+    case 'ahead': return [{ label: 'Conductor: Ahead', href: null }];
+    case 'vendor-setup': return [{ label: 'Vendor setup', href: null }];
+    case 'connections': return route.section === 'advanced'
+      ? [{ label: 'Settings', href: href('connections') }, { label: 'Advanced', href: null }] : [{ label: 'Settings', href: null }];
+    case 'styleguide': return [{ label: 'Style guide', href: null }];
     default: return [runs, { label: 'Page not found', href: null }];
   }
 }
