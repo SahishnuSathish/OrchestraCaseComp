@@ -7,6 +7,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 - Wave: **1 running** (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: when each worker reports, review its diff, then merge in order identity-live → inbox-sync → direct-w9 → design-shell, gate after each.
+- 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
 
 ## Branches
 
