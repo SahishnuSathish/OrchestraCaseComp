@@ -27,6 +27,16 @@ def _qualifies(o):
     return False
 
 
+STATUS_ORDER = {"scheduled": 0, "released": 1, "paid": 2, "pending": 3}
+
+
+def _line_order(o):
+    """Group by status (scheduled, payment sent, paid, awaiting approval), then by date within the group."""
+    p, r = o.get("payment") or {}, o.get("run") or {}
+    d = r.get("run_date") if o["outcome"] == "scheduled" else (p.get("custbody_released_date") or p.get("tranDate") if o["outcome"] == "released" else p.get("tranDate"))
+    return (STATUS_ORDER.get(o["outcome"], 9), d or "", o["ref"])
+
+
 def build(store):
     lk = store.session(NullTrace())
     bills_by_vendor = {}
@@ -42,6 +52,7 @@ def build(store):
             skipped["returned_or_conflict"] += 1
             continue
         picked = [o for o in outcomes if _qualifies(o)]
+        picked.sort(key=_line_order)
         if not picked:
             continue
         lines = [drafts.SNIPPETS[LINE_FOR[o["outcome"]]].format(**drafts.outcome_fields(o)) for o in picked]
@@ -64,9 +75,7 @@ def coverage(notices, index):
 
 # ---------------------------------------------------------------------------------------------- prevention demo
 DEMO_SUBJECT = "Your invoice with Orchestra: current status"
-DEMO_RULE = ("The pending-approval bill that has waited longest (oldest tranDate, then internalId) and has at least one ticket "
-             "in the batch, with an active vendor that has an email on record, a unique invoice number, and no returned or "
-             "conflicting bill.")
+DEMO_RULE = ("We picked the bill that has waited longest for approval and that a vendor has already asked about.")
 
 
 def _ticket_index(store):
