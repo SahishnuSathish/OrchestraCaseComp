@@ -258,7 +258,7 @@ export function mount(root, { route, session }) {
   function paintAway() {
     const s = S.summary;
     if (!s || S.q || ls(awayKey()) === 'dismissed' || !s.read) { fill(awaySlot); return; }
-    if (awaySlot.firstChild) return;
+    if (awaySlot.firstChild) { awaySlot.firstChild.update?.(s); return; }
     fill(awaySlot, wsAwayCard(s, {
       onDismiss: () => { ls(awayKey(), 'dismissed'); fill(awaySlot); listEl.querySelector('.ws-row-link[tabindex="0"]')?.focus(); },
       onOpenQueue: (q) => selectQueue(q),
@@ -780,7 +780,7 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.syncNow();
       if (!(r.arrived || []).length) toast({ message: 'No new email. Zendesk and Outlook are up to date.' });
-      else { r.arrived.forEach((id) => { S.fresh.add(id); if (!S.arrived.includes(id)) S.arrived.push(id); }); await Promise.all([loadQueues(), loadRows({ quiet: true })]); }
+      else { r.arrived.forEach((id) => { S.fresh.add(id); if (!S.arrived.includes(id)) S.arrived.push(id); }); await Promise.all([loadQueues(), loadRows({ quiet: true }), loadSummary()]); }
     } catch (e) { toast({ message: e.message || 'Sync did not finish.', tone: 'risk' }); }
     finally { setBusy(syncBtn, false); }
   }
@@ -813,17 +813,22 @@ export function mount(root, { route, session }) {
     toast({ message, tone: 'settled', actionLabel: S.selected === id ? null : 'Open', onAction: () => navigate(urlFor(id)) });
   }
   const refreshLists = debounce(() => { loadQueues(); loadRows({ quiet: true }); }, 250);
+  const refreshSummary = debounce(() => { if (S.summary) loadSummary(); }, 400);
   off.push(live.subscribe((ev) => {
     if (destroyed || !ev) return;
     if (ev.at) syncAppClock(ev.at);
     switch (ev.type) {
-      case 'sync.status': S.sync = ev; paintSync(); return;
+      case 'sync.status':
+        S.sync = ev; paintSync();
+        if (S.summary && ev.held_back != null && ev.held_back !== S.summary.held_back) refreshSummary();
+        return;
       case 'queue.counts': loadQueues(); return;
       case 'ticket.arrived':
         S.fresh.add(ev.ticket_id);
         if (!S.arrived.includes(ev.ticket_id)) S.arrived.push(ev.ticket_id);
         liveRegion.textContent = `New email from ${ev.from_name || 'a sender'}: ${ev.subject || ''}`;
         refreshLists();
+        refreshSummary();
         setTimeout(() => { S.fresh.delete(ev.ticket_id); listEl.querySelector(`.ws-row[data-id="${ev.ticket_id}"]`)?.classList.remove('is-new'); }, 8000);
         return;
       default:

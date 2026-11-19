@@ -100,18 +100,38 @@ function rowStatus(r, queue) {
   return null;
 }
 
-/** The "While you were away" card: what Conductor read before this person opened the inbox. */
+/**
+ * The "While you were away" card: what Conductor read before this person opened the inbox. card.update(summary) keeps
+ * its figures and the "still arriving" line current as new mail comes in, without moving focus.
+ */
 export function wsAwayCard(s, { onDismiss, onOpenQueue } = {}) {
-  const part = (n, label, queue) => h('button', { class: 'ws-away-fig', type: 'button', onclick: () => onOpenQueue?.(queue) },
-    h('span', { class: 'ws-away-n' }, fmtInt(n)), h('span', { class: 'ws-away-l' }, label));
-  return h('section', { class: 'ws-away', 'aria-labelledby': 'ws-away-title' },
+  const part = (label, queue) => {
+    const n = h('span', { class: 'ws-away-n' });
+    const l = h('span', { class: 'ws-away-l' });
+    const el = h('button', { class: 'ws-away-fig', type: 'button', onclick: () => onOpenQueue?.(queue) }, n, l);
+    return { el, set: (count, words) => { n.textContent = fmtInt(count || 0); l.textContent = words(count || 0); } };
+  };
+  const text = h('p', { class: 'ws-away-text' });
+  const drafts = part('drafts ready', 'needs_reply');
+  const action = part('need action', 'needs_action');
+  const quiet = part('need no reply', 'closed');
+  const foot = h('p', { class: 'ws-away-foot', 'aria-live': 'polite' });
+  const card = h('section', { class: 'ws-away', 'aria-labelledby': 'ws-away-title' },
     h('div', { class: 'ws-away-head' },
       h('h2', { class: 'ws-away-title', id: 'ws-away-title' }, 'While you were away'),
       h('button', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm', type: 'button', 'aria-label': 'Dismiss', title: 'Dismiss', onclick: onDismiss }, icon('x'))),
-    h('p', { class: 'ws-away-text' }, `Conductor read ${fmtInt(s.read)} emails from Zendesk and Outlook.`),
-    h('div', { class: 'ws-away-figs' },
-      part(s.drafts_ready, s.drafts_ready === 1 ? 'draft ready' : 'drafts ready', 'needs_reply'),
-      part(s.action_needed, 'need action', 'needs_action'),
-      part(s.no_reply, 'need no reply', 'closed')),
-    s.held_back ? h('p', { class: 'ws-away-foot' }, icon('clock'), `${s.held_back} more ${s.held_back === 1 ? 'email is' : 'emails are'} still arriving.`) : null);
+    text,
+    h('div', { class: 'ws-away-figs' }, drafts.el, action.el, quiet.el),
+    foot);
+  card.update = (x) => {
+    text.textContent = `Conductor read ${fmtInt(x.read)} ${x.read === 1 ? 'email' : 'emails'} from Zendesk and Outlook.`;
+    drafts.set(x.drafts_ready, (n) => (n === 1 ? 'draft ready' : 'drafts ready'));
+    action.set(x.action_needed, () => 'need action');
+    quiet.set(x.no_reply, () => 'need no reply');
+    const left = x.held_back || 0;
+    foot.replaceChildren(icon(left ? 'clock' : 'circle-check'),
+      h('span', null, left ? `${left} more ${left === 1 ? 'email is' : 'emails are'} still arriving.` : 'All new email is in.'));
+  };
+  card.update(s);
+  return card;
 }
