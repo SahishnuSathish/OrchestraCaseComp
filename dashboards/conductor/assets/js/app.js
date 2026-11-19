@@ -8,7 +8,7 @@ import { S, on, loadRun, pollModel, refreshModel, refreshRun, isActive } from '.
 import { parse, href, navigate, onNavigate, crumbs } from './router.js';
 import { banner } from './ui.js';
 import { empty, button, progress } from './components/index.js';
-import { startShell, setRoute, canOpen, isStaff } from './shell.js';
+import { startShell, setRoute, canOpen, isStaff, syncChrome } from './shell.js';
 import { current, homeFor } from './hub/session-port.js';
 import * as runsView from './views/runs.js';
 import * as runNewView from './views/run-new.js';
@@ -137,6 +137,7 @@ function chrome() {
   renderSubbar();
   renderTitle();
   renderBanners();
+  syncChrome();
 }
 let raf = 0;
 function scheduleChrome() { cancelAnimationFrame(raf); raf = requestAnimationFrame(chrome); }

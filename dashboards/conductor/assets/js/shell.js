@@ -349,25 +349,29 @@ function renderTabs() {
       t.unread ? h('span', { class: 'c-dot c-dot-scheduled', 'aria-hidden': 'true' }) : icon('mail', 'c-ttab-icon'),
       h('span', { class: 'c-ttab-text' }, h('span', { class: 'c-ttab-label' }, t.label), t.sub ? h('span', { class: 'c-ttab-sub' }, t.sub) : null)),
     h('button', { class: 'c-ttab-close', type: 'button', 'aria-label': `Close ${t.label}`, onclick: () => tabCloseHandlers.forEach((fn) => fn(t.id)) }, icon('x')))));
+  syncChrome();
 }
 
 // ---------------------------------------------------------------------------- layout bookkeeping
 // --topbar-h is everything sticky above <main> (green bar + ticket strip + legacy context bar); the old views size
 // themselves with it. --banner-h is the global banner below it.
-function watchChromeHeight() {
+/** Re-measure the chrome now. The shell calls it after its own changes; app.js after the context bar or a banner changes. */
+export function syncChrome() {
+  if (!$('#topbar')) return;
   const root = document.documentElement;
-  const update = () => {
-    const chrome = $('#topbar').offsetHeight;
-    const head = $('#workhead').offsetHeight;
-    root.style.setProperty('--chrome-h', `${chrome}px`);
-    root.style.setProperty('--topbar-h', `${chrome + head}px`);
-    root.style.setProperty('--banner-h', `${$('#banners').offsetHeight}px`);
-  };
-  const ro = new ResizeObserver(update);
+  const chrome = $('#topbar').offsetHeight;
+  const head = $('#workhead').offsetHeight;
+  root.style.setProperty('--chrome-h', `${chrome}px`);
+  root.style.setProperty('--topbar-h', `${chrome + head}px`);
+  root.style.setProperty('--banner-h', `${$('#banners').offsetHeight}px`);
+}
+function watchChromeHeight() {
+  // ResizeObserver catches font loads and wrapping; syncChrome() covers changes made while the page is not painting.
+  const ro = new ResizeObserver(syncChrome);
   ro.observe($('#topbar'));
   ro.observe($('#workhead'));
   ro.observe($('#banners'));
-  update();
+  syncChrome();
 }
 
 function bindKeys() {
