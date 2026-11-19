@@ -1,1 +1,118 @@
-/* Phase 3 seam stub. Owner: p3/workspace-ui. */
+/* Inbox view (views/inbox.js): the pane layout. The parts are in components/workspace.css.
+   1360px and up: queues | list | reading | evidence (evidence collapsible).
+   1024 to 1359px: queues | list | reading; Details is a toggle in the reading pane.
+   Under 1024px: one pane at a time, list then message, with a queue picker and Details as a tab. */
+@import url("../components/workspace.css");
+
+main[data-view="inbox"] { padding-bottom: 0; }
+
+.ws-inbox {
+  --ws-queues-w: 212px; --ws-list-w: 360px; --ws-ev-w: 340px;
+  display: grid; grid-template-columns: var(--ws-queues-w) var(--ws-list-w) minmax(0, 1fr) var(--ws-ev-w);
+  grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "head head head head" "queues list read ev";
+  height: calc(100dvh - var(--topbar-h, 52px) - var(--banner-h, 0px) - var(--bottombar-h, 0px));
+  min-height: 420px; background: var(--color-canvas);
+}
+.ws-inbox[data-evidence="closed"] { grid-template-columns: var(--ws-queues-w) var(--ws-list-w) minmax(0, 1fr) 0; }
+.ws-inbox[data-evidence="closed"] .ws-col-ev { display: none; }
+.ws-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--color-surface); }
+
+/* header */
+.ws-head { grid-area: head; display: flex; align-items: center; gap: var(--s-3); min-height: 48px; padding: 0 var(--s-4) 0 var(--s-5); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.ws-head-title { font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-xl); font-weight: var(--fw-semibold); letter-spacing: -0.015em; }
+.ws-head-conn { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.ws-head-conn .icon { width: 14px; height: 14px; color: var(--color-text-muted); }
+.ws-head-mailbox { font-family: var(--font-mono); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-head-spacer { flex: 1; }
+.ws-sync-note { font-size: var(--fs-xs); color: var(--color-text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* queues */
+.ws-col-queues { grid-area: queues; overflow-y: auto; border-right: 1px solid var(--color-border); background: var(--color-surface-subtle); }
+
+/* list */
+.ws-col-list { grid-area: list; border-right: 1px solid var(--color-border); }
+.ws-list-head { display: flex; align-items: center; gap: var(--s-2); min-height: 48px; padding: 0 var(--s-2) 0 var(--s-4); border-bottom: 1px solid var(--color-border); }
+.ws-list-titles { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--s-2); }
+.ws-list-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.ws-list-count { font-size: var(--fs-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.ws-queue-select { display: none; }
+.ws-list-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.ws-list-body .c-skeleton-row { min-height: 104px; }
+.ws-bulk { display: flex; align-items: center; gap: var(--s-2); min-height: 52px; padding: 0 var(--s-3); border-top: 1px solid var(--color-border); background: var(--color-surface-subtle); }
+.ws-bulk[hidden] { display: none; }
+.ws-bulk-n { font-size: var(--fs-sm); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+
+/* reading pane */
+.ws-col-read { grid-area: read; background: var(--color-canvas); }
+.ws-col-read:focus { outline: none; }
+.ws-col-read:focus-visible { box-shadow: inset 0 0 0 2px var(--color-focus); }
+.ws-read-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4) var(--s-5) var(--s-6); }
+.ws-read-empty { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--s-5); }
+.ws-read-back { align-self: flex-start; }
+.ws-read-loading { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.ws-side-toggle { display: none; }
+
+/* evidence */
+.ws-col-ev { grid-area: ev; border-left: 1px solid var(--color-border); }
+.ws-ev-tabs { display: flex; align-items: center; gap: var(--s-1); min-height: 48px; padding-right: var(--s-2); border-bottom: 1px solid var(--color-border); }
+.ws-ev-tabs .c-tabs { flex: 1; border-bottom: 0; align-self: stretch; }
+.ws-ev-tabs .c-tab { min-height: 47px; }
+.ws-ev-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+.ws-ev-body[hidden], .ws-chat-slot[hidden] { display: none; }
+.ws-chat-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* ---- up to 1499: a little tighter ----------------------------------------------------------------------- */
+@media (max-width: 1499px) {
+  .ws-inbox { --ws-queues-w: 196px; --ws-list-w: 336px; --ws-ev-w: 316px; }
+}
+
+/* ---- 1024 to 1359: Details is a toggle in the reading pane ----------------------------------------------- */
+@media (max-width: 1359px) {
+  .ws-inbox, .ws-inbox[data-evidence="closed"] { grid-template-columns: var(--ws-queues-w) var(--ws-list-w) minmax(0, 1fr); grid-template-areas: "head head head" "queues list read"; }
+  .ws-inbox { --ws-queues-w: 188px; --ws-list-w: 330px; }
+  .ws-col-ev, .ws-inbox[data-evidence="closed"] .ws-col-ev { display: none; grid-area: read; border-left: 0; }
+  .ws-inbox[data-side="details"] .ws-col-ev { display: flex; }
+  .ws-inbox[data-side="details"] .ws-col-read { display: none; }
+  .ws-side-toggle { display: inline-flex; }
+  .ws-ev-toggle { display: none; }
+}
+
+/* ---- under 1024: one pane at a time --------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .ws-inbox, .ws-inbox[data-evidence="closed"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "main"; }
+  .ws-col-queues { display: none; }
+  .ws-col-list, .ws-col-read, .ws-col-ev { grid-area: main; border: 0; }
+  .ws-inbox[data-pane="list"] .ws-col-read, .ws-inbox[data-pane="list"] .ws-col-ev { display: none; }
+  .ws-inbox[data-pane="message"] .ws-col-list { display: none; }
+  .ws-queue-select { display: block; flex: 0 1 auto; width: auto; min-width: 0; max-width: 100%; min-height: 34px; font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+  .ws-list-title, .ws-list-count { display: none; }
+  .ws-list-head .c-btn { flex: none; }
+  .ws-back { display: inline-flex; }
+  .ws-read-scroll { padding: var(--s-3) var(--s-4) var(--s-5); }
+  .ws-subject { padding: var(--s-3) var(--s-4); }
+  .ws-head { padding: 0 var(--s-3) 0 var(--s-4); }
+  .ws-head-conn { display: none; }
+}
+
+@media (max-width: 640px) {
+  .ws-inbox { min-height: 0; }
+  .ws-head-title { font-size: var(--fs-lg); }
+  .ws-sync-note { display: none; }
+  .ws-subject { flex-wrap: wrap; }
+  .ws-subject-title { font-size: var(--fs-lg); }
+  .ws-subject-actions { order: 3; width: 100%; }
+  .ws-subject-actions .ws-side-toggle { width: 100%; }
+  .ws-subject-actions .ws-side-toggle .c-tab { flex: 1; justify-content: center; }
+  .ws-insight-grid { grid-template-columns: minmax(0, 1fr); }
+  .ws-insight-cell:not(.is-wide) + .ws-insight-cell:not(.is-wide) { border-left: 0; }
+  .ws-msg-head { grid-template-columns: 32px minmax(0, 1fr); }
+  .ws-msg-date { grid-column: 2; }
+  .ws-msg-body { padding: var(--s-3); }
+  .ws-comp-row { flex-wrap: wrap; padding: 6px var(--s-3); gap: 4px var(--s-2); }
+  .ws-comp-label { width: auto; }
+  .ws-comp-from, .ws-comp-plain { display: none; }
+  .ws-comp-toolbar .c-btn-label { display: none; }
+  .ws-decide-opts { grid-template-columns: minmax(0, 1fr); }
+  .ws-actions .c-btn { flex: 1 1 auto; }
+  .ws-actions-buttons { width: 100%; }
+}

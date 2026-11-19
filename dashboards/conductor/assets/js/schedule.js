@@ -1,8 +1,8 @@
-// Scheduled send controls. Mounted into #schedule-slot by views/review.js on every renderActions(), so mountSchedule
+// Scheduled send controls, in the inbox composer (views/inbox.js mounts them under the action bar of an approved reply). mountSchedule
 // is cheap: the schedule is fetched at most once per ticket (and after our own actions), and the DOM is only
 // rebuilt when what it shows has changed. Times are shown in local time and sent to the server in UTC.
 import { h, icon, mount } from './lib.js';
-import { toast } from './ui.js';
+import { toast } from './components/overlays.js';
 
 export const MIN_AHEAD_MS = 60 * 1000;
 export const MAX_AHEAD_MS = 30 * 24 * 3600 * 1000;
@@ -118,16 +118,16 @@ function build(el, ctx, entry, s, mode) {
     return h('div', { class: 'schedule', role: 'group', 'aria-label': 'Scheduled send' },
       h('span', { class: 'sched-label' }, icon('clock', 'icon-sm'), 'Scheduled for ', h('span', { class: 'sched-when' }, formatLocal(s.send_at))),
       h('div', { class: 'sched-actions' },
-        h('button', { class: 'btn btn-sm', type: 'button', disabled: busy, onclick: () => act((m) => m.cancelSchedule(runId, ticketId)) }, 'Cancel schedule')),
+        h('button', { class: 'c-btn c-btn-secondary c-btn-sm', type: 'button', disabled: busy, onclick: () => act((m) => m.cancelSchedule(runId, ticketId)) }, 'Cancel schedule')),
       s.last_error ? h('p', { class: 'sched-hint' }, `Last try failed: ${s.last_error} It will try again.`) : null,
       error, hint);
   }
 
-  const now = Date.now();
-  const input = h('input', { class: 'input sched-input', type: 'datetime-local', id: 'schedule-at', 'aria-label': 'Send date and time, in your local time',
+  const now = serverNow(entry);
+  const input = h('input', { class: 'c-input sched-input', type: 'datetime-local', id: 'schedule-at', 'aria-label': 'Send date and time, in your local time',
     value: toLocalInput(new Date(now + 3600 * 1000)), min: toLocalInput(new Date(now + MIN_AHEAD_MS)), max: toLocalInput(new Date(now + MAX_AHEAD_MS)) });
   const go = async () => {
-    const { utc, error: bad } = checkInput(input.value);
+    const { utc, error: bad } = checkInput(input.value, serverNow(entry));
     if (bad) { entry.error = bad; draw(el, true); return; }
     if (await act((m) => m.setSchedule(runId, ticketId, utc))) toast({ message: `Scheduled for ${formatLocal(utc)}` });
   };
@@ -138,8 +138,17 @@ function build(el, ctx, entry, s, mode) {
   return h('div', { class: 'schedule', role: 'group', 'aria-label': 'Schedule send' },
     h('label', { class: 'sched-label', for: 'schedule-at' }, icon('clock', 'icon-sm'), 'Send later'),
     input,
-    h('div', { class: 'sched-actions' }, h('button', { class: 'btn btn-sm', type: 'button', disabled: busy, onclick: go }, 'Schedule send')),
+    h('div', { class: 'sched-actions' }, h('button', { class: 'c-btn c-btn-primary c-btn-sm', type: 'button', disabled: busy, onclick: go }, 'Schedule send')),
     note, error, hint);
+}
+
+// The app runs on the server's clock (the snapshot date with the real time of day, CONTRACTS section 4). The schedule
+// payload carries the server's `now`, so the picker's default, its limits and the check use that clock, not this computer's date.
+function serverNow(entry) {
+  const t = Date.parse(entry?.data?.now || '');
+  if (Number.isNaN(t)) return Date.now();
+  if (entry.skew == null) entry.skew = t - Date.now();
+  return Date.now() + entry.skew;
 }
 
 /** Forget what we know about every ticket. */
