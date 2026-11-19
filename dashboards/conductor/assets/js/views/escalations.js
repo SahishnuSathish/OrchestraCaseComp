@@ -7,7 +7,7 @@ import {
   skeletonRows, skeletonText, empty, notice, tabs, toast,
 } from '../components/index.js';
 import {
-  pageHead, ago, fmtWhen, fmtDay, nameOf, firstName, REASONS, CATEGORIES, stateBadge, kv, errText, liveRegion, say,
+  pageHead, ago, fmtWhen, fmtDay, fmtTime, nameOf, firstName, REASONS, CATEGORIES, stateBadge, kv, errText, liveRegion, say, dataAsOf, appNow,
 } from '../components/leadership/util.js';
 import { replyHash } from '../components/leadership/reply-hash.js';
 import * as wf from '../api-workflow.js';
@@ -44,11 +44,13 @@ export function mount(root, { route }) {
     listBody);
   const detailPane = h('section', { class: 'c-pane esc-detail', 'aria-label': 'Selected ticket', tabindex: '-1' });
   const grid = h('div', { class: 'esc-grid' }, listPane, detailPane);
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
 
   fill(root, h('div', { class: 'page lv-page esc-page' },
     pageHead({
       title: 'Escalations',
       lede: 'Priority replies to sign off, and internal notes to decide. Nothing here reaches a vendor until you act.',
+      meta: asOf,
     }),
     grid, live));
 
@@ -107,7 +109,7 @@ export function mount(root, { route }) {
     const mine = list.filter(asked);
     const rest = list.filter((r) => !asked(r));
     fill(listBody,
-      mine.length ? h('h3', { class: 'esc-group' }, 'Asked of you', h('span', { class: 'lv-count' }, mine.length)) : null,
+      mine.length ? h('h3', { class: 'esc-group' }, 'Waiting for your sign-off', h('span', { class: 'lv-count' }, mine.length)) : null,
       mine.length ? h('ul', { class: 'esc-rows' }, mine.map(rowNode)) : null,
       rest.length ? h('h3', { class: 'esc-group' }, 'Priority, not yet escalated', h('span', { class: 'lv-count' }, rest.length)) : null,
       rest.length ? h('ul', { class: 'esc-rows' }, rest.map(rowNode)) : null);
@@ -118,6 +120,7 @@ export function mount(root, { route }) {
     try {
       const [esc, threads] = await Promise.all([wf.escalations(), inbox.threads({}).catch(() => ({ rows: [] }))]);
       if (!alive) return;
+      asOf.textContent = dataAsOf();
       const byId = new Map((threads.rows || []).map((t) => [t.ticket_id, t]));
       const before = rows ? new Set(rows.map((r) => r.ticket_id)) : null;
       rows = (esc.rows || []).map((r) => {
@@ -145,7 +148,7 @@ export function mount(root, { route }) {
       const d = thread.review?.draft;
       const hash = d && d.output_type === 'draft_reply' && d.to ? await replyHash(d.to, d.subject, d.text) : null;
       if (!alive || seq !== detailSeq) return;
-      detail = { id, thread, wf: state, hash };
+      detail = { id, thread, wf: state, hash, readAt: appNow() };
     } catch (e) {
       if (!alive || seq !== detailSeq) return;
       detail = { id, error: e.status === 404 ? 'This ticket is not in the inbox.' : errText(e) };
@@ -178,7 +181,7 @@ export function mount(root, { route }) {
 
   const backLink = () => h('a', { class: 'esc-back', href: '#/escalations' }, icon('chev-left'), 'Back to the queue');
 
-  function detailView({ id, thread: t, wf: st, hash }) {
+  function detailView({ id, thread: t, wf: st, hash, readAt }) {
     const row = (rows || []).find((r) => r.ticket_id === id) || {};
     const res = t.result || {};
     const category = st.category || row.category;
@@ -206,7 +209,7 @@ export function mount(root, { route }) {
         specialist ? h('span', { class: 'esc-assignee' }, avatar({ name: nameOf(specialist), size: 'sm' }), nameOf(specialist)) : null));
 
     const action = isPriority && res.output_type === 'draft_reply'
-      ? signoffBlock(id, t, st, hash, specialist)
+      ? signoffBlock(id, t, st, hash, specialist, readAt)
       : isNote ? noteBlock(id, t, st, specialist) : otherBlock(id, t, st, specialist);
     return h('div', { class: 'esc-detail-body' }, head, askBlock(lastAsk, isPriority), insightBlock(t), action, evidenceBlock(t), historyBlock(id, st));
   }
@@ -241,13 +244,14 @@ export function mount(root, { route }) {
     h('h3', { class: 'c-pane-title', id }, title), sub ? h('p', { class: 'c-pane-sub' }, sub) : null));
 
   // ---- priority: sign off the exact reply text
-  function signoffBlock(id, t, st, hash, specialist) {
+  function signoffBlock(id, t, st, hash, specialist, readAt) {
     const d = t.review?.draft || {};
     const requested = [...(st.history || [])].reverse().find((a) => a.action === 'request-signoff');
     const changed = requested?.detail?.reply_hash && hash && requested.detail.reply_hash !== hash;
     const sent = st.state === 'sent' || t.review_state === 'sent';
     const signed = st.state === 'signed_off' && st.signoff?.hash === hash;
-    const who = firstName(specialist) || 'The specialist';
+    // The person who asked for sign-off sends the reply, so name them (not the assignee, who may be someone else).
+    const who = firstName(requested?.actor) || 'The specialist';
     const signBtn = button({ label: signed ? 'Signed off' : 'Sign off', variant: 'primary', icon: 'circle-check', disabled: signed || sent || !hash });
     const returnBtn = button({ label: 'Return with guidance', icon: 'arrow-left', disabled: sent });
     const formSlot = h('div');
@@ -275,7 +279,7 @@ export function mount(root, { route }) {
         h('div', { class: 'esc-mailbody' }, d.text || ''),
         d.edited ? h('p', { class: 'lv-muted esc-edited' }, icon('pencil', 'icon-sm'), 'Edited by the specialist from the records-only draft.') : null),
       h('footer', { class: 'c-pane-foot esc-actions' },
-        h('span', { class: 'esc-fingerprint', title: hash ? `SHA-256 ${hash}` : '' }, 'Text fingerprint ', h('span', { class: 'mono' }, hash ? hash.slice(0, 10) : '')),
+        readAt ? h('span', { class: 'esc-asof' }, `Draft as of ${fmtTime(readAt)}`) : null,
         h('span', { class: 'lv-spacer' }), returnBtn, signBtn),
       formSlot);
   }

@@ -1,38 +1,25 @@
-/* Conductor: Ahead (#/ahead). The hero is the one bold moment: the line, the count of tickets prevented and the
-   named tickets. Everything below is quiet review rows. Owner: p3/leadership-ui. */
+/* Conductor: Ahead (#/ahead). The standard page head, then the impact card (the one bold moment: the count of tickets
+   prevented). Everything below is quiet review rows. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.ah-page { max-width: calc(1240px + var(--page-pad) * 2); }
-
-/* hero */
+/* impact card: the one bold moment, the count of tickets prevented */
 .ah-hero {
-  position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3);
-  padding: var(--s-6) var(--s-6) var(--s-5); margin-bottom: var(--s-5);
+  display: flex; flex-direction: column; gap: var(--s-5);
+  padding: var(--s-5); margin-bottom: var(--s-5);
   background: var(--color-surface); border: 1px solid var(--color-border); border-top: 4px solid var(--color-ahead-ink);
 }
-.ah-hero-brand { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-ahead-ink); }
-.ah-title {
-  max-width: 18ch; font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-display); line-height: 1.04;
-  font-weight: var(--fw-bold); letter-spacing: -0.025em; color: var(--color-text); text-wrap: balance;
-}
-.ah-lede { max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-body); color: var(--color-text-secondary); }
-.ah-hero-text { display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
 .ah-impact-loading { max-width: 420px; }
-.ah-hero-figure { display: flex; flex-direction: column; gap: var(--s-2); padding-top: var(--s-4); border-top: 1px solid var(--color-border); }
+.ah-hero-figure { display: flex; flex-direction: column; gap: var(--s-2); }
 .ah-stats-slot:empty { display: none; }
-@media (min-width: 1100px) {
-  .ah-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s-6); row-gap: var(--s-5); }
-  .ah-figure-slot { align-self: end; }
-  .ah-hero-figure { padding-top: 0; padding-left: var(--s-5); border-top: 0; border-left: 1px solid var(--color-border); }
-  .ah-stats-slot { grid-column: 1 / -1; }
-}
 .ah-figure { display: flex; align-items: flex-end; gap: var(--s-3); flex-wrap: wrap; }
 .ah-figure-value {
   font-family: var(--font-sans); font-size: 64px; line-height: 0.9; font-weight: var(--fw-semibold); letter-spacing: -0.03em; color: var(--color-ahead-ink);
 }
 .ah-figure-label { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
 .ah-figure-sub { max-width: 52ch; font-size: var(--fs-sm); font-weight: var(--fw-regular); color: var(--color-text-secondary); }
-.ah-named { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-sm); }
+.ah-named-line { font-size: var(--fs-md); color: var(--color-text); }
+.ah-named-more { padding: 0; }
+.ah-named { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: var(--s-2); font-size: var(--fs-sm); }
 .ah-named .c-chip { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .ah-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 
@@ -41,7 +28,14 @@
 .ah-tabs { min-width: 0; max-width: 100%; }
 .ah-tabs .c-tabs-line { border-bottom: 0; }
 .ah-bar-tools { display: flex; align-items: center; gap: var(--s-2); padding-bottom: 6px; }
-.ah-bar-tools .lv-meta { margin: 0; }
+.ah-bar-tools .lv-meta { margin: 0; white-space: nowrap; }
+.ah-tabselect, .ah-filtersel { display: none; }
+@media (max-width: 479px) {
+  .ah-bar { align-items: stretch; flex-direction: column; border-bottom: 0; }
+  .ah-tabs, .ah-section .lv-section-actions > .c-tabs { display: none; }
+  .ah-tabselect, .ah-filtersel { display: block; width: 100%; }
+  .ah-section .lv-section-actions { width: 100%; }
+}
 .ah-panel:focus { outline: none; }
 .ah-section { display: flex; flex-direction: column; gap: var(--s-3); }
 .ah-sent { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
@@ -87,9 +81,7 @@
 .ah-direct-check { padding: 0 var(--s-3) var(--s-3); }
 
 @media (max-width: 767px) {
-  .ah-hero { padding: var(--s-5) var(--s-4) var(--s-4); }
-  .ah-title { font-size: var(--fs-display-sm); }
-  .ah-lede { font-size: var(--fs-md); }
+  .ah-hero { padding: var(--s-4); }
   .ah-figure-value { font-size: 52px; }
   .ah-bar-tools { width: 100%; justify-content: space-between; }
   .ah-one { padding: var(--s-4); }

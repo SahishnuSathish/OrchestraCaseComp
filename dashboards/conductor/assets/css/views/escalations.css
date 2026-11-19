@@ -1,7 +1,6 @@
 /* Escalations (#/escalations): the CFO's queue and the opened ticket. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.esc-page { max-width: calc(1360px + var(--page-pad) * 2); }
 .esc-grid { display: grid; grid-template-columns: minmax(320px, 380px) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
 
 /* queue */
@@ -65,7 +64,7 @@
 .esc-notebody { padding: var(--s-3) var(--s-4); background: var(--color-surface-subtle); border-left: 2px solid var(--color-border-strong); font-size: var(--fs-sm); }
 .esc-edited { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); }
 .esc-actions { gap: var(--s-2); }
-.esc-fingerprint { font-size: var(--fs-xs); color: var(--color-text-muted); }
+.esc-asof { font-size: var(--fs-xs); color: var(--color-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .esc-decide { display: flex; flex-direction: column; gap: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--color-border); }
 .esc-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s-2); margin: 0; padding: 0; border: 0; }
 .esc-choice legend { grid-column: 1 / -1; margin-bottom: var(--s-1); padding: 0; }
@@ -101,5 +100,5 @@
   .esc-assignee { margin-left: 0; }
   .esc-actions .lv-spacer { display: none; }
   .esc-actions .c-btn { flex: 1 1 auto; }
-  .esc-fingerprint { flex-basis: 100%; }
+  .esc-asof { flex-basis: 100%; }
 }

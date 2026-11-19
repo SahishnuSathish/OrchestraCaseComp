@@ -1,4 +1,4 @@
-// Team overview (#/team, CFO): queue health, aging, first-reply time against the case baseline, follow-ups, the
+// Team overview (#/team, CFO): queue health, aging, first-reply time against before Conductor, follow-ups, the
 // approvers holding up payments, Ahead impact, feedback on drafts, a live activity feed, the audit log and who handles
 // what (editable expertise). Every figure names its source. Charts follow the dataviz method: ranked bars on one
 // baseline in one neutral hue, status color only where a bar means a state, and a table view for each chart.
@@ -7,14 +7,13 @@ import {
   button, setBusy, checkbox, chip, stat, table, skeletonText, empty, notice, toast, avatar,
 } from '../components/index.js';
 import {
-  pageHead, sectionHead, sourceLine, nameOf, fmtWhen, fmtTime, ago, appNow, plural, errText, liveRegion, say,
+  pageHead, sectionHead, sourceLine, sourceText, nameOf, fmtWhen, fmtTime, ago, appNow, plural, errText, liveRegion, say, dataAsOf,
 } from '../components/leadership/util.js';
 import { barList, compare } from '../components/leadership/charts.js';
 import * as wf from '../api-workflow.js';
 import * as inbox from '../api-inbox.js';
 import { subscribe } from '../api-live.js';
 
-const SOURCE = 'practice data, snapshot Nov 13';
 const STATE_LABEL = {
   open: 'Open', escalated: 'Escalated', signoff_requested: 'Sign-off requested', returned: 'Returned', signed_off: 'Signed off',
   decided: 'Decided', sent: 'Sent', closed: 'Closed',
@@ -37,6 +36,7 @@ export function mount(root) {
   let audit = null;
   let people = null;
   let threads = null;
+  let approvers = null; // from the approvers' own queue: email -> { pending, tied, tickets }, the same counts each approver sees
   let loadError = null;
   let activity = [];
   let expNode = null; // kept across live refreshes so unsaved expertise edits survive
@@ -44,10 +44,10 @@ export function mount(root) {
 
   const kpis = h('div', { class: 'tm-kpis' });
   const grid = h('div', { class: 'tm-grid' });
-  const asOf = h('p', { class: 'lv-meta' });
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   const refreshBtn = button({ label: 'Refresh', icon: 'refresh', size: 'sm', variant: 'quiet', onClick: () => load(true) });
   fill(root, h('div', { class: 'page lv-page tm-page' },
-    pageHead({ title: 'Team', lede: 'How the accounts payable inbox is doing right now, and where work is waiting. Each figure says where it came from.', actions: [asOf, refreshBtn] }),
+    pageHead({ title: 'Team', lede: 'How the accounts payable inbox is doing right now, and where work is waiting.', meta: asOf, actions: refreshBtn }),
     kpis, grid, live));
 
   async function load(manual = false) {
@@ -71,6 +71,22 @@ export function mount(root) {
       if (manual) setBusy(refreshBtn, false);
     }
     render();
+    if (!approvers && !loadError) loadPending();
+  }
+
+  // Every bill pending each approver's approval (the whole list is slow to read, so it fills in after the page).
+  let pendingAsked = false;
+  async function loadPending() {
+    if (pendingAsked) return;
+    pendingAsked = true;
+    try {
+      const aq = await wf.approverQueue();
+      if (!alive) return;
+      approvers = byApprover(aq.bills || []);
+      const scroll = window.scrollY;
+      render();
+      window.scrollTo(0, scroll);
+    } catch { pendingAsked = false; }
   }
 
   // ------------------------------------------------------------------ figures
@@ -80,7 +96,7 @@ export function mount(root) {
     const srv = data.aging || { buckets: [] };
     const openTotal = (data.queues?.by_specialist || []).reduce((n, p) => n + (p.open || 0), 0);
     const srvSum = (srv.buckets || []).reduce((n, b) => n + b.count, 0);
-    if (srvSum || !openTotal || !threads?.length) return { ...srv, source: srv.source || SOURCE };
+    if (srvSum || !openTotal || !threads?.length) return srv;
     const now = appNow();
     const open = threads.filter((t) => t.outcome !== 'no_reply' && !['sent', 'acknowledged', 'closed'].includes(t.review_state)
       && !['sent', 'closed', 'decided'].includes(t.workflow_state));
@@ -91,7 +107,7 @@ export function mount(root) {
     return {
       buckets: edges.map(([label, lo, hi]) => ({ label, count: ages.filter((a) => a >= lo && a < hi).length })),
       median_open_days: mid == null ? null : Math.round(mid * 100) / 100,
-      source: 'inbox threads by received date, snapshot Nov 13',
+      source: 'Zendesk tickets by date received',
     };
   }
 
@@ -107,17 +123,17 @@ export function mount(root) {
     const escalated = (data.queues?.by_specialist || []).reduce((n, p) => n + (p.escalated || 0), 0);
     const beats = fr.beats_baseline;
     fill(kpis, h('div', { class: 'c-stat-grid tm-stats', role: 'group', 'aria-label': 'Headline figures' },
-      stat({ label: 'Open, waiting on a person', value: String(openTotal), icon: 'inbox', context: escalated ? `${escalated} escalated to you` : 'None escalated', source: data.queues?.source || SOURCE, href: '#/inbox' }),
+      stat({ label: 'Open, waiting on a person', value: String(openTotal), icon: 'inbox', context: escalated ? `${escalated} waiting for CFO sign-off` : 'None waiting for CFO sign-off', href: '#/inbox', source: sourceText(data.queues?.source) }),
       stat({ label: 'Median first reply', value: fr.median_days == null ? '—' : days(fr.median_days), icon: 'clock',
         tone: beats === true ? 'settled' : beats === false ? 'risk' : undefined,
-        context: fr.median_days == null ? `No replies sent yet. Open tickets have waited a median ${days(ag.median_open_days)}.` : `${beats ? 'Faster than' : 'Slower than'} the case baseline of more than 1.5 days, over ${plural(fr.replies_sent, 'reply', 'replies')}.`,
-        source: fr.source || SOURCE }),
+        context: fr.median_days == null ? `No replies sent yet. Open tickets have waited a median ${days(ag.median_open_days)}. Before Conductor: more than 1.5 days.` : `${beats ? 'Faster than' : 'Slower than'} before Conductor (more than 1.5 days), over ${plural(fr.replies_sent, 'reply', 'replies')}.`,
+        source: sourceText(fr.source) }),
       stat({ label: 'Follow-up rate', value: fu.pct == null ? '—' : `${fu.pct}%`, icon: 'refresh',
-        context: `${fu.follow_ups ?? 0} of ${fu.tickets ?? 0} tickets point to an earlier ticket. The case figure is more than 25%.`, source: fu.source || SOURCE }),
+        context: `${fu.follow_ups ?? 0} of ${fu.tickets ?? 0} tickets point to an earlier ticket. Before Conductor: more than 25%.`, source: sourceText(fu.source) }),
       stat({ label: 'Tickets prevented', value: prevented == null ? '—' : String(prevented), icon: 'ahead', href: '#/ahead',
-        context: prevented == null ? 'Open Conductor: Ahead to build notices.' : 'Covered by a drafted Ahead notice. An estimate.', source: data.ahead?.prevented?.source || SOURCE }),
+        context: prevented == null ? 'Open Conductor: Ahead to build notices.' : `${prevented} of ${data.queues?.total ?? 0} tickets asked about an invoice a drafted Ahead notice covers. An estimate.`, source: sourceText(data.ahead?.prevented?.source) }),
       stat({ label: 'Self-serve lookups', value: lookups == null ? '—' : String(lookups), icon: 'search',
-        context: 'Vendors who checked an invoice in Conductor: Direct. Not counted as tickets prevented.', source: data.ahead?.self_serve_lookups?.source || SOURCE })));
+        context: 'Vendors who checked an invoice in Conductor: Direct. Not counted as tickets prevented.', source: sourceText(data.ahead?.self_serve_lookups?.source) })));
   }
 
   // ------------------------------------------------------------------ panes
@@ -132,11 +148,11 @@ export function mount(root) {
       h('h3', { class: 'tm-h3' }, 'By specialist'),
       barList({
         label: 'Open tickets by specialist', valueLabel: 'Open',
-        rows: spec.map((p) => ({ key: p.email, label: p.name || nameOf(p.email), sub: [p.escalated ? `${p.escalated} escalated` : null, p.returned ? `${p.returned} returned` : null].filter(Boolean).join(' · ') || null, value: p.open })),
+        rows: spec.map((p) => ({ key: p.email, label: p.name || nameOf(p.email), sub: [p.escalated ? `${p.escalated} waiting for CFO sign-off` : null, p.returned ? `${p.returned} returned` : null].filter(Boolean).join(' · ') || null, value: p.open })),
       }),
       h('h3', { class: 'tm-h3' }, 'By state'),
       barList({ label: 'Tickets by state', valueLabel: 'Tickets', rows: byState.map((s) => ({ key: s.state, label: STATE_LABEL[s.state] || s.state, value: s.count })) }),
-      sourceLine(data.queues?.source || SOURCE)]);
+      sourceLine(data.queues?.source)]);
   }
 
   function agingCard() {
@@ -144,12 +160,12 @@ export function mount(root) {
     const rows = (ag.buckets || []).map((b) => {
       const past = /1\.5 to 3|over 3/.test(b.label);
       return { key: b.label, label: b.label[0].toUpperCase() + b.label.slice(1), value: b.count,
-        tone: /over 3/.test(b.label) ? 'risk' : past ? 'waiting' : undefined, toneLabel: past && b.count ? 'past baseline' : null };
+        tone: /over 3/.test(b.label) ? 'risk' : past ? 'waiting' : undefined, toneLabel: past && b.count ? 'over 1.5 days' : null };
     });
-    return card('aging', 'Aging', 'Tickets still waiting on a person, by time since they arrived. The case baseline for a first reply is 1.5 days.', [
+    return card('aging', 'Aging', 'Tickets still waiting on a person, by time since they arrived. Before Conductor, a first reply took more than 1.5 days.', [
       barList({ label: 'Open tickets by age', valueLabel: 'Tickets', rows }),
       h('p', { class: 'tm-note' }, `Median age of open tickets: ${days(ag.median_open_days)}.`),
-      sourceLine(ag.source || SOURCE)]);
+      sourceLine(ag.source)]);
   }
 
   function firstReplyCard() {
@@ -158,26 +174,37 @@ export function mount(root) {
     const items = [
       { label: 'First reply now', value: fr.median_days, display: fr.median_days == null ? 'No replies yet' : days(fr.median_days), tone: fr.beats_baseline === false ? 'risk' : undefined },
       { label: 'Open tickets have waited', value: ag.median_open_days, display: days(ag.median_open_days), tone: ag.median_open_days > 1.5 ? 'waiting' : undefined },
-      { label: 'Case baseline', value: fr.baseline_days ?? 1.5, display: 'more than 1.5 days' },
+      { label: 'Before Conductor', value: fr.baseline_days ?? 1.5, display: 'more than 1.5 days' },
     ];
     const top = Math.max(1.5, ...items.map((i) => Number(i.value) || 0)) * 1.1;
-    return card('reply', 'First reply against the baseline', fr.baseline_note || 'In the case, a first reply takes more than 1.5 days.', [
-      compare({ label: 'First reply time against the case baseline', items, max: top }),
+    return card('reply', 'First reply time', 'Before Conductor: more than 1.5 days.', [
+      compare({ label: 'First reply time, now and before Conductor', items, max: top }),
       h('p', { class: 'tm-note' }, fr.replies_sent ? `${plural(fr.replies_sent, 'reply', 'replies')} sent from Conductor so far.` : 'The median appears once replies are sent from Conductor.'),
-      sourceLine(fr.source || SOURCE)]);
+      sourceLine(fr.source)]);
   }
 
   function bottleneckCard() {
-    const rows = data.bottlenecks?.rows || [];
+    // Once the approvers' queue is read, the counts are the ones each approver sees on Waiting on you (Ben: 43 bills
+    // pending, 4 of them holding up 4 tickets). Until then, the overview's own figures show.
+    const srv = data.bottlenecks?.rows || [];
+    const rows = approvers ? [...approvers.entries()].filter(([, a]) => a.tickets.size).map(([email, a]) => {
+      const s0 = srv.find((r) => String(r.approver || '').toLowerCase() === email) || {};
+      return { approver: email, name: s0.name, delegate_note: s0.delegate_note, blocked_count: a.tickets.size, blocked_tickets: [...a.tickets].sort(), bills: a.tied, pending: a.pending };
+    }).sort((x, y) => y.blocked_count - x.blocked_count || y.pending - x.pending) : srv;
+    // The bars count tickets blocked. The line under each name counts bills, so the two numbers are never confused.
+    const billsLine = (r) => {
+      const tied = `${plural(r.bills, 'bill')} holding up tickets`;
+      return r.pending != null && r.pending !== r.bills ? `${plural(r.pending, 'bill')} pending · ${tied}` : tied;
+    };
     return card('bottlenecks', 'Approvers holding up payments', 'Ranked by vendor tickets blocked on their approval.', [
       rows.length ? barList({
-        label: 'Blocked tickets by approver', valueLabel: 'Blocked tickets',
+        label: 'Tickets blocked by approver', valueLabel: 'Tickets blocked', format: (v) => `${plural(v, 'ticket')} blocked`,
         rows: rows.map((r) => ({ key: r.approver, label: r.name || nameOf(r.approver), value: r.blocked_count,
-          sub: `${plural(r.bills, 'bill')}${r.delegate_note ? ' · delegate for an inactive approver' : ''}`,
+          sub: `${billsLine(r)}${r.delegate_note ? ' · delegate for an inactive approver' : ''}`,
           note: r.blocked_tickets?.length ? `Tickets ${r.blocked_tickets.map((t) => `#${t}`).join(', ')}` : null })),
       }) : empty({ icon: 'approver', compact: true, title: 'No approver is holding anything up' }),
       h('p', { class: 'tm-note' }, h('a', { href: '#/ahead?tab=digests' }, 'Send approver digests from Conductor: Ahead')),
-      sourceLine(data.bottlenecks?.source || SOURCE)]);
+      sourceLine(data.bottlenecks?.source)]);
   }
 
   function feedbackCard() {
@@ -190,7 +217,7 @@ export function mount(root) {
       (f.recent || []).length ? h('ul', { class: 'tm-recent' }, f.recent.slice(0, 4).map((r) => h('li', null,
         h('strong', null, FEEDBACK_LABEL[r.category] || r.category), ' ', h('span', { class: 'lv-muted' }, `${nameOf(r.by)} · #${r.ticket_id} · ${fmtWhen(r.at)}`),
         r.note ? h('p', null, r.note) : null))) : null,
-      sourceLine(f.source || SOURCE)]);
+      sourceLine(f.source)]);
   }
 
   const activityList = h('ol', { class: 'tm-activity', 'aria-live': 'polite', 'aria-relevant': 'additions' });
@@ -202,7 +229,7 @@ export function mount(root) {
   }
   function activityCard() {
     renderActivity();
-    return card('activity', 'Activity', 'Live, since Conductor started.', [activityList, sourceLine(data.activity?.source || 'live events')],
+    return card('activity', 'Activity', 'Arrivals, escalations, sends and replies as they happen.', [activityList, sourceLine(data.activity?.source || 'Since this morning')],
       h('span', { class: 'tm-live' }, h('span', { class: 'c-dot c-dot-settled is-live', 'aria-hidden': 'true' }), 'Live'));
   }
 
@@ -220,7 +247,7 @@ export function mount(root) {
         ],
         rows,
       }) : empty({ icon: 'list', compact: true, title: 'No changes yet', text: 'Escalations, sign-offs, decisions and sends are recorded here.' }),
-      sourceLine('Conductor workflow audit table')]);
+      sourceLine('Change history')]);
   }
   function auditDetail(r) {
     const d = r.detail || {};
@@ -229,7 +256,7 @@ export function mount(root) {
     if (d.note) return d.note;
     if (d.reason) return d.reason.replace(/_/g, ' ');
     if (d.to) return `To ${nameOf(d.to)}`;
-    if (d.reply_hash) return `Text fingerprint ${String(d.reply_hash).slice(0, 10)}`;
+    if (d.reply_hash) return 'Signed off the exact reply text';
     if (d.people) return d.people.map(nameOf).join(', ');
     return '';
   }
@@ -254,7 +281,7 @@ export function mount(root) {
     });
     const rows = draft.map((p) => h('div', { class: 'tm-person' },
       h('div', { class: 'tm-person-head' }, avatar({ name: p.name, size: 'md' }),
-        h('div', null, h('strong', null, p.name), h('p', { class: 'lv-muted' }, `${plural(p.replies, 'agent reply', 'agent replies')} in the ticket history`))),
+        h('div', null, h('strong', null, p.name), h('p', { class: 'lv-muted' }, `${plural(p.replies, 'past reply', 'past replies')} in Zendesk`))),
       checkbox({ label: 'Handles exceptions', help: 'Fraud, bank changes, returns and conflicts route to this person first.', checked: !!p.exceptions,
         onChange: (e) => { p.exceptions = e.target.checked; dirty(); } }),
       h('div', { class: 'tm-cats', role: 'group', 'aria-label': `Categories for ${p.name}` }, EXPERTISE.map(([id, label]) => {
@@ -266,7 +293,7 @@ export function mount(root) {
         return c;
       }))));
     return card('expertise', 'Who handles what', 'Unassigned tickets route by expertise. Seeded from who answered which tickets.', [
-      h('div', { class: 'tm-people' }, rows), sourceLine(people.source || 'agent replies in the ticket history')],
+      h('div', { class: 'tm-people' }, rows), sourceLine(people.source || 'past replies in Zendesk')],
     h('div', { class: 'tm-exp-actions' }, status, save));
   }
 
@@ -281,7 +308,7 @@ export function mount(root) {
       fill(grid);
       return;
     }
-    asOf.textContent = data.as_of ? `As of ${fmtWhen(data.as_of)}` : '';
+    asOf.textContent = dataAsOf(data.as_of);
     if (!data.available) {
       fill(kpis);
       fill(grid, notice({ tone: 'info', title: 'The inbox is still connecting', text: 'Figures appear once Conductor has read the inbox.' }));
@@ -321,6 +348,19 @@ export function mount(root) {
   render();
   load();
   return { destroy() { alive = false; off?.(); clearTimeout(refreshTimer); } };
+}
+
+function byApprover(bills) {
+  const m = new Map();
+  bills.forEach((b) => {
+    const k = String(b.approver || '').toLowerCase();
+    const a = m.get(k) || { pending: 0, tied: 0, tickets: new Set() };
+    a.pending += 1;
+    if ((b.blocked_tickets || []).length) a.tied += 1;
+    (b.blocked_tickets || []).forEach((t) => a.tickets.add(t.ticket_id));
+    m.set(k, a);
+  });
+  return m;
 }
 
 function iconFor(type = '') {

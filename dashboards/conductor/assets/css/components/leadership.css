@@ -18,14 +18,14 @@
 /* ---- page head ---------------------------------------------------------------------------------------- */
 .lv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3) var(--s-5); flex-wrap: wrap; margin-bottom: var(--s-5); }
 .lv-head-main { display: flex; align-items: flex-start; gap: var(--s-3); min-width: 0; flex: 1 1 420px; }
-.lv-head-main > .c-mark { margin-top: 4px; }
 .lv-head-titles { min-width: 0; }
+.lv-eyebrow { display: inline-flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-ahead-ink); }
 .lv-title {
   font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-3xl); line-height: var(--lh-tight);
   font-weight: var(--fw-semibold); letter-spacing: -0.015em; text-wrap: balance;
 }
 .lv-lede { margin-top: 6px; max-width: 70ch; color: var(--color-text-secondary); font-size: var(--fs-md); line-height: var(--lh-body); }
-.lv-meta { margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted); }
+.lv-meta { margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 .lv-head-actions { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
 
 /* ---- section heads -------------------------------------------------------------------------------------- */
@@ -50,7 +50,7 @@
   .lv-kv dt:first-child { margin-top: 0; }
 }
 
-/* ---- ranked bar list (dataviz: thin bars, square baseline, 4px rounded data end) --------------------------- */
+/* ---- ranked bar list (dataviz: thin bars, square baseline, 2px rounded data end) --------------------------- */
 .lv-figure { margin: 0; }
 .lv-bars { display: flex; flex-direction: column; gap: 10px; }
 .lv-bar-row { display: grid; grid-template-columns: minmax(120px, 34%) minmax(0, 1fr) minmax(64px, max-content); align-items: center; gap: var(--s-3); }
@@ -63,7 +63,7 @@ a.lv-bar-name { color: var(--color-link); }
 .lv-bar-track:focus-visible { outline-offset: 1px; }
 .lv-bar {
   position: absolute; left: 0; top: 6px; height: 12px; max-width: 100%;
-  background: var(--lv-data); border-radius: 0 4px 4px 0;
+  background: var(--lv-data); border-radius: 0 2px 2px 0;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 .lv-bar-track:hover .lv-bar, .lv-bar-track:focus-visible .lv-bar { opacity: 0.82; }

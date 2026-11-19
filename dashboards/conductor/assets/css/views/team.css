@@ -1,7 +1,6 @@
 /* Team overview (#/team, CFO). Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.tm-page { max-width: calc(1320px + var(--page-pad) * 2); }
 .tm-kpis { margin-bottom: var(--s-5); }
 .tm-stats { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .tm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-4); align-items: start; }

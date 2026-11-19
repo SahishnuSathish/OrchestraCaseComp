@@ -1,7 +1,6 @@
 /* Vendor setup (#/vendor-setup): the W-9 queue and one vendor. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.vs-page { max-width: calc(1320px + var(--page-pad) * 2); }
 .vs-grid { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
 .vs-list { position: sticky; top: calc(var(--topbar-h) + var(--s-4)); max-height: calc(100dvh - var(--topbar-h) - var(--s-6)); }
 .vs-list > .c-pane-head { flex-wrap: wrap; }
@@ -23,6 +22,8 @@
 .vs-dtitle { font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-xl); font-weight: var(--fw-semibold); line-height: var(--lh-snug); letter-spacing: -0.01em; }
 .vs-dtitles p { margin-top: 2px; font-size: var(--fs-sm); overflow-wrap: anywhere; }
 .vs-section { display: flex; flex-direction: column; gap: var(--s-3); }
+.vs-billgroups { display: flex; flex-direction: column; gap: var(--s-5); }
+.vs-sub { margin-top: calc(var(--s-2) * -1); font-size: var(--fs-sm); }
 .vs-h3 { display: flex; align-items: center; gap: 0; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
 .vs-total { margin-left: auto; font-weight: var(--fw-regular); font-size: var(--fs-sm); color: var(--color-text-secondary); }
 

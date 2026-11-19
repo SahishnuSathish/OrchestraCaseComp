@@ -7,7 +7,7 @@ import {
   button, setBusy, field, setFieldError, badge, fmtMoney, stat, skeletonRows, empty, notice, tabs, modal, toast,
 } from '../components/index.js';
 import {
-  pageHead, fmtDay, daysSince, nameOf, plural, errText, liveRegion, say, APP_TODAY, sourceLine,
+  pageHead, fmtDay, daysSince, nameOf, plural, errText, liveRegion, say, APP_TODAY, sourceLine, dataAsOf,
 } from '../components/leadership/util.js';
 import * as wf from '../api-workflow.js';
 import { subscribe } from '../api-live.js';
@@ -24,12 +24,14 @@ export function mount(root, { session }) {
 
   const top = h('div', { class: 'ap-top' });
   const listSlot = h('div', { class: 'ap-list-slot' });
+  const asOf = h('p', { class: 'lv-meta' }, dataAsOf());
   fill(root, h('div', { class: 'page lv-page ap-page' },
     pageHead({
       title: 'Waiting on you',
       lede: readOnly
         ? 'Bills waiting on an approver, and the vendor questions each one is holding up. Read-only here; approvers answer from their own page.'
         : 'Bills that need your approval, and the vendor questions each one is holding up. Approve them in NetSuite as usual. Here you can tell the AP team where things stand.',
+      meta: asOf,
     }),
     top, listSlot, live));
 
@@ -39,6 +41,7 @@ export function mount(root, { session }) {
       const d = await wf.approverQueue();
       if (!alive) return;
       data = d;
+      asOf.textContent = dataAsOf();
       if (!view) view = d.bills.some((b) => b.blocked_tickets.length) ? 'blocking' : 'all';
     } catch (e) {
       if (!alive) return;
@@ -72,7 +75,7 @@ export function mount(root, { session }) {
           context: tickets.size ? `${plural(tickets.size, 'vendor ticket')} ${tickets.size === 1 ? 'waits' : 'wait'} on these bills` : 'No vendor is asking about these bills', source: 'Zendesk and NetSuite' }),
         stat({ label: 'Waiting longest', value: oldest ? String(daysSince(oldest)) : '0', unit: 'days', icon: 'clock',
           context: oldest ? `Entered ${fmtDay(oldest)}` : 'Nothing waiting', source: 'NetSuite, read-only' })),
-      notice({ tone: 'info', title: 'For the AP team only', text: `${INTERNAL} Approving a bill still happens in NetSuite.` }));
+      h('p', { class: 'ap-private' }, icon('lock', 'icon-sm'), h('span', null, 'Only our AP team sees your notes and dates.')));
 
     const shown = view === 'blocking' ? blocking : bills;
     const switcher = tabs({
@@ -87,7 +90,7 @@ export function mount(root, { session }) {
         title: bills.length ? 'No vendor is waiting on these bills' : 'Nothing is waiting on you',
         text: bills.length ? 'Every bill here is pending, but no vendor has asked about one yet.' : 'When a bill needs your approval, it appears here.',
       }),
-      sourceLine('NetSuite bills (read-only) and Zendesk tickets, snapshot Nov 13'));
+      sourceLine('NetSuite bills (read-only) and Zendesk tickets'));
   }
 
   function billRow(b) {
@@ -111,8 +114,10 @@ export function mount(root, { session }) {
       actions.push(ack, button({ label: b.commitment ? 'Change date' : 'Commit to a date', size: 'sm', icon: 'calendar', onClick: () => commit(b),
         attrs: { 'aria-label': `${b.commitment ? 'Change the approval date for' : 'Commit to an approval date for'} ${b.tranId}` } }));
     }
-    actions.push(h('a', { class: 'c-btn c-btn-quiet c-btn-sm ap-ns', role: 'link', 'aria-disabled': 'true', tabindex: '0', title: 'Opens in NetSuite',
-      'aria-label': `Open ${b.tranId} in NetSuite (opens in NetSuite)` }, icon('external'), h('span', { class: 'c-btn-label' }, 'Open in NetSuite')));
+    // A link that can't be followed from here: it looks like a link, greyed, and says why on hover and focus.
+    const nsTip = 'Links to NetSuite are not available here. Open the bill in NetSuite itself.';
+    actions.push(h('span', { class: 'ap-ns', role: 'link', 'aria-disabled': 'true', tabindex: '0', title: nsTip,
+      'aria-label': `Open ${b.tranId} in NetSuite. ${nsTip}` }, h('span', null, 'Open in NetSuite'), icon('external', 'icon-sm')));
     return h('li', { class: 'ap-bill' },
       h('div', { class: 'ap-bill-main' },
         h('div', { class: 'ap-bill-id' }, h('strong', { class: 'mono' }, b.tranId), h('span', { class: 'ap-vendor' }, b.vendor)),

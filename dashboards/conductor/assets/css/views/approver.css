@@ -1,7 +1,6 @@
 /* Waiting on you (#/approver): the budget approver's page. Owner: p3/leadership-ui. */
 @import url("../components/leadership.css");
 
-.ap-page { max-width: calc(1120px + var(--page-pad) * 2); }
 .ap-top { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-5); }
 .ap-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .ap-listhead { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-3); }
@@ -30,8 +29,12 @@
 .ap-bill-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; }
 .ap-response { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-sm); }
 .ap-actions { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
-.ap-ns { cursor: not-allowed; }
-.ap-ns:hover { text-decoration: none; }
+.ap-private { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.ap-ns {
+  display: inline-flex; align-items: center; gap: 4px; padding: 0 2px; font-size: var(--fs-sm); color: var(--color-text-muted);
+  text-decoration: underline dotted; text-underline-offset: 3px; cursor: not-allowed;
+}
+.ap-ns:focus-visible { border-radius: var(--radius-control); }
 .ap-commit { display: flex; flex-direction: column; gap: var(--s-3); }
 
 @media (max-width: 860px) {
@@ -43,4 +46,12 @@
   .ap-bill { padding: var(--s-3); }
   .ap-actions { width: 100%; }
   .ap-actions .c-btn { flex: 1 1 auto; }
+  /* one compact KPI row, so the first bill is above the fold */
+  .ap-top { gap: var(--s-2); margin-bottom: var(--s-4); }
+  .ap-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ap-stats .c-stat { padding: var(--s-2) var(--s-3); gap: 2px; min-height: 0; }
+  .ap-stats .c-stat-label { font-size: var(--fs-xs); line-height: var(--lh-snug); }
+  .ap-stats .c-stat-label .icon { display: none; }
+  .ap-stats .c-stat-value { font-size: var(--fs-xl); }
+  .ap-stats .c-stat-context, .ap-stats .c-stat-source { display: none; }
 }
