@@ -5,7 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **2 running** (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
+- Wave: **2 merged**; **wave 3 starting** (smoke rewrite on `p3/smoke`, then QA walk, polish, hand-off). Wave 2 was started (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
 - Wave 2 hit the usage limit early (all three were still reading code; reset 3:30 am). Resumed with SendMessage, same agent ids, at 23:55. (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
@@ -14,12 +14,12 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 | Branch | Worktree | Head | Status |
 |---|---|---|---|
-| `phase3/integration` | `orchestra-wt/p3-integration` | `3ef75c6` | wave 1 + direct-ui merged, gate green |
+| `phase3/integration` | `orchestra-wt/p3-integration` | `0400762` | waves 1-2 merged |
 | `p3/identity-live` | `orchestra-wt/p3-identity-live` | `ec149c6` | **merged** (tiers 1+2) as `8378235` |
 | `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | `6971e78` | **merged** (tiers 1+2) as `49475e0`, plus integration fix |
 | `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | `0e863d7` | **merged** (tiers 1-3) as `bd5285d`, plus fix `3ff281f` |
-| `p3/workspace-ui` | `orchestra-wt/p3-workspace-ui` | `8e8028c` | tier 1 + most of tier 2 committed; resumed 10:18 Nov 19 to finish |
-| `p3/leadership-ui` | `orchestra-wt/p3-leadership-ui` | `1336ee9` | tiers 1-2 committed; resumed 10:18 Nov 19 for its final test run |
+| `p3/workspace-ui` | `orchestra-wt/p3-workspace-ui` | `8e8028c` | **merged** (tier 1 + tier 2 except the W-9 request-form attachment) as `a7c5cff` |
+| `p3/leadership-ui` | `orchestra-wt/p3-leadership-ui` | `1336ee9` | **merged** (tiers 1-2) as `1acb0dc`, plus fixes `763bf72`, `0400762` |
 | `p3/direct-ui` | `orchestra-wt/p3-direct-ui` | `909583d` | **merged** (tiers 1-2) as `3e6a1f1`, plus fix `3ef75c6` |
 | `p3/design-shell` | `orchestra-wt/p3-design-shell` | `345af43` | **merged** (tiers 1-2) as `1ba41f5`; stand-in session removed `56b4fc6` |
 
