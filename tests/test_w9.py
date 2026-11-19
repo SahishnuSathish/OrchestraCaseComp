@@ -17,9 +17,22 @@ sys.path[:0] = [str(ROOT / "dashboards" / "conductor"), str(ROOT / "src"), str(R
 import db  # noqa: E402
 
 _TMP = tempfile.TemporaryDirectory()
-db.STATE_DIR = Path(_TMP.name)
-db.DB_PATH = db.STATE_DIR / "app.db"
+_MINE = (Path(_TMP.name), Path(_TMP.name) / "app.db")  # never touch the real state folder
+_OTHERS = (db.STATE_DIR, db.DB_PATH)
+db.STATE_DIR, db.DB_PATH = _MINE
 db.init()
+
+
+def setUpModule():
+    # Other test modules also repoint db at import time; take it back for these tests and give it back afterwards.
+    global _OTHERS
+    _OTHERS = (db.STATE_DIR, db.DB_PATH)
+    db.STATE_DIR, db.DB_PATH = _MINE
+    db.init()
+
+
+def tearDownModule():
+    db.STATE_DIR, db.DB_PATH = _OTHERS
 
 import direct  # noqa: E402
 import w9  # noqa: E402
