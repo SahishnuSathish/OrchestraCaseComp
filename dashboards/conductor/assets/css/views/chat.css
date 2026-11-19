@@ -1,25 +1,25 @@
-/* Ticket chat panel (tickets detail and review detail). */
-.chat { margin-top: var(--s-6); border: 1px solid var(--border); border-radius: var(--r-lg, 12px); background: var(--surface); padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
+/* Ticket chat panel ("Ask about this ticket", chat.js), in the inbox evidence panel. Tokens only; square surfaces. */
+.chat { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; padding: var(--s-3) var(--s-4) var(--s-4); background: var(--color-surface); }
 .chat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-3); }
-.chat-title { display: flex; align-items: center; gap: var(--s-2); margin: 0; font-size: var(--fs-md); font-weight: 600; }
-.chat-title .icon { color: var(--accent); }
-.chat-note { margin: var(--s-1) 0 0; font-size: var(--fs-sm); }
-.chat-clear { flex: none; }
-.chat-list { display: flex; flex-direction: column; gap: var(--s-3); max-height: 360px; overflow-y: auto; min-width: 0; }
-.chat-empty { margin: 0; font-size: var(--fs-sm); }
-.chat-suggest { display: flex; flex-wrap: wrap; gap: var(--s-2); }
-.chat-msg { display: flex; flex-direction: column; gap: 2px; max-width: 92%; min-width: 0; }
-.chat-who { font-size: var(--fs-sm); color: var(--text-3); }
-.chat-text { padding: var(--s-2) var(--s-3); border-radius: var(--r-md); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.chat-title { display: flex; align-items: center; gap: var(--s-2); margin: 0; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.chat-title .icon { width: 16px; height: 16px; color: var(--color-action); }
+.chat-note { margin: 2px 0 0; font-size: var(--fs-xs); color: var(--color-text-secondary); }
+.chat-clear { flex: none; margin-right: -8px; }
+.chat-list { flex: 1; display: flex; flex-direction: column; gap: var(--s-3); min-height: 120px; overflow-y: auto; min-width: 0; }
+.chat-empty { margin: 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.chat-suggest { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.chat-suggest .c-chip { min-height: 30px; font-size: var(--fs-sm); white-space: normal; text-align: left; }
+.chat-msg { display: flex; flex-direction: column; gap: 3px; max-width: 94%; min-width: 0; }
+.chat-who { font-size: var(--fs-xs); color: var(--color-text-muted); }
+.chat-text { padding: var(--s-2) var(--s-3); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; font-size: var(--fs-sm); border: 1px solid var(--color-border); }
 .chat-user { align-self: flex-end; align-items: flex-end; }
-.chat-user .chat-text { background: var(--accent-tint); color: var(--accent-ink); border: 1px solid var(--accent-border); }
+.chat-user .chat-text { background: var(--color-surface-selected); border-color: var(--color-border-strong); color: var(--color-text); }
 .chat-assistant { align-self: flex-start; }
-.chat-assistant .chat-text { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); }
-.chat-msg.is-pending .chat-text { color: var(--text-2); }
+.chat-assistant .chat-text { background: var(--color-surface-subtle); color: var(--color-text); }
+.chat-msg.is-pending .chat-text { color: var(--color-text-secondary); }
 .chat-err:empty { display: none; }
-.chat-form { display: flex; gap: var(--s-2); align-items: flex-end; }
-.chat-input { min-height: 44px; resize: none; flex: 1; min-width: 0; }
-.chat-actions { display: flex; gap: var(--s-2); flex: none; }
+.chat-form { display: flex; flex-direction: column; gap: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--color-border); }
+.chat-input { min-height: 64px; resize: none; min-width: 0; }
+.chat-actions { display: flex; gap: var(--s-2); justify-content: flex-end; }
 .chat-actions [hidden] { display: none; }
-@media (max-width: 560px) { .chat-form { flex-direction: column; align-items: stretch; } .chat-actions { justify-content: flex-end; } }
 @media (prefers-reduced-motion: reduce) { .chat-list { scroll-behavior: auto; } }

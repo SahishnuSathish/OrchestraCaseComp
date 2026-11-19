@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parse, href, crumbs } from '../../dashboards/conductor/assets/js/router.js';
+import { parse, href, crumbs, runLinkTarget, homeHash } from '../../dashboards/conductor/assets/js/router.js';
 
 const RUN = 'ab12cd34';
 const LAST = { lastRunId: RUN };
@@ -104,36 +104,107 @@ describe('new is a reserved run id', () => {
 });
 
 describe('legacy redirects', () => {
-  it('empty hash redirects to runs', () => {
-    assert.equal(parse('', { lastRunId: null }).redirect, '#/runs');
+  it('empty hash redirects to the home of the role', () => {
+    assert.equal(parse('', { role: 'ap_specialist' }).redirect, '#/inbox');
+    assert.equal(parse('', { role: 'cfo' }).redirect, '#/escalations');
+    assert.equal(parse('#/', { role: 'approver' }).redirect, '#/approver');
   });
 
-  it('#/run redirects to runs', () => {
-    assert.equal(parse('#/run', { lastRunId: null }).redirect, '#/runs');
+  it('empty hash with no known role goes to the inbox', () => {
+    assert.equal(parse('', { role: null }).redirect, '#/inbox');
   });
 
-  it('#/tickets redirects to last run tickets', () => {
-    assert.equal(parse('#/tickets', LAST).redirect, `#/runs/${RUN}/tickets`);
+  it('#/run redirects to the home of the role', () => {
+    assert.equal(parse('#/run', { role: 'cfo' }).redirect, '#/escalations');
   });
 
-  it('#/tickets/41259 redirects to last run ticket detail', () => {
-    assert.equal(parse('#/tickets/41259', LAST).redirect, `#/runs/${RUN}/tickets/41259`);
+  it('#/tickets redirects to the inbox', () => {
+    assert.equal(parse('#/tickets', LAST).redirect, '#/inbox');
   });
 
-  it('#/review redirects to last run review', () => {
-    assert.equal(parse('#/review', LAST).redirect, `#/runs/${RUN}/review`);
+  it('#/tickets/41259 redirects to that thread in the inbox', () => {
+    assert.equal(parse('#/tickets/41259', LAST).redirect, '#/inbox/41259');
   });
 
-  it('#/review/41500 redirects to last run review draft', () => {
-    assert.equal(parse('#/review/41500', LAST).redirect, `#/runs/${RUN}/review/41500`);
+  it('#/review redirects to the inbox', () => {
+    assert.equal(parse('#/review', LAST).redirect, '#/inbox');
   });
 
-  it('#/tickets with no last run redirects to runs', () => {
-    assert.equal(parse('#/tickets', { lastRunId: null }).redirect, '#/runs');
+  it('#/review/41500 redirects to that thread in the inbox', () => {
+    assert.equal(parse('#/review/41500', LAST).redirect, '#/inbox/41500');
   });
 
-  it('#/review with no last run redirects to runs', () => {
-    assert.equal(parse('#/review', { lastRunId: null }).redirect, '#/runs');
+  it('#/tickets/abc is not found', () => {
+    assert.equal(parse('#/tickets/abc', LAST).name, 'not-found');
+  });
+});
+
+describe('run links redirect into the inbox or to Advanced', () => {
+  const INBOX = { inboxRunId: RUN };
+  const OTHER = { inboxRunId: 'ffff0000' };
+
+  it('a ticket on the inbox run opens the inbox thread', () => {
+    assert.equal(parse(`#/runs/${RUN}/tickets/41259`, INBOX).redirect, '#/inbox/41259');
+    assert.equal(parse(`#/runs/${RUN}/review/41500?tab=approved`, INBOX).redirect, '#/inbox/41500');
+  });
+
+  it('the inbox run lists open the inbox', () => {
+    assert.equal(parse(`#/runs/${RUN}/tickets`, INBOX).redirect, '#/inbox');
+    assert.equal(parse(`#/runs/${RUN}/review`, INBOX).redirect, '#/inbox');
+    assert.equal(parse(`#/runs/${RUN}`, INBOX).redirect, '#/inbox');
+    assert.equal(parse(`#/runs/${RUN}/prevent`, INBOX).redirect, '#/ahead');
+  });
+
+  it('a ticket on another run goes to Settings, Advanced', () => {
+    assert.equal(parse(`#/runs/${RUN}/tickets/41259`, OTHER).redirect, '#/settings/advanced');
+    assert.equal(parse(`#/runs/${RUN}/review`, OTHER).redirect, '#/settings/advanced');
+  });
+
+  it('another run keeps its overview and prevent pages', () => {
+    assert.equal(parse(`#/runs/${RUN}`, OTHER).redirect, undefined);
+    assert.equal(parse(`#/runs/${RUN}`, OTHER).name, 'overview');
+    assert.equal(parse(`#/runs/${RUN}/prevent`, OTHER).name, 'prevent');
+  });
+
+  it('with the inbox run unknown, the run route stays for the view to finish', () => {
+    const r = parse(`#/runs/${RUN}/tickets/41259`, { inboxRunId: null });
+    assert.equal(r.name, 'tickets');
+    assert.equal(r.ticketId, 41259);
+    assert.equal(r.redirect, undefined);
+  });
+
+  it('runLinkTarget finishes the redirect', () => {
+    assert.equal(runLinkTarget({ name: 'tickets', runId: RUN, ticketId: 41259 }, RUN), '#/inbox/41259');
+    assert.equal(runLinkTarget({ name: 'review', runId: RUN }, RUN), '#/inbox');
+    assert.equal(runLinkTarget({ name: 'review', runId: RUN, ticketId: 41500 }, 'ffff0000'), '#/settings/advanced');
+    assert.equal(runLinkTarget({ name: 'review', runId: RUN }, null), '#/settings/advanced');
+  });
+
+  it('malformed run links are still not found', () => {
+    assert.equal(parse(`#/runs/${RUN}/tickets/abc`, INBOX).name, 'not-found');
+    assert.equal(parse('#/runs/NOT-A-RUN-ID/tickets', INBOX).name, 'not-found');
+  });
+});
+
+describe('workspace routes', () => {
+  it('inbox and a thread', () => {
+    assert.deepEqual(parse('#/inbox'), { name: 'inbox', ticketId: undefined, query: {} });
+    assert.equal(parse('#/inbox/41478').ticketId, 41478);
+    assert.equal(parse('#/inbox?q=greywater').query.q, 'greywater');
+    assert.equal(parse('#/inbox/abc').name, 'not-found');
+  });
+
+  it('advanced settings', () => {
+    const r = parse('#/settings/advanced');
+    assert.equal(r.name, 'connections');
+    assert.equal(r.section, 'advanced');
+    assert.equal(href('advanced'), '#/settings/advanced');
+  });
+
+  it('homeHash by role', () => {
+    assert.equal(homeHash('ap_specialist'), '#/inbox');
+    assert.equal(homeHash('cfo'), '#/escalations');
+    assert.equal(homeHash('approver'), '#/approver');
   });
 });
 

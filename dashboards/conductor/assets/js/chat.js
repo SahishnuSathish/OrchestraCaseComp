@@ -1,4 +1,4 @@
-// Ticket chat panel. Mounted into #chat-slot by views/tickets.js and views/review.js.
+// Ticket chat panel ("Ask about this ticket"). Mounted into the inbox evidence panel by views/inbox.js.
 // The views re-render their detail often, so one panel element per run+ticket lives in a module-level cache and is
 // re-appended into each fresh slot. Its stream, draft text and history survive. A stream stops only on Stop or Clear.
 // The chat is read-only: it cannot approve, edit or send. The server builds the context; we send only the question.
@@ -67,33 +67,33 @@ function createPanel({ runId, ticketId }) {
   const list = h('div', { class: 'chat-list', role: 'log', 'aria-live': 'polite', 'aria-label': 'Chat about this ticket' });
   const errBox = h('div', { class: 'chat-err' });
   const input = h('textarea', {
-    class: 'textarea chat-input', rows: '2', maxlength: String(MAX_LEN), placeholder: 'Ask about this ticket',
+    class: 'c-input c-textarea chat-input', rows: '2', maxlength: String(MAX_LEN), placeholder: 'Ask about this ticket',
     'aria-label': 'Question about this ticket',
   });
-  const sendBtn = h('button', { class: 'btn btn-primary', type: 'submit' }, icon('send'), 'Ask');
-  const stopBtn = h('button', { class: 'btn', type: 'button', hidden: true }, icon('stop'), 'Stop');
-  const clearBtn = h('button', { class: 'btn btn-sm chat-clear', type: 'button', title: 'Delete the chat history for this ticket' }, icon('trash'), 'Clear');
+  const sendBtn = h('button', { class: 'c-btn c-btn-primary c-btn-sm', type: 'submit' }, icon('send'), h('span', { class: 'c-btn-label' }, 'Ask'));
+  const stopBtn = h('button', { class: 'c-btn c-btn-secondary c-btn-sm', type: 'button', hidden: true }, icon('stop'), h('span', { class: 'c-btn-label' }, 'Stop'));
+  const clearBtn = h('button', { class: 'c-btn c-btn-quiet c-btn-sm chat-clear', type: 'button', title: 'Delete the chat history for this ticket' }, icon('trash'), h('span', { class: 'c-btn-label' }, 'Clear'));
   const form = h('form', { class: 'chat-form' }, input, h('div', { class: 'chat-actions' }, sendBtn, stopBtn));
   const el = h('section', { class: 'chat', 'aria-label': 'Ask about this ticket' },
     h('div', { class: 'chat-head' },
       h('div', null, h('h3', { class: 'chat-title' }, icon('sparkles'), 'Ask about this ticket'),
-        h('p', { class: 'muted chat-note' }, 'Answers come from this ticket only. Chat cannot approve, edit or send.')),
+        h('p', { class: 'chat-note' }, 'Answers come from this ticket and its records only. Chat cannot approve, edit or send.')),
       clearBtn),
     list, errBox, form);
 
   function bubble(m) {
     return h('div', { class: `chat-msg chat-${m.role}${m.pending ? ' is-pending' : ''}` },
-      h('span', { class: 'chat-who' }, m.role === 'user' ? 'You' : 'Qwen'),
-      h('div', { class: 'chat-text' }, m.text || (m.pending ? 'Thinking...' : '')));
+      h('span', { class: 'chat-who' }, m.role === 'user' ? 'You' : 'Local model'),
+      h('div', { class: 'chat-text' }, m.text || (m.pending ? 'Reading the records…' : '')));
   }
 
   function renderList() {
-    if (loading && !msgs.length) { list.replaceChildren(h('p', { class: 'muted chat-empty' }, 'Loading chat...')); return; }
+    if (loading && !msgs.length) { list.replaceChildren(h('p', { class: 'chat-empty' }, 'Loading the chat…')); return; }
     if (!msgs.length) {
       list.replaceChildren(...[
-        loadErr ? h('p', { class: 'muted chat-empty' }, loadErr) : null,
+        loadErr ? h('p', { class: 'chat-empty' }, loadErr) : null,
         h('div', { class: 'chat-suggest' }, SUGGESTIONS.map((s) =>
-          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { input.value = s; ask(); } }, s))),
+          h('button', { class: 'c-chip is-interactive', type: 'button', onclick: () => { input.value = s; ask(); } }, s))),
       ].filter(Boolean));
       return;
     }
@@ -104,8 +104,8 @@ function createPanel({ runId, ticketId }) {
   function renderErr() {
     if (!err) { errBox.replaceChildren(); return; }
     const t = errorText(err.kind, err.message);
-    errBox.replaceChildren(h('div', { class: 'banner banner-danger', role: 'alert' }, icon('circle-alert'),
-      h('div', { class: 'banner-body' }, h('strong', null, t.message), t.hint ? h('span', null, t.hint) : null)));
+    errBox.replaceChildren(h('div', { class: 'c-notice c-notice-risk', role: 'alert' }, icon('circle-alert'),
+      h('div', { class: 'c-notice-body' }, h('strong', null, t.message), t.hint ? h('span', null, t.hint) : null)));
   }
 
   function setBusy(b) {

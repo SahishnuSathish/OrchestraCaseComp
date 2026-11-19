@@ -1,8 +1,6 @@
 // Thin fetch wrapper. The per-launch token is injected into index.html by the server.
 // Connection health is reported through onApiState so the shell can show "restarted" / "can't reach" banners.
-import { headers as sessionHeaders } from './http.js'; // token + this tab's session (Phase 3)
-
-const token = document.querySelector('meta[name="ap-token"]')?.content || '';
+import { headers as sessionHeaders, liveTicket } from './http.js'; // token + this tab's session (Phase 3)
 
 export class ApiError extends Error {
   // kind: 'network' | 'timeout' | 'auth' | 'http'
@@ -135,6 +133,50 @@ async function stream(path, body, { signal, onEvent } = {}) {
   }
 }
 
+// The run-progress stream. EventSource cannot send headers, so each connection first gets a single-use stream ticket
+// (POST /api/live/ticket, CONTRACTS section 3) and passes it as ?ticket=. A ticket is spent once used, so after a drop
+// the stream reconnects with a fresh one and resumes after the last event it saw. Returns an EventSource-like object:
+// addEventListener(type, fn) and close(). 'error' listeners hear each drop.
+export function runEvents(id) {
+  const listeners = [];
+  let es = null;
+  let closed = false;
+  let retry = 0;
+  let lastId = -1;
+  const onError = () => { for (const [t, fn] of listeners) if (t === 'error') { try { fn(new Event('error')); } catch { /* listener */ } } };
+  const attach = (src, type, fn) => { if (type !== 'error') src.addEventListener(type, fn); };
+  async function open() {
+    if (closed) return;
+    let ticket;
+    try { ticket = await liveTicket(); } catch (e) {
+      onError();
+      if (!closed && e?.status !== 401) retry = setTimeout(open, 3000);
+      return;
+    }
+    if (closed) return;
+    const after = lastId >= 0 ? `&after=${lastId}` : '';
+    const src = new EventSource(`/api/runs/${encodeURIComponent(id)}/events?ticket=${encodeURIComponent(ticket)}${after}`);
+    es = src;
+    for (const [t, fn] of listeners) attach(src, t, fn);
+    src.onerror = () => {
+      if (es !== src) return;
+      src.close();
+      es = null;
+      onError();
+      if (!closed) retry = setTimeout(open, 3000);
+    };
+  }
+  open();
+  return {
+    addEventListener(type, fn) {
+      const wrapped = type === 'error' ? fn : (e) => { const n = Number(e.lastEventId); if (Number.isFinite(n) && e.lastEventId !== '') lastId = Math.max(lastId, n); fn(e); };
+      listeners.push([type, wrapped]);
+      if (es) attach(es, type, wrapped);
+    },
+    close() { closed = true; clearTimeout(retry); if (es) { es.close(); es = null; } },
+  };
+}
+
 export const api = {
   get: (p, opts) => request('GET', p, undefined, opts),
   post: (p, b = {}, opts) => request('POST', p, b, opts),
@@ -167,7 +209,7 @@ export const api = {
   buildPrevention: (id) => request('POST', `/api/runs/${id}/prevention/build`, {}, { timeout: 120000 }),
   preventionState: (id, kind, key, state) => request('PUT', `/api/runs/${id}/prevention/${kind}/${encodeURIComponent(key)}`, { state }),
   preventionSend: (id, kind, key) => request('POST', `/api/runs/${id}/prevention/${kind}/${encodeURIComponent(key)}/send`, {}),
-  events: (id) => new EventSource(`/api/runs/${id}/events?token=${encodeURIComponent(token)}`),
+  events: (id) => runEvents(id),
   async download(path, fallbackName) {
     const res = await send('GET', path);
     if (!res.ok) throw await httpError(res);
