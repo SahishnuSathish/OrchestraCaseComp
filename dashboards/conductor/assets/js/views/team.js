@@ -36,7 +36,7 @@ export function mount(root) {
   let audit = null;
   let people = null;
   let threads = null;
-  let pendingBy = null; // approver email -> every bill pending their approval, not only those tied to tickets
+  let approvers = null; // from the approvers' own queue: email -> { pending, tied, tickets }, the same counts each approver sees
   let loadError = null;
   let activity = [];
   let expNode = null; // kept across live refreshes so unsaved expertise edits survive
@@ -71,7 +71,7 @@ export function mount(root) {
       if (manual) setBusy(refreshBtn, false);
     }
     render();
-    if (!pendingBy && !loadError) loadPending();
+    if (!approvers && !loadError) loadPending();
   }
 
   // Every bill pending each approver's approval (the whole list is slow to read, so it fills in after the page).
@@ -82,7 +82,7 @@ export function mount(root) {
     try {
       const aq = await wf.approverQueue();
       if (!alive) return;
-      pendingBy = countBy(aq.bills || [], (b) => String(b.approver || '').toLowerCase());
+      approvers = byApprover(aq.bills || []);
       const scroll = window.scrollY;
       render();
       window.scrollTo(0, scroll);
@@ -184,12 +184,17 @@ export function mount(root) {
   }
 
   function bottleneckCard() {
-    const rows = data.bottlenecks?.rows || [];
+    // Once the approvers' queue is read, the counts are the ones each approver sees on Waiting on you (Ben: 43 bills
+    // pending, 4 of them holding up 4 tickets). Until then, the overview's own figures show.
+    const srv = data.bottlenecks?.rows || [];
+    const rows = approvers ? [...approvers.entries()].filter(([, a]) => a.tickets.size).map(([email, a]) => {
+      const s0 = srv.find((r) => String(r.approver || '').toLowerCase() === email) || {};
+      return { approver: email, name: s0.name, delegate_note: s0.delegate_note, blocked_count: a.tickets.size, blocked_tickets: [...a.tickets].sort(), bills: a.tied, pending: a.pending };
+    }).sort((x, y) => y.blocked_count - x.blocked_count || y.pending - x.pending) : srv;
     // The bars count tickets blocked. The line under each name counts bills, so the two numbers are never confused.
     const billsLine = (r) => {
-      const pending = pendingBy?.get(String(r.approver || '').toLowerCase());
       const tied = `${plural(r.bills, 'bill')} holding up tickets`;
-      return pending != null && pending !== r.bills ? `${plural(pending, 'bill')} pending · ${tied}` : tied;
+      return r.pending != null && r.pending !== r.bills ? `${plural(r.pending, 'bill')} pending · ${tied}` : tied;
     };
     return card('bottlenecks', 'Approvers holding up payments', 'Ranked by vendor tickets blocked on their approval.', [
       rows.length ? barList({
@@ -345,9 +350,16 @@ export function mount(root) {
   return { destroy() { alive = false; off?.(); clearTimeout(refreshTimer); } };
 }
 
-function countBy(list, key) {
+function byApprover(bills) {
   const m = new Map();
-  list.forEach((x) => { const k = key(x); m.set(k, (m.get(k) || 0) + 1); });
+  bills.forEach((b) => {
+    const k = String(b.approver || '').toLowerCase();
+    const a = m.get(k) || { pending: 0, tied: 0, tickets: new Set() };
+    a.pending += 1;
+    if ((b.blocked_tickets || []).length) a.tied += 1;
+    (b.blocked_tickets || []).forEach((t) => a.tickets.add(t.ticket_id));
+    m.set(k, a);
+  });
   return m;
 }
 
