@@ -5,7 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **2 merged**; **wave 3 starting** (smoke rewrite on `p3/smoke`, then QA walk, polish, hand-off). Wave 2 was started (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
+- Wave: **3 running**: `p3/smoke` (Sonnet, a7d3257b95365272b); polish review done (`docs/phase3/REVIEW.md`); four fix workers from `57d490e`: `p3/fix-inbox` (ab910f3ea7ca99902), `p3/fix-leadership` (a8f8589ef76c1d4b2), `p3/fix-hub-shell` (ac2417bc7be40a03b), `p3/fix-backend` (a9a846542d6e1d0f5). Merge each when it reports, gate, then smoke, final gate, HANDOFF. Earlier: wave 2 was started (smoke rewrite on `p3/smoke`, then QA walk, polish, hand-off). Wave 2 was started (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
 - Wave 2 hit the usage limit early (all three were still reading code; reset 3:30 am). Resumed with SendMessage, same agent ids, at 23:55. (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
@@ -69,6 +69,8 @@ Gate rule: **no new failures**. The flaky model-selection test is a known baseli
 - `test_inbox` assignee-filter test updated to routed assignees (it assumed the workflow stub).
 
 ## Open problems
+
+- **User decision:** the word "Mock" in subsidiary names and `orchestra-mock.example` / `mailbox-mock.example` addresses comes from the data pack; not rewritten on screen (recipient chips must match records). Review items #1 and #2.
 
 - Wave 2 hit the limit a second time (reset 4:50 am); resumed 10:18 Nov 19. direct-ui merged first (it owns only its own folders, so order did not matter).
 - Open for wave 2: `api.js` run-progress stream must use `http.liveTicket()` (workspace-ui). Done by the orchestrator: `ticket.scheduled` publish, `workflow.decide` → `inbox.on_decided`, stand-in session removed.
