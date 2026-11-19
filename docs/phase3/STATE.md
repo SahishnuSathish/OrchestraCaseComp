@@ -14,13 +14,13 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 | Branch | Worktree | Head | Status |
 |---|---|---|---|
-| `phase3/integration` | `orchestra-wt/p3-integration` | `e03dbb1` | wave 1 merged, gate green |
+| `phase3/integration` | `orchestra-wt/p3-integration` | `3ef75c6` | wave 1 + direct-ui merged, gate green |
 | `p3/identity-live` | `orchestra-wt/p3-identity-live` | `ec149c6` | **merged** (tiers 1+2) as `8378235` |
 | `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | `6971e78` | **merged** (tiers 1+2) as `49475e0`, plus integration fix |
 | `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | `0e863d7` | **merged** (tiers 1-3) as `bd5285d`, plus fix `3ff281f` |
-| `p3/workspace-ui` | `orchestra-wt/p3-workspace-ui` | from `a78b09b` | running (Opus) |
-| `p3/leadership-ui` | `orchestra-wt/p3-leadership-ui` | from `a78b09b` | running (Opus) |
-| `p3/direct-ui` | `orchestra-wt/p3-direct-ui` | from `a78b09b` | running (Opus) |
+| `p3/workspace-ui` | `orchestra-wt/p3-workspace-ui` | `8e8028c` | tier 1 + most of tier 2 committed; resumed 10:18 Nov 19 to finish |
+| `p3/leadership-ui` | `orchestra-wt/p3-leadership-ui` | `1336ee9` | tiers 1-2 committed; resumed 10:18 Nov 19 for its final test run |
+| `p3/direct-ui` | `orchestra-wt/p3-direct-ui` | `909583d` | **merged** (tiers 1-2) as `3e6a1f1`, plus fix `3ef75c6` |
 | `p3/design-shell` | `orchestra-wt/p3-design-shell` | `345af43` | **merged** (tiers 1-2) as `1ba41f5`; stand-in session removed `56b4fc6` |
 
 ## Worker agents
@@ -46,6 +46,7 @@ If the session was interrupted, these agents are gone: check each branch's `git 
 | After inbox (+fix `efd7afc`) | 324 run, OK (1 skip) | 75/75 | 100% / 100% | | |
 | After direct-w9 (+fix `3ff281f`) | 383 run, 1 fail (notice-hook test looked only at the last publish; fixed) | 75/75 | 100% / 100% | E2E over HTTP: staff and vendor SSO, 403/404 isolation, invoices, remittance PDF, Direct question lands in the inbox, W-9 queue, approver queue | |
 | After design-shell (wave 1 complete) | 383 run, **OK** (1 skip) | 75/75 | **100% / 100%** | Browser: hub → Microsoft picker → Ulla → handshake → `/app#/inbox`, no console errors | old suite retired |
+| After direct-ui (+fix `3ef75c6`) | 383 run, OK (1 skip) | 75/75 | 100% / 100% | | |
 | Seam | 218 run: 217 pass, 1 skip, 0 fail (the flaky test passed this time). One legitimate test change: `test_webapp.BrandTests` now reads `/app` (the workspace moved; `/` is the hub) | 75/75 | 100% / 100% | `/` hub, `/app`, `/direct`, `/api/health` all answer | not run: the old suite targets `/` as the workspace. Rewritten in wave 3 (`p3/smoke`) |
 
 Gate rule: **no new failures**. The flaky model-selection test is a known baseline issue, not to be masked.
@@ -68,5 +69,6 @@ Gate rule: **no new failures**. The flaky model-selection test is a known baseli
 
 ## Open problems
 
+- Wave 2 hit the limit a second time (reset 4:50 am); resumed 10:18 Nov 19. direct-ui merged first (it owns only its own folders, so order did not matter).
 - Open for wave 2: `api.js` run-progress stream must use `http.liveTicket()` (workspace-ui). Done by the orchestrator: `ticket.scheduled` publish, `workflow.decide` → `inbox.on_decided`, stand-in session removed.
 - Note for the hand-off: scheduling a priority reply is refused until the CFO signs off (scheduling runs the same checks as sending), which is stricter than the spec's "does not send when due".
