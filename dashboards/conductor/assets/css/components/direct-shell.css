@@ -1,4 +1,7 @@
 /* Conductor: Direct frame (components/direct-shell.js). Navy-led, so vendors read it as Orchestra facing out. */
+/* Always reserve the scrollbar's room, so the centred frame does not shift sideways between a long page (Invoices)
+   and a short one (Messages). */
+html:has(.c-direct) { scrollbar-gutter: stable; }
 .c-direct { min-height: 100dvh; display: flex; flex-direction: column; background: var(--color-canvas); }
 .c-direct-bar { position: sticky; top: 0; z-index: var(--z-topbar); background: var(--color-direct); color: var(--color-chrome-text); }
 .c-direct-bar :focus-visible { outline-color: var(--color-focus-on-dark); }
