@@ -6,7 +6,7 @@ import { button, iconButton, setBusy } from '../controls.js';
 import { chip, badge, avatar } from '../badges.js';
 import { notice } from '../data.js';
 import { menu } from '../overlays.js';
-import { maskSensitive, personName } from './format.js';
+import { maskSensitive, personName, plainWhy } from './format.js';
 
 /** An action bar: primary buttons, then a More menu. spec: [{ id, label, icon, variant, onClick, disabled, title }] */
 export function wsActionBar(buttons = [], { more = null, status = null, label = 'Actions' } = {}) {
@@ -156,6 +156,7 @@ export function wsComposer({ thread: t, editable = true, onSave, attachments = [
   el.text = () => body.value;
   el.subject = () => subject.value;
   el.dirty = () => dirty;
+  el.isEditing = () => document.activeElement === body || document.activeElement === subject;
   el.focusBody = () => body.focus();
   el.ticketId = t.ticket_id;
   return el;
@@ -172,11 +173,11 @@ export function wsNotePanel(t, { actions = null, decide = null } = {}) {
     h('dl', { class: 'ws-note-facts' },
       h('dt', null, 'Who should act'), h('dd', null, who, t.decision?.act_by ? h('span', { class: 'ws-note-email' }, ` (${t.decision.act_by})`) : null),
       what ? [h('dt', null, 'What to do'), h('dd', null, what)] : null,
-      t.decision?.why ? [h('dt', null, 'Why'), h('dd', null, sentence(t.decision.why))] : null),
+      // The insight strip above already says why; say it here only when the strip has no reason.
+      t.decision?.why && !t.insight?.why ? [h('dt', null, 'Why'), h('dd', null, plainWhy(maskSensitive(t.decision.why, keep)))] : null),
     h('details', { class: 'ws-note-full' }, h('summary', null, 'Full note'), h('pre', { class: 'ws-note-text' }, text)),
     decide, actions);
 }
-const sentence = (s) => { const x = String(s || '').trim(); return x ? x[0].toUpperCase() + x.slice(1) + (/[.!?]$/.test(x) ? '' : '.') : ''; };
 
 /** The CFO's Decide panel for a note: acknowledge with the action taken, or close. */
 export function wsDecidePanel({ onDecide, category } = {}) {

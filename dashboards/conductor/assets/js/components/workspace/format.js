@@ -87,6 +87,39 @@ export const isReply = (t) => t?.review?.draft?.output_type === 'draft_reply' ||
 export const isNote = (t) => (t?.review?.draft?.output_type || t?.result?.output_type) === 'internal_action_note';
 export const isFraud = (t) => (t?.flags || []).includes('fraud') || (t?.result?.flags || []).includes('fraud') || t?.workflow?.category === 'fraud';
 export const isBlocked = (t) => isFraud(t) || (t?.result?.flags || []).includes('injection');
+/** A priority ticket: the CFO signs off the reply text. Rows carry no category, so a legal threat or a copied executive stands in. */
+export const isPriority = (t) => t?.workflow?.category === 'priority' || t?.result?.priority === true
+  || (!t?.workflow && !t?.result && (t?.flags || []).some((f) => f === 'legal' || f === 'exec_cc'));
+/** Risk flags that make a sender's listing not worth a green "verified" mark. */
+export const hasRisk = (t) => (t?.flags || []).some((f) => f === 'fraud' || f === 'legal' || f === 'exec_cc');
+
+// ---------------------------------------------------------------------------- plain reasons
+// The rules write their reasons for the record ("bank-detail change language: 'change of bank'"). Staff read these.
+const WHY_RULES = [
+  [/^(model read )?bank-detail change language/i, () => 'The email asks us to change bank details.'],
+  [/^sender domain (\S+) imitates known domain (\S+)/i, (m) => `The sender's address (${m[1]}) imitates a known domain (${m[2]}).`],
+  [/^link host (\S+) imitates known domain (\S+)/i, (m) => `A link in the email goes to ${m[1]}, which imitates ${m[2]}.`],
+  [/^sign-in link in a payment email/i, () => 'The email asks someone to sign in through a link.'],
+  [/^threat of collections, legal action or suspension/i, () => 'The email threatens collections, legal action or a suspension of service.'],
+  [/^executive copied: (.+)$/i, (m) => `An executive is copied (${m[1]}).`],
+  [/^sender raises a late fee/i, () => 'The sender asks about a late fee.'],
+];
+/** plainWhy(why) - a rule's reason in plain sentences. Repeated reasons are said once. */
+export function plainWhy(why) {
+  const parts = String(why || '').split(/;\s*(?=[a-z])/i).map((s) => s.trim()).filter(Boolean);
+  const out = [];
+  for (const p of parts) {
+    const hit = WHY_RULES.find(([rx]) => rx.test(p));
+    const s = hit ? hit[1](hit[0].exec(p)) : sentenceCase(p);
+    if (!out.includes(s)) out.push(s);
+  }
+  // A list of quoted cues ("'change of bank'; 'changed banks'") belongs to the reason before it.
+  return out.filter((s) => !/^'[^']*'\.?$/.test(s)).join(' ');
+}
+function sentenceCase(s) {
+  const x = String(s || '').trim();
+  return x ? x[0].toUpperCase() + x.slice(1) + (/[.!?]$/.test(x) ? '' : '.') : '';
+}
 
 /**
  * mode(thread, role) -> what the reading pane shows and which actions lead.

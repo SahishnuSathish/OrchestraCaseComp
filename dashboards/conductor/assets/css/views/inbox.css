@@ -1,6 +1,7 @@
 /* Inbox view (views/inbox.js): the pane layout. The parts are in components/workspace.css.
-   1360px and up: queues | list | reading | evidence (evidence collapsible).
-   1024 to 1359px: queues | list | reading; Details is a toggle in the reading pane.
+   1600px and up: queues | list | reading | evidence (evidence collapsible).
+   1024 to 1599px: queues | list | reading; Details is a toggle in the reading pane, so the reading column keeps at
+   least about 600px (it is about 840px at 1440).
    Under 1024px: one pane at a time, list then message, with a queue picker and Details as a tab. */
 @import url("../components/workspace.css");
 
@@ -35,6 +36,7 @@ main[data-view="inbox"] { padding-bottom: 0; }
 .ws-list-titles { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--s-2); }
 .ws-list-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
 .ws-list-count { font-size: var(--fs-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.ws-list-order { margin-left: auto; padding-right: var(--s-2); font-size: var(--fs-xs); color: var(--color-text-muted); white-space: nowrap; }
 .ws-queue-select { display: none; }
 .ws-list-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ws-list-body .c-skeleton-row { min-height: 104px; }
@@ -61,15 +63,10 @@ main[data-view="inbox"] { padding-bottom: 0; }
 .ws-ev-body[hidden], .ws-chat-slot[hidden] { display: none; }
 .ws-chat-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
-/* ---- up to 1499: a little tighter ----------------------------------------------------------------------- */
-@media (max-width: 1499px) {
-  .ws-inbox { --ws-queues-w: 200px; --ws-list-w: 328px; --ws-ev-w: 312px; }
-}
-
-/* ---- 1024 to 1359: Details is a toggle in the reading pane ----------------------------------------------- */
-@media (max-width: 1359px) {
+/* ---- 1024 to 1599: Details is a toggle in the reading pane ----------------------------------------------- */
+@media (max-width: 1599px) {
   .ws-inbox, .ws-inbox[data-evidence="closed"] { grid-template-columns: var(--ws-queues-w) var(--ws-list-w) minmax(0, 1fr); grid-template-areas: "head head head" "queues list read"; }
-  .ws-inbox { --ws-queues-w: 188px; --ws-list-w: 330px; }
+  .ws-inbox { --ws-queues-w: 200px; --ws-list-w: 328px; }
   .ws-col-ev, .ws-inbox[data-evidence="closed"] .ws-col-ev { display: none; grid-area: read; border-left: 0; }
   .ws-inbox[data-side="details"] .ws-col-ev { display: flex; }
   .ws-inbox[data-side="details"] .ws-col-read { display: none; }
@@ -113,5 +110,5 @@ main[data-view="inbox"] { padding-bottom: 0; }
   .ws-comp-toolbar .c-btn-label { display: none; }
   .ws-decide-opts { grid-template-columns: minmax(0, 1fr); }
   .ws-actions .c-btn { flex: 1 1 auto; }
-  .ws-actions-buttons { width: 100%; }
+  .ws-actions-buttons { width: 100%; flex-wrap: wrap; }
 }

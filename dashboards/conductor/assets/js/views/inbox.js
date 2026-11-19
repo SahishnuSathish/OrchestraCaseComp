@@ -23,7 +23,7 @@ import { wsEvidence } from '../components/workspace/evidence.js';
 import { wsComposer, wsActionBar, wsNotePanel, wsDecidePanel, wsFeedback } from '../components/workspace/composer.js';
 import { ticketTabs } from '../components/workspace/tabs-store.js';
 import {
-  mode as threadMode, replyHash, syncAppClock, personName, firstName, ESCALATE_REASONS, suggestedReason, SPECIALISTS, isFraud, maskSensitive,
+  mode as threadMode, replyHash, syncAppClock, personName, firstName, ESCALATE_REASONS, suggestedReason, SPECIALISTS, isFraud, maskSensitive, plainWhy,
 } from '../components/workspace/format.js';
 
 const DEFAULT_QUEUE = 'needs_reply';
@@ -82,7 +82,7 @@ export function mount(root, { route, session }) {
   });
   const evCol = h('aside', { class: 'ws-col ws-col-ev', 'aria-label': 'Ticket details' },
     h('div', { class: 'ws-ev-tabs' }, evTabs,
-      iconButton({ icon: 'x', label: 'Close details', size: 'sm', onClick: () => { if (window.matchMedia('(max-width: 1359px)').matches) { S.side = 'message'; paintLayout(); readCol.querySelector('.ws-side-toggle')?.select?.('message'); } else toggleEvidence(false); }, attrs: { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm ws-ev-hide' } })),
+      iconButton({ icon: 'x', label: 'Close details', size: 'sm', onClick: () => { if (window.matchMedia('(max-width: 1599px)').matches) { S.side = 'message'; paintLayout(); readCol.querySelector('.ws-side-toggle')?.select?.('message'); } else toggleEvidence(false); }, attrs: { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm ws-ev-hide' } })),
     h('div', { class: 'ws-ev-scroll' }, evBody, chatSlot));
   const shell = h('div', { class: 'ws-inbox' }, header, queuesEl, listCol, readCol, evCol, liveRegion);
   fill(root, shell);
@@ -91,6 +91,7 @@ export function mount(root, { route, session }) {
   const queryFor = () => ({ queue: S.q ? undefined : (S.queue !== DEFAULT_QUEUE ? S.queue : undefined), q: S.q || undefined });
   const urlFor = (id) => href('inbox', { ticketId: id || undefined, query: queryFor() });
   ticketTabs.attach({
+    email: me,
     href: (id) => href('inbox', { ticketId: id, query: queryFor() }),
     closed: (id, wasActive, next) => { if (wasActive) navigate(next ? urlFor(next.id) : urlFor(null)); },
   });
@@ -143,11 +144,11 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.threads(S.q ? { q: S.q } : { queue: S.queue });
       if (destroyed || seq !== rowsSeq) return;
-      // Emails that arrived while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps
-      // the real time of day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
-      const rows = r.rows || [];
-      const order = [...S.arrived];
-      const top = order.map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
+      // Newest first within every queue, by the real instant (times come with different offsets). Emails that arrived
+      // while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps the real time of
+      // day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
+      const rows = [...(r.rows || [])].sort(newestFirst);
+      const top = [...S.arrived].map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
       S.rows = [...top, ...rows.filter((x) => !S.arrived.includes(x.ticket_id))];
       S.rowsError = null;
     } catch (e) {
@@ -166,7 +167,8 @@ export function mount(root, { route, session }) {
       h('div', { class: 'ws-list-titles' },
         S.queues.length ? wsQueuePicker({ queues: S.queues, selected: S.queue, onSelect: selectQueue }) : null,
         h('h2', { class: 'ws-list-title' }, title),
-        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n))),
+        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n)),
+        h('span', { class: 'ws-list-order' }, 'Newest first')),
       S.q ? button({ label: 'Clear', size: 'sm', variant: 'quiet', icon: 'x', onClick: () => { S.q = ''; setSearchValue(''); navigate(urlFor(S.selected), { replace: true }); loadRows(); paintQueues(); } }) : null,
       canSelect ? button({
         label: S.selectMode ? 'Done' : 'Select', size: 'sm', variant: 'quiet', icon: S.selectMode ? 'check' : 'square-check',
@@ -194,7 +196,7 @@ export function mount(root, { route, session }) {
     const hadFocus = listEl.contains(document.activeElement) ? Number(document.activeElement.closest('.ws-row')?.dataset.id) : null;
     fill(listEl, S.rows.map((r) => wsMessageRow(r, {
       selected: r.ticket_id === S.selected, opened: S.opened.has(r.ticket_id), href: urlFor(r.ticket_id), isNew: S.fresh.has(r.ticket_id),
-      selectMode: S.selectMode, checked: S.checked.has(r.ticket_id),
+      selectMode: S.selectMode, checked: S.checked.has(r.ticket_id), queue: S.q ? null : S.queue,
       onCheck: (row, on) => { if (on) S.checked.add(row.ticket_id); else S.checked.delete(row.ticket_id); listEl.querySelector(`.ws-row[data-id="${row.ticket_id}"]`)?.classList.toggle('is-checked', on); paintBulk(); },
       onOpen: (row) => openRow(row.ticket_id),
     })));
@@ -257,7 +259,7 @@ export function mount(root, { route, session }) {
   function paintAway() {
     const s = S.summary;
     if (!s || S.q || ls(awayKey()) === 'dismissed' || !s.read) { fill(awaySlot); return; }
-    if (awaySlot.firstChild) return;
+    if (awaySlot.firstChild) { awaySlot.firstChild.update?.(s); return; }
     fill(awaySlot, wsAwayCard(s, {
       onDismiss: () => { ls(awayKey(), 'dismissed'); fill(awaySlot); listEl.querySelector('.ws-row-link[tabindex="0"]')?.focus(); },
       onOpenQueue: (q) => selectQueue(q),
@@ -288,11 +290,14 @@ export function mount(root, { route, session }) {
       S.threadError = e.status === 404 ? 'This thread is not in the inbox.' : (e.message || 'The message could not be loaded.');
       if (!soft) S.thread = null;
     }
-    if (soft && composer && composer.isConnected && (composer.dirty() || composer.contains(document.activeElement))) { pendingRender = true; return; }
+    if (soft && holdRepaint()) { pendingRender = true; return; }
     paintReading();
   }
+  // A repaint waits only while the person is writing: unsaved text, or the cursor in the subject or the body. Focus on
+  // an action button (they sit inside the composer) does not hold it, or a sign-off request would leave stale buttons.
+  const holdRepaint = () => !!(composer && composer.isConnected && (composer.dirty() || composer.isEditing()));
   function repaintSoon() {
-    if (composer && composer.isConnected && (composer.dirty() || composer.contains(document.activeElement))) { pendingRender = true; return; }
+    if (holdRepaint()) { pendingRender = true; return; }
     paintReading();
   }
   function involve(id) {
@@ -355,7 +360,7 @@ export function mount(root, { route, session }) {
         work));
     readCol.dataset.id = String(t.ticket_id);
     readCol.querySelector('.ws-read-scroll').scrollTop = keepTop;
-    composer?.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && composer && !composer.dirty() && !composer.contains(document.activeElement)) paintReading(); }, 0));
+    composer?.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && !holdRepaint()) paintReading(); }, 0));
     fill(evBody, wsEvidence(t));
     paintEvidenceTab();
   }
@@ -416,7 +421,7 @@ export function mount(root, { route, session }) {
     actionBar = wsActionBar([], { more: moreItems(t, m) });
     return h('div', { class: 'ws-work' }, h('section', { class: 'ws-note is-noreply', 'aria-label': 'No reply needed' },
       h('header', { class: 'ws-note-head' }, icon('circle-dash'), h('span', null, 'No reply needed'), h('span', { class: 'ws-note-sub' }, 'Conductor found nothing to answer.')),
-      t.decision?.why ? h('p', { class: 'ws-note-why' }, maskSensitive(t.decision.why)) : null, actionBar));
+      t.decision?.why && !t.insight?.why ? h('p', { class: 'ws-note-why' }, plainWhy(maskSensitive(t.decision.why, t.invoice_refs || []))) : null, actionBar));
   }
 
   function replyActions(t, m) {
@@ -500,7 +505,8 @@ export function mount(root, { route, session }) {
   }
   async function afterChange(id) {
     await Promise.all([loadQueues(), loadRows({ quiet: true }), S.selected === id ? openThread(id, { soft: true }) : null]);
-    if (S.selected === id && pendingRender) paintReading();
+    // The person just acted on this thread, so show its new state now. (Their text was flushed before the action.)
+    if (S.selected === id && S.thread?.ticket_id === id) paintReading();
   }
 
   async function approveAndSend(t, btn) {
@@ -610,7 +616,7 @@ export function mount(root, { route, session }) {
         setTimeout(() => URL.revokeObjectURL(u), 2000);
       } catch (e) { toast({ message: e.message || 'The PDF could not be downloaded.', tone: 'risk' }); }
     } });
-    modal({ title: a.filename, description: 'Rendered from records. Bank details show the last 4 digits only.', size: 'lg', body,
+    modal({ title: a.filename, description: 'Rendered from records. Bank account numbers are never shown in full.', size: 'lg', body,
       actions: (dlg) => [dl, button({ label: 'Close', variant: 'primary', onClick: () => dlg.close() })], onClose: () => { if (url) URL.revokeObjectURL(url); } });
     try {
       url = await inboxApi.documentBlobUrl(a.kind, a.bill_id, 'html');
@@ -775,7 +781,7 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.syncNow();
       if (!(r.arrived || []).length) toast({ message: 'No new email. Zendesk and Outlook are up to date.' });
-      else { r.arrived.forEach((id) => { S.fresh.add(id); if (!S.arrived.includes(id)) S.arrived.push(id); }); await Promise.all([loadQueues(), loadRows({ quiet: true })]); }
+      else { r.arrived.forEach((id) => { S.fresh.add(id); if (!S.arrived.includes(id)) S.arrived.push(id); }); await Promise.all([loadQueues(), loadRows({ quiet: true }), loadSummary()]); }
     } catch (e) { toast({ message: e.message || 'Sync did not finish.', tone: 'risk' }); }
     finally { setBusy(syncBtn, false); }
   }
@@ -808,17 +814,22 @@ export function mount(root, { route, session }) {
     toast({ message, tone: 'settled', actionLabel: S.selected === id ? null : 'Open', onAction: () => navigate(urlFor(id)) });
   }
   const refreshLists = debounce(() => { loadQueues(); loadRows({ quiet: true }); }, 250);
+  const refreshSummary = debounce(() => { if (S.summary) loadSummary(); }, 400);
   off.push(live.subscribe((ev) => {
     if (destroyed || !ev) return;
     if (ev.at) syncAppClock(ev.at);
     switch (ev.type) {
-      case 'sync.status': S.sync = ev; paintSync(); return;
+      case 'sync.status':
+        S.sync = ev; paintSync();
+        if (S.summary && ev.held_back != null && ev.held_back !== S.summary.held_back) refreshSummary();
+        return;
       case 'queue.counts': loadQueues(); return;
       case 'ticket.arrived':
         S.fresh.add(ev.ticket_id);
         if (!S.arrived.includes(ev.ticket_id)) S.arrived.push(ev.ticket_id);
         liveRegion.textContent = `New email from ${ev.from_name || 'a sender'}: ${ev.subject || ''}`;
         refreshLists();
+        refreshSummary();
         setTimeout(() => { S.fresh.delete(ev.ticket_id); listEl.querySelector(`.ws-row[data-id="${ev.ticket_id}"]`)?.classList.remove('is-new'); }, 8000);
         return;
       default:
@@ -879,6 +890,9 @@ export function mount(root, { route, session }) {
     },
   };
 }
+
+const when = (r) => { const t = Date.parse(r.received_at || ''); return Number.isNaN(t) ? 0 : t; };
+const newestFirst = (a, b) => when(b) - when(a) || b.ticket_id - a.ticket_id;
 
 function loadSet(key) {
   try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); } catch { return new Set(); }

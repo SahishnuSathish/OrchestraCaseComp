@@ -4,7 +4,7 @@
 import { h, icon } from '../../lib.js';
 import { badge, outcomeBadge, riskBadges, contactBadge, chip, avatar } from '../badges.js';
 import { notice } from '../data.js';
-import { maskSensitive, fullTime, clockTime, personName, reasonLabel, firstName } from './format.js';
+import { maskSensitive, fullTime, clockTime, personName, reasonLabel, firstName, isPriority, hasRisk, plainWhy } from './format.js';
 
 const ZENDESK = { open: 'Open', new: 'New', pending: 'Pending', solved: 'Solved', closed: 'Closed', hold: 'On hold' };
 
@@ -23,9 +23,29 @@ export function wsSubjectBar(t, { lead, actions } = {}) {
     actions ? h('div', { class: 'ws-subject-actions' }, actions) : null);
 }
 
+/**
+ * senderBadge(t) - the sender check. A green "Verified contact" only when nothing else on the ticket is a risk: with a
+ * fraud, legal or copied-executive flag the sender is just "Listed contact", in grey, so the chips never disagree.
+ */
+export function senderBadge(t) {
+  if (!t.sender_verified) return contactBadge(false);
+  if (hasRisk(t)) return badge({ label: 'Listed contact', tone: 'neutral', icon: 'user', title: 'The sender is listed on the vendor record. That alone does not make this request safe.' });
+  return contactBadge(true);
+}
+
+/** The outcome chip. A priority reply needs the CFO's sign-off before it is a ready draft. */
+export function outcomeChip(t) {
+  if (t.outcome === 'draft_ready' && isPriority(t)) {
+    return (t.workflow?.state || t.workflow_state) === 'signed_off'
+      ? badge({ label: 'Signed off', tone: 'scheduled', icon: 'circle-check' })
+      : badge({ label: 'Needs sign-off', tone: 'waiting', icon: 'escalations', title: 'The CFO signs off this reply before it goes out' });
+  }
+  return outcomeBadge(t.outcome);
+}
+
 /** The badge row under the subject: outcome, risks and the sender check. */
 export function wsBadgeRow(t) {
-  return h('div', { class: 'ws-badgerow' }, outcomeBadge(t.outcome), ...riskBadges(t.flags || []), contactBadge(t.sender_verified),
+  return h('div', { class: 'ws-badgerow' }, outcomeChip(t), ...riskBadges(t.flags || []), senderBadge(t),
     t.group_size > 1 ? chip({ label: `${t.group_size} threads in this group`, icon: 'link' }) : null);
 }
 
@@ -40,21 +60,31 @@ export function wsInsight(t) {
   const cell = (label, value, cls) => h('div', { class: `ws-insight-cell${cls ? ` ${cls}` : ''}` },
     h('dt', null, label), h('dd', null, value || h('span', { class: 'ws-muted' }, 'Nothing on record')));
   const statusLines = (i.status_line || '').split(';').map((s) => s.trim()).filter(Boolean);
+  const who = ev.vendor ? `for ${ev.vendor.name}` : '';
+  let sender;
+  if (!verified) sender = h('span', { class: 'ws-insight-warn' }, icon('user-x'), 'Not an authorized contact on any vendor record');
+  else if (hasRisk(t)) sender = h('span', { class: 'ws-insight-plain' }, icon('user'), ev.vendor ? `Listed contact ${who}` : 'Listed contact');
+  else sender = h('span', { class: 'ws-insight-ok' }, icon('shield-check'), ev.vendor ? `Authorized contact ${who}` : (ev.requester?.kind === 'employee' ? 'Active Orchestra employee' : 'Verified contact'));
+  const why = i.why ? plainWhy(maskSensitive(i.why, t.invoice_refs || [])) : '';
   return h('section', { class: 'ws-insight', 'aria-label': 'What Conductor found' },
     h('dl', { class: 'ws-insight-grid' },
       cell('They want', i.wants ? sentence(`${firstName(t.from_name) || 'The sender'} ${i.wants}`) : null, 'is-wide'),
-      cell('Invoice matched', i.invoice ? invoiceList(i.invoice) : null),
+      cell(invoiceCount(i.invoice) > 1 ? 'Invoices' : 'Invoice', i.invoice ? invoiceList(i.invoice) : null),
       cell('Records say', statusLines.length ? h('ul', { class: 'ws-insight-list' }, statusLines.map((s) => h('li', null, s))) : null),
-      cell('Sender', verified
-        ? h('span', { class: 'ws-insight-ok' }, icon('shield-check'), ev.vendor ? `Authorized contact for ${ev.vendor.name}` : (ev.requester?.kind === 'employee' ? 'Active Orchestra employee' : 'Verified contact'))
-        : h('span', { class: 'ws-insight-warn' }, icon('user-x'), 'Not an authorized contact on any vendor record')),
-      cell('Why', i.why ? sentence(i.why) : null, 'is-wide')));
+      cell('Sender', sender),
+      why ? cell('Why', why, 'is-wide') : null));
 }
 // "2026-67322 (matched in NetSuite), 61787 (not found)" -> one line per invoice: the number, then how it matched.
+const HOW = { 'matched in netsuite': 'Matched in NetSuite', 'not found': 'Not found', 'ambiguous': 'More than one match' };
+const invoicePairs = (text) => [...String(text || '').matchAll(/([^,(]+?)\s*\(([^)]+)\)/g)].map((m) => [m[1].trim(), m[2].trim()]);
+const invoiceCount = (text) => invoicePairs(text).length;
 function invoiceList(text) {
-  const items = [...String(text).matchAll(/([^,(]+?)\s*\(([^)]+)\)/g)].map((m) => [m[1].trim(), m[2].trim()]);
+  const items = invoicePairs(text);
   if (!items.length) return h('span', { class: 'mono' }, text);
-  return h('ul', { class: 'ws-insight-refs' }, items.map(([ref, how]) => h('li', null, h('span', { class: 'mono' }, ref), ' ', h('span', { class: 'ws-muted' }, how))));
+  return h('ul', { class: 'ws-insight-refs' }, items.map(([ref, how]) => {
+    const words = HOW[how.toLowerCase()] || how.charAt(0).toUpperCase() + how.slice(1);
+    return h('li', { class: /not found/i.test(how) ? 'is-missing' : null }, h('span', { class: 'mono' }, ref), ' ', h('span', { class: 'ws-muted' }, words));
+  }));
 }
 const sentence = (s) => { const x = String(s || '').trim(); return x ? x[0].toUpperCase() + x.slice(1) + (/[.!?]$/.test(x) ? '' : '.') : ''; };
 
