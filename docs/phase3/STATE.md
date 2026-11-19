@@ -5,18 +5,29 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **0, seam commit**
-- Next step: create wave-1 worktrees from the seam commit and start the four workers in one message.
+- Wave: **1 running** (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
+- Next step: when each worker reports, review its diff, then merge in order identity-live → inbox-sync → direct-w9 → design-shell, gate after each.
 
 ## Branches
 
 | Branch | Worktree | Head | Status |
 |---|---|---|---|
-| `phase3/integration` | `orchestra-wt/p3-integration` | (see git log) | seam commit |
+| `phase3/integration` | `orchestra-wt/p3-integration` | `a357880` + this STATE commit | seam done |
+| `p3/identity-live` | `orchestra-wt/p3-identity-live` | from `a357880` | running (Sonnet) |
+| `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | from `a357880` | running (Sonnet) |
+| `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | from `a357880` | running (Sonnet) |
+| `p3/design-shell` | `orchestra-wt/p3-design-shell` | from `a357880` | running (Opus) |
 
 ## Worker agents
 
-(none yet)
+| Branch | Agent id |
+|---|---|
+| p3/identity-live | a619aa0adc6caf17a |
+| p3/inbox-sync | aea55e76ba0103c85 |
+| p3/direct-w9 | a7d5d3e5582bc1292 |
+| p3/design-shell | afb5cc5f3bc50dae1 |
+
+If the session was interrupted, these agents are gone: check each branch's `git log` and restart a worker for whatever tier is missing, with the same brief (the brief text is reproducible from CONTRACTS.md and the prompt's section 6.3).
 
 ## Gate results
 
