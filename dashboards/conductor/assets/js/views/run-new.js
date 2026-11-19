@@ -46,10 +46,38 @@ export function mount(root, { route }) {
   // ------------------------------------------------------------------ 1. dataset
   const input = h('input', { class: 'input mono', id: 'dataset-path', type: 'text', spellcheck: 'false', autocomplete: 'off', placeholder: '/path/to/dataset', 'aria-describedby': 'dataset-status', value: ui.path });
   const validationBox = h('div', { id: 'dataset-status', 'aria-live': 'polite' });
-  const browseBtn = h('button', { class: 'btn', type: 'button', onclick: () => openFolderPicker(ui.path, (p) => setPath(p, true)) }, icon('folder'), 'Browse…');
+  // Browse opens the operating system's own folder window (the server shows it on this computer). If that is not
+  // available here, or the person prefers it, the built-in folder list opens instead.
+  const browseBtn = h('button', { class: 'btn', type: 'button', onclick: () => browse() }, icon('folder'), 'Browse…');
+  const pickNote = h('p', { class: 'help', 'aria-live': 'polite' });
+  let picking = 0; // id of the system folder window we are waiting on; 0 when none
+  let pickSeq = 0;
+  const useBuiltIn = () => { picking = 0; showBrowse(false); openFolderPicker(ui.path, (p) => setPath(p, true)); };
+  function showBrowse(busy) {
+    browseBtn.disabled = busy;
+    fill(browseBtn, busy ? h('span', { class: 'spinner spinner-sm' }) : icon('folder'), busy ? 'Waiting for the folder window…' : 'Browse…');
+    fill(pickNote, busy ? ['A folder window opened on your computer. If you cannot see it, look behind this window, or ',
+      h('button', { class: 'link-btn', type: 'button', onclick: useBuiltIn }, 'use the built-in folder list'), '.'] : null);
+  }
+  async function browse() {
+    if (picking) return;
+    const mine = picking = ++pickSeq;
+    showBrowse(true);
+    try {
+      const r = await api.fsPick(ui.path);
+      if (picking !== mine) return; // the built-in list took over while the window was open
+      if (r.path) setPath(r.path, true);
+    } catch (e) {
+      if (picking !== mine) return;
+      if ([404, 405, 501].includes(e.status)) { picking = 0; showBrowse(false); openFolderPicker(ui.path, (p) => setPath(p, true)); return; }
+      toast({ message: e.message || 'Could not open the folder window.', duration: 6000 });
+    } finally {
+      if (picking === mine) { picking = 0; showBrowse(false); }
+    }
+  }
   fill(datasetBody,
     h('div', { class: 'field' }, h('label', { class: 'label', for: 'dataset-path' }, 'Folder'), h('div', { class: 'input-row' }, input, browseBtn),
-      h('p', { class: 'help' }, 'The folder that holds tickets.json and the vendor, employee, bill, payment and payment-run CSVs.')),
+      h('p', { class: 'help' }, 'The folder that holds tickets.json and the vendor, employee, bill, payment and payment-run CSVs.'), pickNote),
     validationBox);
 
   function setPath(p, immediate) {

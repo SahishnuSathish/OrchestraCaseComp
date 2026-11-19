@@ -144,6 +144,8 @@ export const api = {
   saveModelSettings: (body) => request('PUT', '/api/settings/model', body),
   modelTest: (body, opts) => stream('/api/model/test', body, opts),
   fsList: (path = '') => request('GET', `/api/fs/list?path=${encodeURIComponent(path)}`),
+  // Opens the operating system's own folder window and waits for the choice, so it has no time limit.
+  fsPick: (start = '', opts) => request('POST', '/api/fs/pick', { start }, { timeout: 0, ...opts }),
   validate: (path) => request('POST', '/api/dataset/validate', { path }),
   runs: (opts) => request('GET', '/api/runs?limit=50', undefined, opts),
   startRun: (body) => request('POST', '/api/runs', body),

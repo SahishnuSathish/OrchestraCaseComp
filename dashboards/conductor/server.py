@@ -35,6 +35,7 @@ import db  # noqa: E402
 import delivery  # noqa: E402
 import local_model  # noqa: E402
 import mailer  # noqa: E402
+import native_dialog  # noqa: E402
 import prevention  # noqa: E402
 import reply_checks  # noqa: E402
 import runner  # noqa: E402
@@ -240,6 +241,24 @@ def api_fs_list(path: str = ""):
     parent = str(p.parent) if p.parent != p else ""
     return {"path": str(p), "parent": parent, "entries": entries, "shortcuts": shortcuts,
             "is_dataset": (p / "tickets.json").is_file()}
+
+
+class PickBody(BaseModel):
+    start: str = ""
+
+
+@app.post("/api/fs/pick", dependencies=api)
+def api_fs_pick(body: PickBody):
+    """Open the operating system's own folder window on this computer and wait for the choice. The server only listens
+    on localhost, so that window appears on the person's own screen. 501 means no native window can be shown here (the
+    page then falls back to its built-in folder list); 409 means one is already open."""
+    try:
+        chosen = native_dialog.pick_folder(runner.clean_path(body.start))
+    except native_dialog.Busy as e:
+        raise HTTPException(409, str(e))
+    except native_dialog.Unavailable as e:
+        raise HTTPException(501, str(e))
+    return {"path": chosen, "cancelled": not chosen}
 
 
 class PathBody(BaseModel):
