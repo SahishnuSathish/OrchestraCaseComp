@@ -200,7 +200,10 @@ class ApiTests(unittest.TestCase):
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
         cls.h = signin.headers("cfo")
-        r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False}, headers=cls.h)
+        # model_free: with a local model installed (e.g. qwen3.5:9b), a plain run lets the brief writer upgrade briefs
+        # in the background, and test_run_processed_every_ticket_with_a_brief raced it. A strictly model-free run keeps
+        # the "template brief" assertion independent of what this machine has installed.
+        r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False, "model_free": True}, headers=cls.h)
         assert r.status_code == 200, r.text
         cls.rid = r.json()["run_id"]
         for _ in range(240):
