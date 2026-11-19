@@ -63,7 +63,7 @@ main[data-view="inbox"] { padding-bottom: 0; }
 
 /* ---- up to 1499: a little tighter ----------------------------------------------------------------------- */
 @media (max-width: 1499px) {
-  .ws-inbox { --ws-queues-w: 196px; --ws-list-w: 336px; --ws-ev-w: 316px; }
+  .ws-inbox { --ws-queues-w: 200px; --ws-list-w: 328px; --ws-ev-w: 312px; }
 }
 
 /* ---- 1024 to 1359: Details is a toggle in the reading pane ----------------------------------------------- */
@@ -92,6 +92,7 @@ main[data-view="inbox"] { padding-bottom: 0; }
   .ws-subject { padding: var(--s-3) var(--s-4); }
   .ws-head { padding: 0 var(--s-3) 0 var(--s-4); }
   .ws-head-conn { display: none; }
+  .ws-inbox[data-pane="message"] .ws-head { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -103,8 +104,6 @@ main[data-view="inbox"] { padding-bottom: 0; }
   .ws-subject-actions { order: 3; width: 100%; }
   .ws-subject-actions .ws-side-toggle { width: 100%; }
   .ws-subject-actions .ws-side-toggle .c-tab { flex: 1; justify-content: center; }
-  .ws-insight-grid { grid-template-columns: minmax(0, 1fr); }
-  .ws-insight-cell:not(.is-wide) + .ws-insight-cell:not(.is-wide) { border-left: 0; }
   .ws-msg-head { grid-template-columns: 32px minmax(0, 1fr); }
   .ws-msg-date { grid-column: 2; }
   .ws-msg-body { padding: var(--s-3); }

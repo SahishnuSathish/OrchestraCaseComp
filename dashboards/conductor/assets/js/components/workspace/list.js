@@ -65,7 +65,7 @@ export function wsMessageRow(r, { selected = false, opened = false, selectMode =
   h('span', { class: 'ws-row-main' },
     h('span', { class: 'ws-row-line' },
       h('span', { class: 'ws-row-from' }, r.from_name || r.from_email || 'Unknown sender'),
-      r.company ? h('span', { class: 'ws-row-company' }, r.company) : null,
+      r.company && r.company !== r.from_name ? h('span', { class: 'ws-row-company' }, r.company) : null,
       h('time', { class: 'ws-row-time', datetime: r.received_at || null }, listTime(r.received_at))),
     h('span', { class: 'ws-row-line' },
       h('span', { class: 'ws-row-subject' }, r.subject || 'No subject'),

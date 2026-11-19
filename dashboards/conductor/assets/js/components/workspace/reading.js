@@ -43,12 +43,18 @@ export function wsInsight(t) {
   return h('section', { class: 'ws-insight', 'aria-label': 'What Conductor found' },
     h('dl', { class: 'ws-insight-grid' },
       cell('They want', i.wants ? sentence(`${firstName(t.from_name) || 'The sender'} ${i.wants}`) : null, 'is-wide'),
-      cell('Invoice matched', i.invoice ? h('span', { class: 'ws-insight-mono' }, i.invoice) : null),
+      cell('Invoice matched', i.invoice ? invoiceList(i.invoice) : null),
       cell('Records say', statusLines.length ? h('ul', { class: 'ws-insight-list' }, statusLines.map((s) => h('li', null, s))) : null),
       cell('Sender', verified
         ? h('span', { class: 'ws-insight-ok' }, icon('shield-check'), ev.vendor ? `Authorized contact for ${ev.vendor.name}` : (ev.requester?.kind === 'employee' ? 'Active Orchestra employee' : 'Verified contact'))
         : h('span', { class: 'ws-insight-warn' }, icon('user-x'), 'Not an authorized contact on any vendor record')),
       cell('Why', i.why ? sentence(i.why) : null, 'is-wide')));
+}
+// "2026-67322 (matched in NetSuite), 61787 (not found)" -> one line per invoice: the number, then how it matched.
+function invoiceList(text) {
+  const items = [...String(text).matchAll(/([^,(]+?)\s*\(([^)]+)\)/g)].map((m) => [m[1].trim(), m[2].trim()]);
+  if (!items.length) return h('span', { class: 'mono' }, text);
+  return h('ul', { class: 'ws-insight-refs' }, items.map(([ref, how]) => h('li', null, h('span', { class: 'mono' }, ref), ' ', h('span', { class: 'ws-muted' }, how))));
 }
 const sentence = (s) => { const x = String(s || '').trim(); return x ? x[0].toUpperCase() + x.slice(1) + (/[.!?]$/.test(x) ? '' : '.') : ''; };
 

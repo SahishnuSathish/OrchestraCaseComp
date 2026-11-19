@@ -302,7 +302,6 @@ export function mount(root, { route, session }) {
     const back = h('a', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm ws-back', href: urlFor(null), 'aria-label': 'Back to the message list', title: 'Back to the list' }, icon('arrow-left'));
     if (!S.selected) {
       composer = null;
-      document.title = 'Inbox · Conductor';
       fill(readCol, h('div', { class: 'ws-read-empty' }, empty({ icon: 'mail', title: 'Select a message to read it', text: 'The draft, the records behind it and every action are on the message. Use the up and down keys to move through the list.' })));
       fill(evBody, h('div', { class: 'ws-ev' }, h('p', { class: 'ws-ev-note' }, 'The requester, the vendor and the records for the open message show here.')));
       chatSlot.hidden = true;
@@ -348,7 +347,6 @@ export function mount(root, { route, session }) {
     composer?.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && composer && !composer.dirty() && !composer.contains(document.activeElement)) paintReading(); }, 0));
     fill(evBody, wsEvidence(t));
     paintEvidenceTab();
-    document.title = `${t.subject || `#${t.ticket_id}`} · Inbox · Conductor`;
   }
   function paintEvidenceTab() {
     evTabs.select(S.evTab);
