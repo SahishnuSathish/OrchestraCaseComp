@@ -254,7 +254,7 @@ class ThreadAndQueueTests(InboxCase):
         rows = self.get("/api/inbox/threads")["rows"]
         keys = {"ticket_id", "from_name", "from_email", "company", "subject", "snippet", "received_at", "source", "zendesk_status", "outcome",
                 "intent", "invoice_refs", "flags", "sender_verified", "assignee", "workflow_state", "review_state", "group_id", "group_size",
-                "reading"}
+                "reading", "category"}
         for r in rows:
             self.assertEqual(set(r), keys)
             self.assertEqual(r["source"], "Outlook")

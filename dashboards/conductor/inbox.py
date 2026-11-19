@@ -410,6 +410,7 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
             "zendesk_status": st.get("zendesk_status") or ctx.get("status") or "open", "outcome": m["outcome"],
             "intent": m["row"].get("intent"), "invoice_refs": list(m["refs"]), "flags": list(m["flags"]),
             "sender_verified": m["sender_verified"], "assignee": wf.get("assignee"), "workflow_state": wf.get("state") or "open",
+            "category": wf.get("category"),   # sign-off category (priority, fraud, returned, early_or_late_fee) or None
             "review_state": rv, "group_id": gid, "group_size": gsize, "reading": tid in _READING,
         }
         out.append((row, _queues_for(m, rv, wf, tid in sched, viewer)))

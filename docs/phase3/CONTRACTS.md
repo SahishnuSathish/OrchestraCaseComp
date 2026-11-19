@@ -114,7 +114,7 @@ Endpoints (`ap_specialist`, `cfo`):
 | `DELETE /api/inbox/threads/{ticket_id}/attachments/{attachment_id}` | `{attachments: [...]}` |
 | `GET /api/connections` | `{connections: [{id: zendesk \| outlook \| netsuite \| model, name, status, last_sync, scopes: [str], detail}], log: [{at, text}]}` |
 
-`ThreadRow` = `{ticket_id, from_name, from_email, company, subject, snippet, received_at, source: "Outlook", zendesk_status, outcome, intent, invoice_refs, flags: [fraud \| legal \| exec_cc \| injection], sender_verified: bool, assignee, workflow_state, review_state, group_id, group_size, reading: bool}`.
+`ThreadRow` = `{ticket_id, from_name, from_email, company, subject, snippet, received_at, source: "Outlook" | "Conductor: Direct", zendesk_status, outcome, intent, invoice_refs, flags: [fraud | legal | exec_cc | injection], sender_verified: bool, assignee, workflow_state, category (sign-off category or null), review_state, group_id, group_size, reading: bool}`\| legal \| exec_cc \| injection], sender_verified: bool, assignee, workflow_state, review_state, group_id, group_size, reading: bool}`.
 
 `Thread` = `ThreadRow` plus `{headers: {from, to, cc, date, subject}, messages: [{author, email, at, body, public, attachments: [name]}], insight: {wants, invoice, status_line, why}, result: <bundle.result>, decision: <bundle.decision>, review: <same as today's detail>, workflow: <§6 state>, evidence: Evidence, attachments: [Attachment], schedule: <today's schedule payload or null>, run_id}`.
 
@@ -151,7 +151,7 @@ Endpoints:
 | Method and path | Who | Body |
 |---|---|---|
 | `GET /api/workflow/{ticket_id}` | staff | → `{state, category, assignee, history: [Audit], chases: [...], signoff: {hash, by, at} \| null}` |
-| `POST /api/workflow/{ticket_id}/escalate` | staff | `{reason: legal \| exec \| fraud \| bank_change \| returned \| early_payment \| late_fee \| conflict \| other, note}` |
+| `POST /api/workflow/{ticket_id}/escalate` | staff | `{reason:`ThreadRow` = `{ticket_id, from_name, from_email, company, subject, snippet, received_at, source: "Outlook" | "Conductor: Direct", zendesk_status, outcome, intent, invoice_refs, flags: [fraud | legal | exec_cc | injection], sender_verified: bool, assignee, workflow_state, category (sign-off category or null), review_state, group_id, group_size, reading: bool}`\| exec \| fraud \| bank_change \| returned \| early_payment \| late_fee \| conflict \| other, note}` |
 | `POST /api/workflow/{ticket_id}/request-signoff` | staff | `{note}` |
 | `POST /api/workflow/{ticket_id}/return` | cfo | `{guidance}` (required) |
 | `POST /api/workflow/{ticket_id}/signoff` | cfo | `{reply_hash}` (must match the current reply) |
