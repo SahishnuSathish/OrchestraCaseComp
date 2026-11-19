@@ -5,7 +5,8 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **2 running** (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes). (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
+- Wave: **2 running** (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes).
+- Wave 2 hit the usage limit early (all three were still reading code; reset 3:30 am). Resumed with SendMessage, same agent ids, at 23:55. (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
 
