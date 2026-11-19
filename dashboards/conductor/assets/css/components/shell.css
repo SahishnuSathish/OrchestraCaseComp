@@ -72,7 +72,7 @@
 .c-conn-row-text { display: flex; flex-direction: column; gap: 1px; font-size: var(--fs-xs); color: var(--color-text-secondary); min-width: 0; }
 .c-conn-row-text strong { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-md); color: var(--color-text); }
 .c-conn-state { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--color-settled-text); }
-.c-conn-row .mono { color: var(--color-text); }
+.c-conn-detail { color: var(--color-text); overflow-wrap: anywhere; }
 
 /* user */
 .c-user {
@@ -86,6 +86,10 @@
 .c-user-caret { width: 14px; height: 14px; color: var(--topbar-muted); }
 
 /* ---- rail -------------------------------------------------------------------------------------------- */
+/* one destination (approvers): no rail on desktop, no bottom tab bar on a phone */
+html[data-no-rail] .c-app { grid-template-columns: minmax(0, 1fr); }
+html[data-no-rail] .c-rail { display: none; }
+html[data-no-rail] .c-staff { --bottombar-h: 0px; }
 .c-rail {
   position: sticky; top: var(--chrome-h); height: calc(100dvh - var(--chrome-h)); z-index: var(--z-rail);
   display: flex; flex-direction: column; justify-content: space-between; padding: var(--s-2) 0;
