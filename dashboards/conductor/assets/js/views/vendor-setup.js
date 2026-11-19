@@ -29,6 +29,18 @@ const UPLOAD_STATE = {
 };
 const NEXT_STEP = 'Update NetSuite vendor record';
 
+// Open bills split two ways: already scheduled for a payment run (the status names the date), and the rest, which the
+// W-9 holds up. Each list is in number order (OF1381 before OF12162), scheduled ones by payment date first.
+const SCHEDULED = /^Scheduled for payment on (.+)$/i;
+const billNo = (b) => Number(String(b.tranId || '').replace(/\D+/g, '')) || 0;
+const payDate = (b) => { const m = SCHEDULED.exec(b.status || ''); return m ? Date.parse(m[1]) || 0 : 0; };
+function splitBills(bills = []) {
+  const scheduled = bills.filter((b) => SCHEDULED.test(b.status || '')).sort((a, b) => payDate(a) - payDate(b) || billNo(a) - billNo(b));
+  const held = bills.filter((b) => !SCHEDULED.test(b.status || '')).sort((a, b) => billNo(a) - billNo(b));
+  return { held, scheduled };
+}
+const sum = (list) => list.reduce((n, b) => n + (Number(b.amount) || 0), 0);
+
 export function mount(root, { route }) {
   let alive = true;
   let rows = null;
@@ -43,7 +55,7 @@ export function mount(root, { route }) {
   const filterSlot = h('div');
   const listPane = h('section', { class: 'c-pane vs-list', 'aria-labelledby': 'vs-list-h' },
     h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'vs-list-h' }, 'Vendors'),
-      h('p', { class: 'c-pane-sub' }, 'Most bills held first.')), filterSlot),
+      h('p', { class: 'c-pane-sub' }, 'Most open bills first.')), filterSlot),
     listBody);
   const detailPane = h('section', { class: 'c-pane vs-detail', 'aria-label': 'Selected vendor', tabindex: '-1' });
   const grid = h('div', { class: 'vs-grid' }, listPane, detailPane);
@@ -73,11 +85,11 @@ export function mount(root, { route }) {
     }
     fill(listBody, h('ul', { class: 'vs-rows' }, list.map((r) => {
       const active = r.vendor_id === selected;
-      const total = (r.bills_held || []).reduce((n, b) => n + (Number(b.amount) || 0), 0);
+      const { held } = splitBills(r.bills_held);
       return h('li', null, h('a', { class: `vs-row${active ? ' is-active' : ''}`, href: `#/vendor-setup/${r.vendor_id}`, 'aria-current': active ? 'true' : null },
         h('div', { class: 'vs-row-top' }, h('strong', { class: 'truncate' }, r.vendor), statusBadge(r.status, r.label)),
         h('div', { class: 'vs-row-sub' },
-          h('span', null, `${plural((r.bills_held || []).length, 'bill')} held`), h('span', { class: 'money' }, fmtMoney(total)),
+          h('span', null, `${plural((r.bills_held || []).length, 'open bill')}, ${held.length} held by the W-9`), h('span', { class: 'money' }, fmtMoney(sum(held))),
           hasUpload(r) ? badge({ ...UPLOAD_STATE.received }) : null)));
     })));
   }
@@ -150,12 +162,19 @@ export function mount(root, { route }) {
   }
 
   function billsSection(bills) {
-    const total = bills.reduce((n, b) => n + (Number(b.amount) || 0), 0);
-    return h('section', { class: 'vs-section', 'aria-labelledby': 'vs-bills-h' },
-      h('h3', { class: 'vs-h3', id: 'vs-bills-h' }, 'Bills held up', h('span', { class: 'lv-count' }, bills.length), h('span', { class: 'money vs-total' }, fmtMoney(total))),
-      bills.length ? h('ul', { class: 'vs-bills' }, bills.map((b) => h('li', { class: 'vs-bill' },
-        h('span', { class: 'mono' }, b.tranId), h('span', { class: 'money' }, fmtMoney(b.amount)), h('span', { class: 'lv-muted vs-bill-st' }, b.status))))
-        : h('p', { class: 'lv-muted' }, 'No open bills for this vendor.'));
+    const { held, scheduled } = splitBills(bills);
+    const list = (id, title, sub, rows) => h('section', { class: 'vs-section', 'aria-labelledby': id },
+      h('h3', { class: 'vs-h3', id }, title, h('span', { class: 'lv-count' }, rows.length), h('span', { class: 'money vs-total' }, fmtMoney(sum(rows)))),
+      h('p', { class: 'lv-muted vs-sub' }, sub),
+      h('ul', { class: 'vs-bills' }, rows.map((b) => h('li', { class: 'vs-bill' },
+        h('span', { class: 'mono' }, b.tranId), h('span', { class: 'money' }, fmtMoney(b.amount)), h('span', { class: 'lv-muted vs-bill-st' }, b.status)))));
+    if (!bills.length) {
+      return h('section', { class: 'vs-section', 'aria-labelledby': 'vs-bills-h' }, h('h3', { class: 'vs-h3', id: 'vs-bills-h' }, 'Open bills'),
+        h('p', { class: 'lv-muted' }, 'No open bills for this vendor.'));
+    }
+    return h('div', { class: 'vs-billgroups' },
+      held.length ? list('vs-held-h', 'Held by the W-9', 'Open bills not yet in a payment run, in number order.', held) : null,
+      scheduled.length ? list('vs-sched-h', 'Already scheduled', 'In a payment run already, by payment date.', scheduled) : null);
   }
 
   // ---- the extraction card
