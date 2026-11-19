@@ -47,6 +47,7 @@ If the session was interrupted, these agents are gone: check each branch's `git 
 | After direct-w9 (+fix `3ff281f`) | 383 run, 1 fail (notice-hook test looked only at the last publish; fixed) | 75/75 | 100% / 100% | E2E over HTTP: staff and vendor SSO, 403/404 isolation, invoices, remittance PDF, Direct question lands in the inbox, W-9 queue, approver queue | |
 | After design-shell (wave 1 complete) | 383 run, **OK** (1 skip) | 75/75 | **100% / 100%** | Browser: hub → Microsoft picker → Ulla → handshake → `/app#/inbox`, no console errors | old suite retired |
 | After direct-ui (+fix `3ef75c6`) | 383 run, OK (1 skip) | 75/75 | 100% / 100% | | |
+| After wave 2 (all UI merged, + fixes `763bf72`, `b571416`) | 383 run, **OK** (1 skip) | **85/85** (router tests rewritten for the new routes) | **100% / 100%** | Browser (me): hub → Ulla → inbox → open #41478 → Approve & send → toast, Solved, Sent 1, receipt; Ahead page renders | p3/smoke being rewritten |
 | Seam | 218 run: 217 pass, 1 skip, 0 fail (the flaky test passed this time). One legitimate test change: `test_webapp.BrandTests` now reads `/app` (the workspace moved; `/` is the hub) | 75/75 | 100% / 100% | `/` hub, `/app`, `/direct`, `/api/health` all answer | not run: the old suite targets `/` as the workspace. Rewritten in wave 3 (`p3/smoke`) |
 
 Gate rule: **no new failures**. The flaky model-selection test is a known baseline issue, not to be masked.
