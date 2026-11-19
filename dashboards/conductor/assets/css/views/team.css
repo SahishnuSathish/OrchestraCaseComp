@@ -1,1 +1,44 @@
-/* Phase 3 seam stub. Owner: p3/leadership-ui. */
+/* Team overview (#/team, CFO). Owner: p3/leadership-ui. */
+@import url("../components/leadership.css");
+
+.tm-page { max-width: calc(1320px + var(--page-pad) * 2); }
+.tm-kpis { margin-bottom: var(--s-5); }
+.tm-stats { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.tm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-4); align-items: start; }
+.tm-col { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+.tm-wide { grid-column: 1 / -1; min-width: 0; }
+.tm-card > .c-pane-body { display: flex; flex-direction: column; gap: var(--s-3); }
+.tm-h3 { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-text-secondary); }
+.tm-h3 + .lv-figure { margin-top: calc(var(--s-1) * -1); }
+.tm-note { font-size: var(--fs-sm); color: var(--color-text-secondary); }
+
+.tm-live { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--color-text-secondary); }
+.tm-activity { max-height: 340px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--color-border); }
+.tm-act { display: grid; grid-template-columns: 20px minmax(0, 1fr) max-content; align-items: start; gap: var(--s-2); padding: var(--s-2) var(--s-3); border-top: 1px solid var(--color-border); font-size: var(--fs-sm); }
+.tm-act:first-child { border-top: 0; }
+.tm-act-icon { color: var(--color-text-muted); padding-top: 2px; }
+.tm-act-text { min-width: 0; overflow-wrap: anywhere; }
+.tm-act-at { font-size: var(--fs-xs); color: var(--color-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tm-act-empty { padding: var(--s-4); font-size: var(--fs-sm); }
+
+.tm-recent { display: flex; flex-direction: column; gap: var(--s-2); font-size: var(--fs-sm); }
+.tm-recent p { margin-top: 2px; color: var(--color-text-secondary); }
+
+.tm-detail { display: inline-block; max-width: 48ch; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.tm-audit .c-table-wrap { max-height: 420px; overflow: auto; }
+
+.tm-people { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--s-4); }
+.tm-person { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4); border: 1px solid var(--color-border); }
+.tm-person-head { display: flex; align-items: center; gap: var(--s-3); }
+.tm-person-head p { font-size: var(--fs-xs); }
+.tm-cats { display: flex; gap: 6px; flex-wrap: wrap; }
+.tm-exp-actions { display: flex; align-items: center; gap: var(--s-3); }
+.tm-exp-status { font-size: var(--fs-xs); }
+
+@media (max-width: 1023px) {
+  .tm-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .tm-people { grid-template-columns: minmax(0, 1fr); }
+  .tm-audit .c-table-wrap { max-height: none; }
+}

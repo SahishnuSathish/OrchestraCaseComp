@@ -1,1 +1,99 @@
-/* Phase 3 seam stub. Owner: p3/leadership-ui. */
+/* Conductor: Ahead (#/ahead). The hero is the one bold moment: the line, the count of tickets prevented and the
+   named tickets. Everything below is quiet review rows. Owner: p3/leadership-ui. */
+@import url("../components/leadership.css");
+
+.ah-page { max-width: calc(1240px + var(--page-pad) * 2); }
+
+/* hero */
+.ah-hero {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3);
+  padding: var(--s-6) var(--s-6) var(--s-5); margin-bottom: var(--s-5);
+  background: var(--color-surface); border: 1px solid var(--color-border); border-top: 4px solid var(--color-ahead-ink);
+}
+.ah-hero-brand { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-ahead-ink); }
+.ah-title {
+  max-width: 18ch; font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-display); line-height: 1.04;
+  font-weight: var(--fw-bold); letter-spacing: -0.025em; color: var(--color-text); text-wrap: balance;
+}
+.ah-lede { max-width: 62ch; font-size: var(--fs-lg); line-height: var(--lh-body); color: var(--color-text-secondary); }
+.ah-hero-text { display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
+.ah-impact-loading { max-width: 420px; }
+.ah-hero-figure { display: flex; flex-direction: column; gap: var(--s-2); padding-top: var(--s-4); border-top: 1px solid var(--color-border); }
+.ah-stats-slot:empty { display: none; }
+@media (min-width: 1100px) {
+  .ah-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s-6); row-gap: var(--s-5); }
+  .ah-figure-slot { align-self: end; }
+  .ah-hero-figure { padding-top: 0; padding-left: var(--s-5); border-top: 0; border-left: 1px solid var(--color-border); }
+  .ah-stats-slot { grid-column: 1 / -1; }
+}
+.ah-figure { display: flex; align-items: flex-end; gap: var(--s-3); flex-wrap: wrap; }
+.ah-figure-value {
+  font-family: var(--font-sans); font-size: 64px; line-height: 0.9; font-weight: var(--fw-semibold); letter-spacing: -0.03em; color: var(--color-ahead-ink);
+}
+.ah-figure-label { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.ah-figure-sub { max-width: 52ch; font-size: var(--fs-sm); font-weight: var(--fw-regular); color: var(--color-text-secondary); }
+.ah-named { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-sm); }
+.ah-named .c-chip { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ah-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* tab bar */
+.ah-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-4); border-bottom: 1px solid var(--color-border); }
+.ah-tabs { min-width: 0; max-width: 100%; }
+.ah-tabs .c-tabs-line { border-bottom: 0; }
+.ah-bar-tools { display: flex; align-items: center; gap: var(--s-2); padding-bottom: 6px; }
+.ah-bar-tools .lv-meta { margin: 0; }
+.ah-panel:focus { outline: none; }
+.ah-section { display: flex; flex-direction: column; gap: var(--s-3); }
+.ah-sent { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+.ah-chase { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: var(--fs-xs); color: var(--color-text-secondary); }
+.lv-refs .c-chip { font-family: var(--font-mono); }
+
+.ah-bills { margin-top: var(--s-2); border: 1px solid var(--color-border); }
+.ah-bill {
+  display: grid; grid-template-columns: minmax(84px, max-content) minmax(0, 1fr) minmax(96px, max-content) minmax(84px, max-content) minmax(0, max-content);
+  align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-3); border-top: 1px solid var(--color-border); font-size: var(--fs-sm);
+}
+.ah-bill:first-child { border-top: 0; }
+.ah-bill .money { text-align: right; }
+.ah-bill-vendor { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ah-bill-tickets { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* see it on one invoice */
+.ah-one { display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-5); background: var(--color-surface); border: 1px solid var(--color-border); }
+.ah-one-invoice { display: flex; align-items: center; gap: var(--s-2) var(--s-4); flex-wrap: wrap; padding-bottom: var(--s-4); border-bottom: 1px solid var(--color-border); font-size: var(--fs-md); }
+.ah-rule { font-size: var(--fs-sm); max-width: 90ch; }
+.ah-steps { display: flex; flex-direction: column; }
+.ah-step { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--s-3); padding-bottom: var(--s-5); }
+.ah-step:last-child { padding-bottom: 0; }
+.ah-step:not(:last-child)::before { content: ""; position: absolute; left: 13px; top: 30px; bottom: 2px; width: 2px; background: var(--color-border); }
+.ah-step.is-done:not(:last-child)::before { background: var(--color-settled); }
+.ah-step-n {
+  display: grid; place-items: center; width: 28px; height: 28px; font-size: var(--fs-sm); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary); background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-round);
+}
+.ah-step.is-current .ah-step-n { color: var(--color-on-action); background: var(--color-action); border-color: var(--color-action); }
+.ah-step.is-done .ah-step-n { color: var(--color-settled-text); background: var(--color-settled-bg); border-color: var(--color-settled-border); }
+.ah-step-n .icon { width: 14px; height: 14px; }
+.ah-step-body { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); min-width: 0; padding-top: 3px; }
+.ah-step-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.ah-step-body .lv-letter { margin-top: 0; }
+
+.ah-direct { width: 100%; max-width: 520px; border: 1px solid var(--color-direct-raised); background: var(--color-surface); }
+.ah-direct-bar { display: flex; align-items: center; gap: var(--s-2); padding: 8px var(--s-3); background: var(--color-direct); color: var(--color-text-inverse); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+.ah-direct-co { margin-left: auto; font-weight: var(--fw-regular); color: var(--color-direct-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ah-direct-body { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); font-size: var(--fs-sm); line-height: var(--lh-body); }
+.ah-direct-row { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.ah-direct-src { font-size: var(--fs-xs); color: var(--color-text-muted); }
+.ah-direct-check { padding: 0 var(--s-3) var(--s-3); }
+
+@media (max-width: 767px) {
+  .ah-hero { padding: var(--s-5) var(--s-4) var(--s-4); }
+  .ah-title { font-size: var(--fs-display-sm); }
+  .ah-lede { font-size: var(--fs-md); }
+  .ah-figure-value { font-size: 52px; }
+  .ah-bar-tools { width: 100%; justify-content: space-between; }
+  .ah-one { padding: var(--s-4); }
+  .ah-bill { grid-template-columns: minmax(0, 1fr) max-content; }
+  .ah-bill-vendor { grid-column: 1 / -1; grid-row: 2; }
+  .ah-bill-tickets { grid-column: 1 / -1; }
+}
