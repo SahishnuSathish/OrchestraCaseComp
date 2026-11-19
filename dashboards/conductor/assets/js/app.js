@@ -34,7 +34,8 @@ const VIEWS = {
   inbox: inboxView, escalations: escalationsView, team: teamView, approver: approverView, ahead: aheadView,
   'vendor-setup': vendorSetupView, connections: connectionsView, styleguide: styleguideView,
 };
-const LEGACY = new Set(['runs', 'run-new', 'overview', 'tickets', 'review', 'prevent', 'settings', 'not-found']);
+// '#/settings' is the new Connections page (views/settings.js re-exports it), so it gets no legacy context bar.
+const LEGACY = new Set(['runs', 'run-new', 'overview', 'tickets', 'review', 'prevent', 'not-found']);
 const TITLES = {
   inbox: 'Inbox', escalations: 'Escalations', team: 'Team', approver: 'Waiting on you', ahead: 'Conductor: Ahead',
   'vendor-setup': 'Vendor setup', connections: 'Settings', styleguide: 'Style guide', runs: 'Runs', 'run-new': 'New run',
