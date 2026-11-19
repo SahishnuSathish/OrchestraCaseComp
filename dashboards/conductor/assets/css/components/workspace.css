@@ -101,9 +101,11 @@
 .ws-insight-refs .mono { font-family: var(--font-mono); font-size: 12.5px; }
 .ws-insight-refs .ws-muted { font-size: var(--fs-xs); }
 .ws-insight-list { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); }
-.ws-insight-ok, .ws-insight-warn { display: inline-flex; align-items: flex-start; gap: 6px; font-size: var(--fs-sm); }
+.ws-insight-ok, .ws-insight-warn, .ws-insight-plain { display: inline-flex; align-items: flex-start; gap: 6px; font-size: var(--fs-sm); }
 .ws-insight-ok .icon { color: var(--color-settled); flex: none; margin-top: 2px; }
 .ws-insight-warn .icon { color: var(--color-waiting-text); flex: none; margin-top: 2px; }
+.ws-insight-plain .icon { color: var(--color-text-muted); flex: none; margin-top: 2px; }
+.ws-insight-refs li.is-missing .ws-muted { color: var(--color-waiting-text); }
 .ws-muted { color: var(--color-text-muted); }
 
 .ws-fraud { display: flex; align-items: flex-start; gap: var(--s-3); padding: var(--s-3) var(--s-4); background: var(--color-risk); color: var(--p-white); }
@@ -267,6 +269,15 @@
 .ws-brief { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px var(--s-3); font-size: var(--fs-sm); }
 .ws-brief dt { font-weight: var(--fw-semibold); color: var(--color-text-secondary); }
 .ws-brief dd { line-height: 1.5; overflow-wrap: anywhere; }
+/* "How Conductor got here": closed by default, a quiet disclosure under the facts. */
+.ws-steps-summary { display: flex; align-items: center; gap: 6px; min-height: 28px; cursor: pointer; list-style: none; }
+.ws-steps-summary::-webkit-details-marker { display: none; }
+.ws-steps-summary .ws-ev-hint { margin-left: auto; }
+.ws-steps-chev { width: 14px; height: 14px; color: var(--color-text-muted); transition: transform var(--dur-fast) var(--ease-out); }
+.ws-steps[open] .ws-steps-chev { transform: rotate(90deg); }
+.ws-steps-summary:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .ws-steps-summary:hover .ws-ev-title { text-decoration: underline; text-underline-offset: 3px; } }
+.ws-steps[open] .ws-trail { margin-top: var(--s-2); }
 .ws-trail { display: flex; flex-direction: column; counter-reset: step; }
 .ws-trail li { position: relative; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 2px var(--s-2); padding-bottom: var(--s-2); counter-increment: step; font-size: var(--fs-sm); }
 .ws-trail li::before { content: counter(step); grid-row: 1 / 3; display: grid; place-items: center; width: 20px; height: 20px; font: var(--fw-medium) 11px / 1 var(--font-mono); color: var(--color-text-secondary); border: 1px solid var(--color-border-strong); }

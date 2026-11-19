@@ -23,7 +23,7 @@ import { wsEvidence } from '../components/workspace/evidence.js';
 import { wsComposer, wsActionBar, wsNotePanel, wsDecidePanel, wsFeedback } from '../components/workspace/composer.js';
 import { ticketTabs } from '../components/workspace/tabs-store.js';
 import {
-  mode as threadMode, replyHash, syncAppClock, personName, firstName, ESCALATE_REASONS, suggestedReason, SPECIALISTS, isFraud, maskSensitive,
+  mode as threadMode, replyHash, syncAppClock, personName, firstName, ESCALATE_REASONS, suggestedReason, SPECIALISTS, isFraud, maskSensitive, plainWhy,
 } from '../components/workspace/format.js';
 
 const DEFAULT_QUEUE = 'needs_reply';
@@ -416,7 +416,7 @@ export function mount(root, { route, session }) {
     actionBar = wsActionBar([], { more: moreItems(t, m) });
     return h('div', { class: 'ws-work' }, h('section', { class: 'ws-note is-noreply', 'aria-label': 'No reply needed' },
       h('header', { class: 'ws-note-head' }, icon('circle-dash'), h('span', null, 'No reply needed'), h('span', { class: 'ws-note-sub' }, 'Conductor found nothing to answer.')),
-      t.decision?.why ? h('p', { class: 'ws-note-why' }, maskSensitive(t.decision.why)) : null, actionBar));
+      t.decision?.why && !t.insight?.why ? h('p', { class: 'ws-note-why' }, plainWhy(maskSensitive(t.decision.why, t.invoice_refs || []))) : null, actionBar));
   }
 
   function replyActions(t, m) {
