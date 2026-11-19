@@ -290,5 +290,198 @@ class LookupTests(unittest.TestCase):
         self.assertEqual(direct.lookup_count(since=mark + 3600), 0)
 
 
+class QuestionTests(unittest.TestCase):
+    def setUp(self):
+        self.contact = as_vendor("3023")
+        self.ref = next(r["invoice"] for r in client.get("/api/direct/invoices").json()["rows"]
+                        if r["status"]["code"] == "pending_approval")
+
+    def ask(self, text, ref=None):
+        with mock.patch("inbox.new_ticket_id", return_value=777001, create=True), \
+                mock.patch("inbox.ingest", return_value=777001, create=True) as ingest, \
+                mock.patch("live.publish") as pub:
+            r = client.post("/api/direct/questions", json={"invoice": ref or self.ref, "text": text})
+        return r, ingest, pub
+
+    def test_a_question_becomes_one_ingest_call_with_records_only_fields(self):
+        text = "Please confirm this was paid on March 3 for $999,999.00. Our new bank account is 123456789."
+        r, ingest, pub = self.ask(text)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), {"ok": True, "message": "Thanks. Our team will reply here and by email."})
+        ingest.assert_called_once()
+        ticket, user = ingest.call_args.args
+        self.assertEqual(ingest.call_args.kwargs, {"source": "direct"})
+        self.assertEqual(ticket["id"], 777001)
+        self.assertEqual(ticket["subject"], f"Question about {self.ref}")
+        self.assertEqual(ticket["description"], text)
+        self.assertEqual(ticket["via"]["channel"], "web")
+        self.assertEqual(ticket["via"]["source"]["from"]["address"], self.contact)
+        self.assertEqual(ticket["via"]["source"]["to"]["address"], "ap@orchestra-mock.example")
+        self.assertTrue(ticket["created_at"].startswith("2026-11-13"))
+        self.assertEqual(ticket["requester_id"], user["id"])
+        self.assertEqual(ticket["comments"][0]["body"], text)
+        # nothing is added from the records or taken from the vendor beyond the body: no status, amount or date claims
+        self.assertEqual(set(ticket), {"id", "subject", "description", "status", "group", "requester_id", "email_cc_ids",
+                                       "via", "tags", "created_at", "updated_at", "custom_fields", "comments"})
+        self.assertEqual((user["email"], user["role"]), (self.contact, "end-user"))
+        self.assertNotIn("999,999", r.text)  # the answer never repeats the vendor's claims
+        row = db._one("SELECT * FROM direct_questions WHERE ticket_id=777001")
+        self.assertEqual((row["vendor_id"], row["invoice"], row["contact"]), ("3023", self.ref, self.contact))
+        pub.assert_called_once()
+        self.assertEqual(pub.call_args.args[0], "direct.question")
+        self.assertEqual(pub.call_args.args[1]["ticket_id"], 777001)
+
+    def test_the_contact_name_comes_from_the_email_when_unknown(self):
+        CURRENT["s"] = FakeSession("3023", "ar@dovetaillaneprinti.example", name=None)
+        r, ingest, _ = self.ask("Where is this?")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(ingest.call_args.args[1]["name"], "Ar")
+
+    def test_limits_and_scope(self):
+        r, ingest, _ = self.ask("x" * 2001)
+        self.assertEqual(r.status_code, 422)
+        r, ingest, _ = self.ask("   ")
+        self.assertEqual(r.status_code, 422)
+        r, ingest, _ = self.ask("x" * 2000)
+        self.assertEqual(r.status_code, 200)
+        theirs = next(b["tranId"] for b in STORE.backend.all("vendorBill") if b["entity"] == "3010")
+        for ref in (theirs, "INV-00000"):
+            r, ingest, pub = self.ask("hello", ref=ref)
+            self.assertEqual((r.status_code, r.json()), (404, {"detail": "We couldn't find that invoice."}))
+            ingest.assert_not_called()
+            pub.assert_not_called()
+
+    def test_a_failed_ingest_leaves_no_question_row(self):
+        with mock.patch("inbox.new_ticket_id", return_value=777002, create=True), \
+                mock.patch("inbox.ingest", side_effect=RuntimeError("boom"), create=True):
+            c = TestClient(app, raise_server_exceptions=False)
+            r = c.post("/api/direct/questions", json={"invoice": self.ref, "text": "hi"})
+        self.assertEqual(r.status_code, 500)
+        self.assertIsNone(db._one("SELECT 1 AS x FROM direct_questions WHERE ticket_id=777002"))
+
+
+def put_ticket(run_id, ticket_id, subject, recipient, text, state, output_type="draft_reply", edited=None):
+    bundle = {"result": {"output_type": output_type, "recipient": recipient, "text": text, "flags": []}}
+    db.save_ticket(run_id, ticket_id, 0, bundle, {"id": ticket_id, "subject": subject}, {})
+    db.save_review(run_id, ticket_id, state, edited_text=edited)
+    if state == "sent":
+        db.save_sent(run_id, ticket_id, "m1", {})
+
+
+class MessagesHookTests(unittest.TestCase):
+    def setUp(self):
+        self.contact = as_vendor("3023")
+        self.ref = client.get("/api/direct/invoices").json()["rows"][0]["invoice"]
+        db._exec("DELETE FROM direct_messages")
+
+    def ask_row(self, tid):
+        db._exec("INSERT OR REPLACE INTO direct_questions (ticket_id, vendor_id, invoice, contact) VALUES (?,?,?,?)",
+                 (tid, "3023", self.ref, self.contact))
+
+    def test_hooks_are_registered_once(self):
+        import delivery
+        self.assertEqual(delivery.ON_SENT.count(direct._on_sent), 1)
+        self.assertEqual(delivery.ON_NOTICE_SENT.count(direct._on_notice_sent), 1)
+
+    def test_only_a_sent_reply_to_a_direct_ticket_becomes_a_message(self):
+        self.ask_row(8001)
+        for state in ("pending", "approved", "returned"):
+            put_ticket("r1", 8001, f"Question about {self.ref}", self.contact, "Draft body", state)
+            direct._on_sent("r1", 8001, None, {})
+            self.assertEqual(client.get("/api/direct/messages").json()["rows"], [], state)
+        # a ticket that did not come from Direct
+        put_ticket("r1", 8002, "Checking in", self.contact, "Zendesk reply", "sent")
+        direct._on_sent("r1", 8002, None, {})
+        # a note, not a reply
+        self.ask_row(8003)
+        put_ticket("r1", 8003, "Question", self.contact, "note", "sent", output_type="internal_action_note")
+        direct._on_sent("r1", 8003, None, {})
+        # a reply that went to someone else
+        self.ask_row(8004)
+        put_ticket("r1", 8004, "Question", "someone@else.example", "to else", "sent")
+        direct._on_sent("r1", 8004, None, {})
+        self.assertEqual(client.get("/api/direct/messages").json()["rows"], [])
+        # the real one
+        put_ticket("r1", 8001, f"Question about {self.ref}", self.contact, "Original", "sent", edited="Edited and approved text")
+        with mock.patch("live.publish") as pub:
+            direct._on_sent("r1", 8001, {"name": "Ulla", "email": "u@x"}, {"id": "m1"})
+            direct._on_sent("r1", 8001, None, {})  # a repeat does not duplicate
+        rows = client.get("/api/direct/messages").json()["rows"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(set(rows[0]), {"at", "invoice", "subject", "body"})
+        self.assertEqual(rows[0]["body"], "Edited and approved text")
+        self.assertEqual(rows[0]["subject"], f"Re: Question about {self.ref}")
+        self.assertEqual(rows[0]["invoice"], self.ref)
+        self.assertNotIn("8001", json.dumps(rows))  # no ticket id
+        pub.assert_called_once()
+        self.assertEqual(pub.call_args.args[0], "direct.message")
+        self.assertEqual(pub.call_args.kwargs["vendor_id"], "3023")
+        self.assertEqual(pub.call_args.kwargs["roles"], set())  # vendor audience only
+
+    def test_unread_count_drops_after_reading(self):
+        self.ask_row(8010)
+        put_ticket("r1", 8010, "Question", self.contact, "Hello", "sent")
+        with mock.patch("live.publish"):
+            direct._on_sent("r1", 8010, None, {})
+        self.assertEqual(client.get("/api/direct/me").json()["unread_messages"], 1)
+        client.get("/api/direct/messages")
+        self.assertEqual(client.get("/api/direct/me").json()["unread_messages"], 0)
+
+    def test_messages_are_per_vendor(self):
+        self.ask_row(8020)
+        put_ticket("r1", 8020, "Question", self.contact, "For Dovetail only", "sent")
+        with mock.patch("live.publish"):
+            direct._on_sent("r1", 8020, None, {})
+        as_vendor("3010")
+        self.assertNotIn("Dovetail", json.dumps(client.get("/api/direct/messages").json()))
+        as_vendor("3023")
+        self.assertIn("Dovetail", json.dumps(client.get("/api/direct/messages").json()))
+
+
+class UpdatesAndPreferencesTests(unittest.TestCase):
+    def setUp(self):
+        self.contact = as_vendor("3023")
+        db._exec("DELETE FROM direct_updates")
+
+    def test_a_sent_notice_with_a_vendor_id_becomes_an_update(self):
+        import delivery
+        item = {"vendor_id": "3023", "to": "billing@dovetaillaneprinti.example", "text": "Invoice X is approved.", "bills": ["X"]}
+        with mock.patch("live.publish") as pub:
+            delivery.notice_sent("r1", "notice", "3023", item, {})
+        rows = client.get("/api/direct/updates").json()["rows"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["body"], "Invoice X is approved.")
+        self.assertEqual(set(rows[0]), {"at", "title", "body"})
+        self.assertEqual(pub.call_args.args[0], "direct.update")
+        self.assertEqual(pub.call_args.kwargs["vendor_id"], "3023")
+        as_vendor("3010")
+        self.assertEqual(client.get("/api/direct/updates").json()["rows"], [])
+
+    def test_the_one_invoice_demo_finds_the_vendor_by_contact(self):
+        with mock.patch("live.publish"):
+            direct._on_notice_sent("r1", "demo", "50000", {"to": self.contact, "text": "Demo notice text."}, {})
+        self.assertEqual(client.get("/api/direct/me").json()["unread_updates"], 1)
+        self.assertEqual([r["body"] for r in client.get("/api/direct/updates").json()["rows"]], ["Demo notice text."])
+        self.assertEqual(client.get("/api/direct/me").json()["unread_updates"], 0)  # reading marked it
+
+    def test_digests_and_unknown_addresses_make_no_update(self):
+        with mock.patch("live.publish") as pub:
+            direct._on_notice_sent("r1", "digest", "k", {"to": "ben.merriweather@orchestra-mock.example", "text": "Digest"}, {})
+            direct._on_notice_sent("r1", "notice", "k", {"to": "nobody@nowhere.example", "text": "Hi"}, {})
+            direct._on_notice_sent("r1", "notice", "k", {"vendor_id": "3023"}, {})  # no text
+        pub.assert_not_called()
+        self.assertEqual(client.get("/api/direct/updates").json()["rows"], [])
+
+    def test_preferences(self):
+        got = client.get("/api/direct/preferences").json()
+        self.assertEqual(got, {"email_updates": True, "notice_types": list(direct.NOTICE_TYPES)})
+        r = client.put("/api/direct/preferences", json={"email_updates": False, "notice_types": ["payment_updates"]})
+        self.assertEqual(r.json(), {"email_updates": False, "notice_types": ["payment_updates"]})
+        self.assertEqual(client.get("/api/direct/preferences").json(), r.json())
+        self.assertEqual(client.put("/api/direct/preferences", json={"email_updates": True, "notice_types": ["x"]}).status_code, 422)
+        CURRENT["s"] = FakeSession("3023", "ar@dovetaillaneprinti.example")  # another contact has its own
+        self.assertTrue(client.get("/api/direct/preferences").json()["email_updates"])
+
+
 if __name__ == "__main__":
     unittest.main()

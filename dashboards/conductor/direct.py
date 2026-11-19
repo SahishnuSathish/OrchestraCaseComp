@@ -346,3 +346,180 @@ def lookup_count(since=None):
     if ts is None:
         return db._one("SELECT COUNT(*) AS n FROM direct_lookups")["n"]
     return db._one("SELECT COUNT(*) AS n FROM direct_lookups WHERE at>=?", (ts,))["n"]
+
+
+# ------------------------------------------------------------------ write side: questions
+class QuestionIn(BaseModel):
+    invoice: str
+    text: str
+
+
+def _user_for(contact, name):
+    """A tickets.json-style user for the contact: the existing one when the address is known, else a new id."""
+    users = _store().backend.all_users()
+    for u in users:
+        if (u.get("email") or "").lower() == contact:
+            return {"id": u["id"], "name": u.get("name") or name, "email": contact, "role": "end-user"}
+    taken = {u["id"] for u in users}
+    uid = 950000 + zlib.crc32(contact.encode()) % 40000
+    while uid in taken:
+        uid += 1
+    return {"id": uid, "name": name, "email": contact, "role": "end-user"}
+
+
+def build_ticket(ticket_id, user, invoice, text):
+    """A tickets.json-shaped ticket. The vendor's text is carried as the body and nothing else is taken from it."""
+    now = appclock.iso()
+    return {"id": ticket_id, "subject": f"Question about {invoice}", "description": text, "status": "open",
+            "group": "Accounts Payable", "requester_id": user["id"], "email_cc_ids": [],
+            "via": {"channel": "web", "source": {"from": {"address": user["email"], "name": user["name"]},
+                                                 "to": {"address": AP_EMAIL}}},
+            "tags": [], "created_at": now, "updated_at": now,
+            "custom_fields": [{"id": "linked_ticket_ids", "value": []}],
+            "comments": [{"id": ticket_id * 10 + 1, "author_id": user["id"], "public": True, "body": text,
+                          "created_at": now, "attachments": []}]}
+
+
+def _publish(*a, **k):
+    try:
+        import live
+        live.publish(*a, **k)
+    except Exception as e:  # an event must never break a request
+        print(f"[direct] live publish failed: {type(e).__name__}: {e}", flush=True)
+
+
+@router.post("/api/direct/questions")
+def ask_question(body: QuestionIn, s=Depends(vendor_session)):
+    vendor, contact = _ctx(s)
+    text = (body.text or "").strip()
+    if not text:
+        raise HTTPException(422, "Please write your question.")
+    if len(text) > MAX_QUESTION:
+        raise HTTPException(422, f"Please keep your question under {MAX_QUESTION} characters.")
+    o = resolve_bill(vendor["internalId"], body.invoice)
+    if o is None:
+        raise _not_found()
+    import inbox
+    user = _user_for(contact, getattr(s, "name", None) or _name_from_email(contact))
+    ticket_id = inbox.new_ticket_id()
+    ticket = build_ticket(ticket_id, user, o["ref"], text)
+    db._exec("INSERT OR REPLACE INTO direct_questions (ticket_id, vendor_id, invoice, contact) VALUES (?,?,?,?)",
+             (ticket_id, vendor["internalId"], o["ref"], contact))
+    try:
+        got = inbox.ingest(ticket, user, source="direct")
+    except Exception:
+        db._exec("DELETE FROM direct_questions WHERE ticket_id=?", (ticket_id,))
+        raise
+    if isinstance(got, int) and got != ticket_id:
+        db._exec("UPDATE direct_questions SET ticket_id=? WHERE ticket_id=?", (got, ticket_id))
+        ticket_id = got
+    _publish("direct.question", {"ticket_id": ticket_id, "vendor_id": vendor["internalId"],
+                                 "summary": f"{vendor['companyName']} asked about {o['ref']} in Direct"})
+    return {"ok": True, "message": THANKS}
+
+
+# ------------------------------------------------------------------ messages (approved, sent replies only)
+def _on_sent(run_id, ticket_id, actor, info):
+    """delivery.ON_SENT hook: a sent reply to a Direct question becomes a Message for that vendor."""
+    q = db._one("SELECT * FROM direct_questions WHERE ticket_id=?", (ticket_id,))
+    if not q:
+        return
+    rec = db.get_ticket(run_id, ticket_id)
+    rv = db.get_review(run_id, ticket_id)
+    if not rec or rv.get("state") != "sent":
+        return
+    res = rec["bundle"].get("result") or {}
+    if res.get("output_type") != "draft_reply" or (res.get("recipient") or "").lower() != q["contact"]:
+        return
+    import reply_checks
+    body = rv["edited_text"] if rv.get("edited_text") is not None else (res.get("text") or "")
+    subject = rv.get("edited_subject") or reply_checks.default_subject(rec["ticket"].get("subject"))
+    if db._one("SELECT 1 AS x FROM direct_messages WHERE ticket_id=? AND body=?", (ticket_id, body)):
+        return
+    db._exec("INSERT INTO direct_messages (vendor_id, ticket_id, invoice, subject, body, at, read) VALUES (?,?,?,?,?,?,0)",
+             (q["vendor_id"], ticket_id, q["invoice"], subject, body, appclock.now()))
+    _publish("direct.message", {"vendor_id": q["vendor_id"], "summary": "A reply is ready in Messages"},
+             roles=set(), vendor_id=q["vendor_id"])
+
+
+@router.get("/api/direct/messages")
+def messages(s=Depends(vendor_session)):
+    vendor, _ = _ctx(s)
+    vid = vendor["internalId"]
+    rows = db._all("SELECT invoice, subject, body, at FROM direct_messages WHERE vendor_id=? ORDER BY at DESC, id DESC", (vid,))
+    db._exec("UPDATE direct_messages SET read=1 WHERE vendor_id=?", (vid,))
+    return {"rows": [{"at": appclock.iso(r["at"]), "invoice": r["invoice"], "subject": r["subject"], "body": r["body"]}
+                     for r in rows]}
+
+
+# ------------------------------------------------------------------ updates (Ahead notices) and preferences
+def _vendor_for_notice(item):
+    vid = (item or {}).get("vendor_id")
+    if vid is not None and _vendor_row(str(vid)):
+        return str(vid)
+    to = ((item or {}).get("to") or "").strip().lower()
+    if to:
+        found = [v for v in _lk().find_vendor_by_contact(to) if v.get("isInactive", "F") != "T"]
+        if len(found) == 1:
+            return found[0]["internalId"]
+    return None
+
+
+def _on_notice_sent(run_id, kind, key, item, info):
+    """delivery.ON_NOTICE_SENT hook: a sent Ahead notice shows under Updates for its vendor."""
+    vid = _vendor_for_notice(item)
+    text = (item or {}).get("text")
+    if vid is None or not text:
+        return
+    db._exec("INSERT INTO direct_updates (vendor_id, title, body, at, read) VALUES (?,?,?,?,0)",
+             (vid, "Payment update", text, appclock.now()))
+    _publish("direct.update", {"vendor_id": vid, "summary": "There is a new update"}, roles=set(), vendor_id=vid)
+
+
+def _register():
+    if _on_sent not in delivery.ON_SENT:
+        delivery.ON_SENT.append(_on_sent)
+    if _on_notice_sent not in delivery.ON_NOTICE_SENT:
+        delivery.ON_NOTICE_SENT.append(_on_notice_sent)
+
+
+_register()
+
+
+@router.get("/api/direct/updates")
+def updates(s=Depends(vendor_session)):
+    vendor, _ = _ctx(s)
+    vid = vendor["internalId"]
+    rows = db._all("SELECT title, body, at FROM direct_updates WHERE vendor_id=? ORDER BY at DESC, id DESC", (vid,))
+    db._exec("UPDATE direct_updates SET read=1 WHERE vendor_id=?", (vid,))
+    return {"rows": [{"at": appclock.iso(r["at"]), "title": r["title"], "body": r["body"]} for r in rows]}
+
+
+class PrefsIn(BaseModel):
+    email_updates: bool
+    notice_types: list[str]
+
+
+def _prefs(vid, contact):
+    r = db._one("SELECT * FROM direct_prefs WHERE vendor_id=? AND contact=?", (vid, contact))
+    if not r:
+        return {"email_updates": True, "notice_types": list(NOTICE_TYPES)}
+    return {"email_updates": bool(r["email_updates"]), "notice_types": json.loads(r["notice_types"] or "[]")}
+
+
+@router.get("/api/direct/preferences")
+def get_preferences(s=Depends(vendor_session)):
+    vendor, contact = _ctx(s)
+    return _prefs(vendor["internalId"], contact)
+
+
+@router.put("/api/direct/preferences")
+def put_preferences(body: PrefsIn, s=Depends(vendor_session)):
+    vendor, contact = _ctx(s)
+    if any(t not in NOTICE_TYPES for t in body.notice_types):
+        raise HTTPException(422, "Unknown notice type.")
+    types = [t for t in NOTICE_TYPES if t in body.notice_types]
+    db._exec("INSERT INTO direct_prefs (vendor_id, contact, email_updates, notice_types) VALUES (?,?,?,?) "
+             "ON CONFLICT(vendor_id, contact) DO UPDATE SET email_updates=excluded.email_updates, notice_types=excluded.notice_types",
+             (vendor["internalId"], contact, int(body.email_updates), json.dumps(types)))
+    return _prefs(vendor["internalId"], contact)
