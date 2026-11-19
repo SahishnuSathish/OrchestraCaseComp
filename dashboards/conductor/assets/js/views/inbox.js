@@ -616,7 +616,7 @@ export function mount(root, { route, session }) {
         setTimeout(() => URL.revokeObjectURL(u), 2000);
       } catch (e) { toast({ message: e.message || 'The PDF could not be downloaded.', tone: 'risk' }); }
     } });
-    modal({ title: a.filename, description: 'Rendered from records. Bank details show the last 4 digits only.', size: 'lg', body,
+    modal({ title: a.filename, description: 'Rendered from records. Bank account numbers are never shown in full.', size: 'lg', body,
       actions: (dlg) => [dl, button({ label: 'Close', variant: 'primary', onClick: () => dlg.close() })], onClose: () => { if (url) URL.revokeObjectURL(url); } });
     try {
       url = await inboxApi.documentBlobUrl(a.kind, a.bill_id, 'html');
