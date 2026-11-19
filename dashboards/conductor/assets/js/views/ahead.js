@@ -245,10 +245,14 @@ export function mount(root, { route }) {
       .map((n) => ({ n, cov: coverageFor(n) }))
       .sort((a, b) => b.cov.length - a.cov.length || a.n.vendor.localeCompare(b.n.vendor));
     const skipped = data.report?.preventable_by_notice?.vendors_skipped?.returned_or_conflict;
+    const pickFilter = (id) => { noticeFilter = id; acted.clear(); renderPanel(); };
+    // Under 480 px the filter is a select, so no option is cut off.
+    const filterSelect = h('select', { class: 'c-input c-select ah-filtersel', 'aria-label': 'Show notices', onchange: (e) => pickFilter(e.target.value) },
+      NOTICE_FILTERS.map((f) => h('option', { value: f.id, selected: f.id === noticeFilter ? true : null }, `${f.label} (${counts[f.id]})`)));
     return h('section', { class: 'ah-section', 'aria-labelledby': 'ah-updates-h' },
       sectionHead({ id: 'ah-updates-h', title: 'Vendor updates', sub: 'One notice per vendor, listing where each open invoice stands. Written from NetSuite and the payment runs, never from what a vendor wrote.',
-        actions: tabs({ label: 'Filter notices', variant: 'segmented', size: 'sm', selected: noticeFilter,
-          items: NOTICE_FILTERS.map((f) => ({ ...f, count: counts[f.id] })), onSelect: (id) => { noticeFilter = id; acted.clear(); renderPanel(); } }) }),
+        actions: [tabs({ label: 'Filter notices', variant: 'segmented', size: 'sm', selected: noticeFilter,
+          items: NOTICE_FILTERS.map((f) => ({ ...f, count: counts[f.id] })), onSelect: pickFilter }), filterSelect] }),
       skipped ? notice({ tone: 'info', text: `${plural(skipped, 'vendor')} with a returned payment or a record conflict ${skipped === 1 ? 'gets' : 'get'} no notice. Those stay with a person.` }) : null,
       list.length ? h('ul', { class: 'lv-reviews' }, list.map(({ n, cov }) => h('li', { class: 'lv-review', 'data-state': stateOf('notice', n.key) },
         h('div', { class: 'lv-review-head' },

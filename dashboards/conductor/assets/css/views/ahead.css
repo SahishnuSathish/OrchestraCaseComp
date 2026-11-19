@@ -29,11 +29,12 @@
 .ah-tabs .c-tabs-line { border-bottom: 0; }
 .ah-bar-tools { display: flex; align-items: center; gap: var(--s-2); padding-bottom: 6px; }
 .ah-bar-tools .lv-meta { margin: 0; white-space: nowrap; }
-.ah-tabselect { display: none; }
+.ah-tabselect, .ah-filtersel { display: none; }
 @media (max-width: 479px) {
   .ah-bar { align-items: stretch; flex-direction: column; border-bottom: 0; }
-  .ah-tabs { display: none; }
-  .ah-tabselect { display: block; width: 100%; }
+  .ah-tabs, .ah-section .lv-section-actions > .c-tabs { display: none; }
+  .ah-tabselect, .ah-filtersel { display: block; width: 100%; }
+  .ah-section .lv-section-actions { width: 100%; }
 }
 .ah-panel:focus { outline: none; }
 .ah-section { display: flex; flex-direction: column; gap: var(--s-3); }
