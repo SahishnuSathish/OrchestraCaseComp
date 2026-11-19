@@ -1,8 +1,8 @@
 // Settings (#/settings, #/connections) and Settings, Advanced (#/settings/advanced, CFO only).
-// Connections: Zendesk, Outlook, NetSuite (read-only) and the local AI model, each with its status, last sync and what
-// it may do in plain words, plus the sync log. The local model settings, the reader check and the mail mode live here.
-// Advanced: reset the inbox, import a mailbox export (a tickets file; this is how the Nov 19 file is processed), the
-// batch runs, and the results export in score.py's format. Every indicator comes from a real backend answer.
+// Connections: Zendesk, Outlook, NetSuite (read-only) and the AI assistant, each with its status, last sync (from the
+// sync log) and what it may do in plain words, plus the sync log.
+// Advanced: import a mailbox export (a tickets file), reset the inbox, the AI model details (model, server, reader
+// check) and email delivery, and the list of runs with their exports. Every indicator comes from a real backend answer.
 import { h, icon, mount as fill, relTime, fmtMs, fmtInt, humanize, cleanPath, debounce, plural as lplural } from '../lib.js';
 import { api } from '../api.js';
 import * as inbox from '../api-inbox.js';
@@ -28,7 +28,7 @@ export function mount(root, { route, session }) {
 
   const body = h('div', { class: 'cx-body' });
   fill(root, h('div', { class: 'page lv-page cx-page' },
-    pageHead({ title: 'Settings', lede: 'Where Conductor reads and writes, what each connection may do, and how the local model is set up. Stored on this computer.' }),
+    pageHead({ title: 'Settings', lede: 'Where Conductor reads and writes, and what each connection may do. Stored on this computer.' }),
     tabs({ label: 'Settings sections', selected: section, items: [
       { id: 'connections', label: 'Connections', href: '#/connections' },
       { id: 'advanced', label: 'Advanced', href: '#/settings/advanced' },
@@ -49,15 +49,10 @@ export function mount(root, { route, session }) {
   function connections(host) {
     const connSlot = h('div', { class: 'cx-conns' }, skeletonRows({ rows: 2, avatar: false, label: 'Loading connections' }));
     const logSlot = h('div');
-    const modelSlot = h('div');
-    const trySlot = h('div');
-    const mailSlot = h('div');
     fill(host,
       h('section', { class: 'cx-section', 'aria-labelledby': 'cx-conn-h' },
         h('h2', { class: 'lv-section-title', id: 'cx-conn-h' }, 'Connections'), connSlot),
-      h('div', { class: 'cx-two' },
-        h('div', { class: 'cx-col' }, modelSlot, trySlot),
-        h('div', { class: 'cx-col' }, mailSlot, logSlot)));
+      logSlot);
 
     let conn = null;
     async function loadConns() {
@@ -69,17 +64,33 @@ export function mount(root, { route, session }) {
         if (alive) fill(connSlot, empty({ icon: 'plug', compact: true, title: 'Connections could not be loaded', text: errText(e), actions: button({ label: 'Try again', icon: 'refresh', onClick: loadConns }) }));
       }
     }
+    // Last sync: the newest sync-log line about this connection (the log names it first), else the server's answer.
+    function lastSync(c) {
+      const name = String(c.name || '').toLowerCase();
+      const hit = (conn.log || []).find((l) => String(l.text || '').toLowerCase().startsWith(name));
+      return hit?.at || c.last_sync || null;
+    }
     function renderConns() {
       const tone = (s) => (s === 'connected' ? 'settled' : s === 'syncing' ? 'scheduled' : 'risk');
       const word = (s) => (s === 'connected' ? 'Connected' : s === 'syncing' ? 'Syncing' : 'Not connected');
-      fill(connSlot, (conn.connections || []).map((c) => h('article', { class: 'cx-conn', 'aria-labelledby': `cx-c-${c.id}` },
-        h('header', { class: 'cx-conn-head' },
-          h('span', { class: 'cx-conn-icon', 'aria-hidden': 'true' }, icon(CONN_ICON[c.id] || 'plug')),
-          h('h3', { class: 'cx-conn-name', id: `cx-c-${c.id}` }, c.name),
-          dot({ tone: tone(c.status), label: word(c.status), live: c.status === 'syncing' })),
-        h('p', { class: 'cx-conn-detail' }, c.detail || ''),
-        h('ul', { class: 'cx-scopes', 'aria-label': `What ${c.name} may do` }, (c.scopes || []).map((s) => h('li', null, icon(/^no |never/i.test(s) ? 'lock' : 'check', 'icon-sm'), s))),
-        h('p', { class: 'cx-conn-sync' }, c.last_sync ? ['Last sync ', h('time', { title: fmtWhen(c.last_sync) }, ago(c.last_sync))] : 'Runs on demand'))));
+      fill(connSlot, (conn.connections || []).map((c) => {
+        // The AI card stays plain: what it is and that it runs here. The model details live in Advanced.
+        const ai = c.id === 'model';
+        const name = ai ? 'AI assistant' : c.name;
+        const status = ai ? (c.status === 'connected' ? 'Ready, runs on this computer' : 'Not running. Conductor still reads every email with its rules.') : word(c.status);
+        // Outlook's detail carries the mail-delivery mode in brackets; that mode is shown in Advanced.
+        const detail = ai ? null : c.id === 'outlook' ? String(c.detail || '').replace(/\s*\(.*\)\s*$/, '') : c.detail;
+        const scopes = (c.scopes || []).filter((x) => !(ai && /on this computer only/i.test(x)));
+        const at = ai ? null : lastSync(c);
+        return h('article', { class: 'cx-conn', 'aria-labelledby': `cx-c-${c.id}` },
+          h('header', { class: 'cx-conn-head' },
+            h('span', { class: 'cx-conn-icon', 'aria-hidden': 'true' }, icon(CONN_ICON[c.id] || 'plug')),
+            h('h3', { class: 'cx-conn-name', id: `cx-c-${c.id}` }, name)),
+          dot({ tone: tone(c.status), label: status, live: c.status === 'syncing' }),
+          detail ? h('p', { class: 'cx-conn-detail' }, detail) : null,
+          h('ul', { class: 'cx-scopes', 'aria-label': `What ${name} may do` }, scopes.map((x) => h('li', null, icon(/^no |never/i.test(x) ? 'lock' : 'check', 'icon-sm'), x))),
+          ai ? null : h('p', { class: 'cx-conn-sync' }, at ? ['Last sync ', h('time', { title: fmtWhen(at) }, ago(at))] : 'Not synced yet'));
+      }));
       fill(logSlot, h('section', { class: 'c-pane cx-log', 'aria-labelledby': 'cx-log-h' },
         h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-log-h' }, 'Sync log'), h('p', { class: 'c-pane-sub' }, 'Newest first.'))),
         h('div', { class: 'c-pane-body is-flush' }, (conn.log || []).length
@@ -87,11 +98,27 @@ export function mount(root, { route, session }) {
           : h('p', { class: 'cx-pad lv-muted' }, 'Nothing synced yet.'))));
     }
 
+    loadConns();
+    const offLive = subscribe((ev) => { if (ev.type === 'sync.status' || ev.type === 'ticket.arrived' || ev.type === 'ticket.sent') loadConns(); });
+    return () => { offLive?.(); };
+  }
+
+  // ======================================================================================================== AI assistant and email (Advanced)
+  // The model name, server, version and quantization, the reader check and the mail-delivery mode. CFO only.
+  function aiSettings(host) {
+    const modelSlot = h('div');
+    const trySlot = h('div');
+    const mailSlot = h('div');
+    fill(host, h('div', { class: 'cx-two' },
+      h('div', { class: 'cx-col' }, modelSlot, trySlot),
+      h('div', { class: 'cx-col' }, mailSlot)));
+
     // ---- mail
     function renderMail(settings) {
       const m = settings?.mail || {};
       fill(mailSlot, h('section', { class: 'c-pane', 'aria-labelledby': 'cx-mail-h' },
-        h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-mail-h' }, 'Email delivery'))),
+        h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-mail-h' }, 'Email delivery'),
+          h('p', { class: 'c-pane-sub' }, 'How replies leave Conductor.'))),
         h('div', { class: 'c-pane-body' },
           kv([['Mode', m.label || humanize(m.mode || '')], ['From', h('span', { class: 'mono' }, m.from || '')]], 'lv-kv-wide'),
           h('p', { class: 'cx-note' }, 'Set when Conductor starts. It can’t be changed from this page.'))));
@@ -199,7 +226,7 @@ export function mount(root, { route, session }) {
 
     function renderModelPane() {
       fill(modelSlot, h('section', { class: 'c-pane cx-model-pane', 'aria-labelledby': 'cx-model-h' },
-        h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-model-h' }, 'Local AI model'),
+        h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-model-h' }, 'AI model'),
           h('p', { class: 'c-pane-sub' }, 'Reads unclear tickets and rewords briefs. It never changes a decision or writes a payment date.')), checkBtn),
         h('div', { class: 'c-pane-body cx-stack' },
           statusBox,
@@ -294,13 +321,11 @@ export function mount(root, { route, session }) {
       }
     }
 
-    loadConns();
     loadSettings();
     const offModel = on((kind) => { if (kind === 'model' && settings) { renderStatus(); renderModels(false); } });
-    const offLive = subscribe((ev) => { if (ev.type === 'sync.status' || ev.type === 'ticket.arrived' || ev.type === 'ticket.sent') loadConns(); });
     const onVis = () => { if (!document.hidden && settings) refreshModel(); };
     document.addEventListener('visibilitychange', onVis);
-    return () => { offModel(); offLive?.(); document.removeEventListener('visibilitychange', onVis); };
+    return () => { offModel(); document.removeEventListener('visibilitychange', onVis); };
   }
 
   // ======================================================================================================== advanced
@@ -312,10 +337,17 @@ export function mount(root, { route, session }) {
     const runsSlot = h('div');
     const importSlot = h('div');
     const resetSlot = h('div');
+    const aiSlot = h('div');
     fill(host,
       notice({ tone: 'info', title: 'CFO only', text: 'These change what everyone sees. Each one asks before it acts.' }),
       h('div', { class: 'cx-two' }, h('div', { class: 'cx-col' }, importSlot), h('div', { class: 'cx-col' }, resetSlot)),
-      runsSlot);
+      runsSlot,
+      h('section', { class: 'cx-section', 'aria-labelledby': 'cx-ai-h' },
+        h('div', { class: 'lv-section-head' }, h('div', { class: 'lv-section-titles' },
+          h('h2', { class: 'lv-section-title', id: 'cx-ai-h' }, 'AI assistant and email'),
+          h('p', { class: 'lv-section-sub' }, 'The model the AI assistant uses, and how replies are delivered.'))),
+        aiSlot));
+    const stopAi = aiSettings(aiSlot);
 
     // ---- reset
     const resetBtn = button({ label: 'Reset the inbox', variant: 'danger', icon: 'rotate' });
@@ -324,7 +356,7 @@ export function mount(root, { route, session }) {
         title: 'Reset the inbox?', size: 'sm',
         description: 'Conductor reads every email again from Zendesk and Outlook and starts the inbox over.',
         body: h('div', { class: 'cx-stack' },
-          h('p', null, 'Drafts, approvals, escalations, sign-offs, schedules and chat on inbox tickets are cleared. Messages already sent stay sent. Batch runs below are not touched.'),
+          h('p', null, 'Drafts, approvals, escalations, sign-offs, schedules and chat on inbox tickets are cleared. Messages already sent stay sent. Imported files below are not touched.'),
           notice({ tone: 'risk', text: 'This can’t be undone.' })),
         actions: (dlg) => {
           const go = button({ label: 'Reset the inbox', variant: 'danger' });
@@ -346,12 +378,12 @@ export function mount(root, { route, session }) {
       h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-reset-h' }, 'Reset the inbox'),
         h('p', { class: 'c-pane-sub' }, 'Start the shared inbox over from the connected mailbox.'))),
       h('div', { class: 'c-pane-body cx-stack' },
-        h('p', { class: 'cx-note' }, 'Use it to start a fresh walkthrough. Everyone signed in sees the new inbox straight away.'),
+        h('p', { class: 'cx-note' }, 'Everyone signed in sees the new inbox straight away.'),
         h('div', null, resetBtn))));
 
     // ---- import a mailbox export (tickets file)
-    const pathF = field({ label: 'Tickets file or folder', attrs: { class: 'c-input mono', spellcheck: 'false', autocomplete: 'off', placeholder: 'C:\\exports\\tickets_nov19.json' },
-      help: 'A tickets.json exported from the mailbox, or a folder that holds one. Vendor and bill records come from the folder when it has them, otherwise from the standard records.' });
+    const pathF = field({ label: 'Tickets file or folder', attrs: { class: 'c-input mono', spellcheck: 'false', autocomplete: 'off', placeholder: 'Choose a file…' },
+      help: 'A tickets file exported from the mailbox, or a folder that holds one. Vendor and bill records come from the folder when it has them, otherwise from NetSuite.' });
     const browseBtn = button({ label: 'Browse…', icon: 'folder' });
     const checkBox = h('div', { class: 'cx-check', 'aria-live': 'polite' });
     const importBtn = button({ label: 'Import and process', variant: 'primary', icon: 'download', disabled: true });
@@ -366,7 +398,7 @@ export function mount(root, { route, session }) {
       setFieldError(pathF, null);
       if (!p) { fill(checkBox); return; }
       if (/\.json$/i.test(p)) {
-        check = { ok: true, text: 'A tickets file. Each ticket runs through the same pipeline as the inbox; nothing is sent.' };
+        check = { ok: true, text: 'A tickets file. Conductor reads each email the same way as the inbox; nothing is sent.' };
         renderCheck(); return;
       }
       fill(checkBox, reading({ text: 'Checking the folder…' }));
@@ -374,8 +406,8 @@ export function mount(root, { route, session }) {
         const v = await api.validate(p);
         if (my !== vseq) return;
         const ticketsFile = (v.files || []).find((f) => f.name === 'tickets.json');
-        if (v.ok) check = { ok: true, text: `A full dataset folder: ${lplural(v.tickets, 'ticket')}${v.has_answer_key ? ', with an answer key' : ''}.` };
-        else if (ticketsFile && ticketsFile.status === 'ok') check = { ok: true, text: `A folder with a tickets file${ticketsFile.detail ? ` (${ticketsFile.detail})` : ''}. Records come from the standard data.` };
+        if (v.ok) check = { ok: true, text: `A folder with ${lplural(v.tickets, 'ticket')} and its own records.` };
+        else if (ticketsFile && ticketsFile.status === 'ok') check = { ok: true, text: `A folder with a tickets file${ticketsFile.detail ? ` (${ticketsFile.detail})` : ''}. Records come from NetSuite.` };
         else check = { ok: false, text: v.error || 'That folder has no tickets file.' };
       } catch (e) { if (my === vseq) check = { ok: false, text: errText(e) }; }
       renderCheck();
@@ -406,7 +438,7 @@ export function mount(root, { route, session }) {
       setBusy(importBtn, true);
       try {
         const r = await inbox.adminImport(p);
-        toast({ message: 'Imported. Conductor is processing it now; follow it under Batch runs.', tone: 'settled' });
+        toast({ message: 'Imported. Conductor is reading it now; follow it under Imports and exports.', tone: 'settled' });
         say(live, 'Import started.');
         await loadRuns(r.run_id);
       } catch (e) { setFieldError(pathF, errText(e)); }
@@ -414,8 +446,8 @@ export function mount(root, { route, session }) {
     });
     const importables = h('div');
     fill(importSlot, h('section', { class: 'c-pane', 'aria-labelledby': 'cx-import-h' },
-      h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-import-h' }, 'Import a mailbox export'),
-        h('p', { class: 'c-pane-sub' }, 'Process a tickets file as a batch, for example the Nov 19 stretch file. It never touches the live inbox.'))),
+      h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-import-h' }, 'Import a mailbox export (tickets file)'),
+        h('p', { class: 'c-pane-sub' }, 'Conductor reads every email in the file and drafts replies, kept apart from the live inbox. Nothing is sent.'))),
       h('div', { class: 'c-pane-body cx-stack' },
         h('div', { class: 'cx-inline' }, pathF, h('div', { class: 'cx-btns' }, browseBtn)),
         h('p', { class: 'cx-note' }, 'Or ', h('button', { class: 'lv-linkbtn', type: 'button', onclick: () => openFolderPicker(cleanPath(pathF.control.value), setPath, { title: 'Choose the folder with the tickets file' }) }, 'use the built-in folder list'), '.'),
@@ -430,9 +462,9 @@ export function mount(root, { route, session }) {
         runs = d.runs || [];
         if (s) inboxRun = s.run_id;
         runsError = null;
-        fill(importables, (d.importable || []).length ? h('details', { class: 'cx-adv' }, h('summary', null, 'Earlier pipeline results on this computer', icon('chev-down', 'icon-sm')),
+        fill(importables, (d.importable || []).length ? h('details', { class: 'cx-adv' }, h('summary', null, 'Earlier results files on this computer', icon('chev-down', 'icon-sm')),
           h('ul', { class: 'cx-importables' }, d.importable.slice(0, 8).map((x) => h('li', null, h('span', { class: 'mono' }, x.name), h('span', { class: 'cx-note' }, `${x.size_kb} KB`),
-            button({ label: 'Add to runs', size: 'sm', variant: 'quiet', onClick: async (e) => { const b = e.currentTarget; setBusy(b, true); try { await api.importRun(x.path); toast({ message: `Added ${x.name} to the runs.`, tone: 'settled' }); loadRuns(); } catch (err) { setBusy(b, false); toast({ message: errText(err), tone: 'risk' }); } } }))))) : null);
+            button({ label: 'Add to the list', size: 'sm', variant: 'quiet', onClick: async (e) => { const b = e.currentTarget; setBusy(b, true); try { await api.importRun(x.path); toast({ message: `Added ${x.name}.`, tone: 'settled' }); loadRuns(); } catch (err) { setBusy(b, false); toast({ message: errText(err), tone: 'risk' }); } } }))))) : null);
       } catch (e) { if (alive) runsError = errText(e); }
       renderRuns(highlight);
       clearTimeout(poll);
@@ -442,22 +474,22 @@ export function mount(root, { route, session }) {
       setBusy(btn, true);
       try {
         const url = await inbox.adminExportBlobUrl(r.id, scope);
-        const a = h('a', { href: url, download: `results-${(r.label || r.id).replace(/\s+/g, '_')}-${scope}.json` });
+        const a = h('a', { href: url, download: `replies-${runName(r).replace(/[^\w-]+/g, '_')}-${scope === 'signed_off' ? 'signed-off' : 'all'}.json` });
         document.body.append(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 2000);
-        toast({ message: 'Results exported in the scoring format.', tone: 'settled' });
+        toast({ message: scope === 'signed_off' ? 'Signed-off replies exported.' : 'Every reply exported.', tone: 'settled' });
       } catch (e) { toast({ message: errText(e), tone: 'risk' }); }
       finally { setBusy(btn, false); }
     }
     function confirmDelete(r) {
       modal({
-        title: `Delete ${r.label || r.id}?`, size: 'sm',
-        body: h('p', null, 'Its results, reviews and exports are removed from Conductor. Files already exported stay where you saved them. This can’t be undone.'),
+        title: `Delete ${runName(r)}?`, size: 'sm',
+        body: h('p', null, 'Its drafts and reviews are removed from Conductor. Files already exported stay where you saved them. This can’t be undone.'),
         actions: (dlg) => {
-          const go = button({ label: 'Delete run', variant: 'danger' });
+          const go = button({ label: 'Delete', variant: 'danger' });
           go.addEventListener('click', async () => {
             setBusy(go, true);
-            try { await api.deleteRun(r.id); dlg.close(); toast({ message: 'Run deleted.', tone: 'settled' }); loadRuns(); } catch (e) { setBusy(go, false); toast({ message: errText(e), tone: 'risk' }); }
+            try { await api.deleteRun(r.id); dlg.close(); toast({ message: 'Deleted.', tone: 'settled' }); loadRuns(); } catch (e) { setBusy(go, false); toast({ message: errText(e), tone: 'risk' }); }
           });
           return [button({ label: 'Cancel', variant: 'quiet', onClick: () => dlg.close() }), go];
         },
@@ -466,41 +498,46 @@ export function mount(root, { route, session }) {
     function statusCell(r) {
       if (ACTIVE.includes(r.status)) {
         const pct = r.total ? Math.round((100 * (r.done || 0)) / r.total) : 0;
-        return h('span', { class: 'cx-progress' }, h('span', { class: 'cx-progress-bar', role: 'progressbar', 'aria-valuenow': String(pct), 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': `${r.label || r.id} progress` },
+        return h('span', { class: 'cx-progress' }, h('span', { class: 'cx-progress-bar', role: 'progressbar', 'aria-valuenow': String(pct), 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': `${runName(r)} progress` },
           h('span', { style: { width: `${pct}%` } })), `${fmtInt(r.done || 0)} of ${fmtInt(r.total || 0)}`);
       }
       const map = { done: ['settled', 'Done'], failed: ['risk', 'Failed'], cancelled: ['neutral', 'Stopped'] };
       const [tone, label] = map[r.status] || ['neutral', humanize(r.status)];
       return badge({ label, tone, icon: tone === 'settled' ? 'circle-check' : tone === 'risk' ? 'alert' : null });
     }
+    // "Live inbox · Nov 13, 10:49 AM" or "Imported file · Nov 13, 11:02 AM"; never the raw run id.
+    function runName(r) {
+      const kind = r.id === inboxRun || r.source === 'inbox' ? 'Live inbox' : 'Imported file';
+      return r.created_at ? `${kind} · ${fmtWhen(onAppCalendar(r.created_at))}` : kind;
+    }
     function renderRuns(highlight) {
       const head = h('div', { class: 'lv-section-head' },
-        h('div', { class: 'lv-section-titles' }, h('h2', { class: 'lv-section-title' }, 'Batch runs and export'),
-          h('p', { class: 'lv-section-sub' }, 'Export results in the scoring format (score.py): signed-off tickets only, or every ticket.')));
-      if (runsError) { fill(runsSlot, head, empty({ icon: 'circle-alert', compact: true, title: 'Runs could not be loaded', text: runsError, actions: button({ label: 'Try again', icon: 'refresh', onClick: () => loadRuns() }) })); return; }
-      if (!runs) { fill(runsSlot, head, skeletonRows({ rows: 3, avatar: false, label: 'Loading runs' })); return; }
+        h('div', { class: 'lv-section-titles' }, h('h2', { class: 'lv-section-title' }, 'Imports and exports'),
+          h('p', { class: 'lv-section-sub' }, 'Export signed-off replies, or every reply, as a file.')));
+      if (runsError) { fill(runsSlot, head, empty({ icon: 'circle-alert', compact: true, title: 'This list could not be loaded', text: runsError, actions: button({ label: 'Try again', icon: 'refresh', onClick: () => loadRuns() }) })); return; }
+      if (!runs) { fill(runsSlot, head, skeletonRows({ rows: 3, avatar: false, label: 'Loading' })); return; }
+      const fileLabel = (r) => (r.id !== inboxRun && r.source !== 'inbox' && r.label && r.label !== r.id ? r.label : null);
       fill(runsSlot, h('section', { class: 'cx-section' }, head, table({
-        caption: 'Batch runs', rowKey: (r) => r.id, selectedKey: highlight || null,
+        caption: 'Imports and exports', rowKey: (r) => r.id, selectedKey: highlight || null,
         columns: [
-          { key: 'label', label: 'Run', render: (r) => h('span', { class: 'cx-run' }, h('strong', null, r.id === inboxRun ? 'Inbox' : (r.label || r.id)),
-            h('span', { class: 'cx-note mono' }, r.id), r.id === inboxRun ? badge({ label: 'Live inbox', tone: 'info' }) : null) },
-          { key: 'created_at', label: 'Started', render: (r) => (r.created_at ? fmtWhen(onAppCalendar(r.created_at)) : '') },
+          { key: 'label', label: 'Source', render: (r) => h('span', { class: 'cx-run' }, h('strong', null, runName(r)),
+            fileLabel(r) ? h('span', { class: 'cx-note' }, fileLabel(r)) : null) },
           { key: 'total', label: 'Tickets', kind: 'num', render: (r) => fmtInt(r.counts?.total ?? r.total ?? 0) },
           { key: 'drafts', label: 'Drafts', kind: 'num', render: (r) => fmtInt(r.counts?.draft_reply ?? 0) },
           { key: 'status', label: 'Status', render: statusCell },
           { key: 'actions', label: 'Export', render: (r) => h('span', { class: 'cx-rowacts' },
-            button({ label: 'Signed off', size: 'sm', icon: 'download', disabled: r.status !== 'done', attrs: { 'aria-label': `Export signed-off results of ${r.label || r.id}` }, onClick: (e) => exportRun(r, 'signed_off', e.currentTarget) }),
-            button({ label: 'All', size: 'sm', variant: 'quiet', disabled: r.status !== 'done', attrs: { 'aria-label': `Export every result of ${r.label || r.id}` }, onClick: (e) => exportRun(r, 'all', e.currentTarget) }),
-            r.id === inboxRun ? null : h('button', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm', type: 'button', 'aria-label': `Delete ${r.label || r.id}`, title: 'Delete run', disabled: ACTIVE.includes(r.status) || null, onclick: () => confirmDelete(r) }, icon('trash'))) },
+            button({ label: 'Export signed-off replies', size: 'sm', icon: 'download', disabled: r.status !== 'done', attrs: { 'aria-label': `Export signed-off replies from ${runName(r)}` }, onClick: (e) => exportRun(r, 'signed_off', e.currentTarget) }),
+            button({ label: 'Export all', size: 'sm', variant: 'quiet', disabled: r.status !== 'done', attrs: { 'aria-label': `Export every reply from ${runName(r)}` }, onClick: (e) => exportRun(r, 'all', e.currentTarget) }),
+            r.id === inboxRun ? null : h('button', { class: 'c-btn c-btn-quiet c-btn-icon c-btn-sm', type: 'button', 'aria-label': `Delete ${runName(r)}`, title: 'Delete', disabled: ACTIVE.includes(r.status) || null, onclick: () => confirmDelete(r) }, icon('trash'))) },
         ],
         rows: runs,
-        empty: empty({ icon: 'list', compact: true, title: 'No batch runs yet', text: 'Import a tickets file to start one.' }),
+        empty: empty({ icon: 'list', compact: true, title: 'Nothing here yet', text: 'Import a tickets file to start.' }),
       })));
     }
 
     renderRuns();
     loadRuns();
-    return () => { clearTimeout(poll); validateSoon.cancel(); vseq++; };
+    return () => { clearTimeout(poll); validateSoon.cancel(); vseq++; stopAi?.(); };
   }
 
   return {
