@@ -5,7 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **1 running** (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
+- Wave: **1 merging** (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: when each worker reports, review its diff, then merge in order identity-live → inbox-sync → direct-w9 → design-shell, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
 
@@ -14,10 +14,10 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 | Branch | Worktree | Head | Status |
 |---|---|---|---|
 | `phase3/integration` | `orchestra-wt/p3-integration` | `a357880` + this STATE commit | seam done |
-| `p3/identity-live` | `orchestra-wt/p3-identity-live` | from `a357880` | running (Sonnet) |
-| `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | from `a357880` | running (Sonnet) |
+| `p3/identity-live` | `orchestra-wt/p3-identity-live` | `ec149c6` | **merged** (tiers 1+2) as `8378235` |
+| `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | `6971e78` | **merged** (tiers 1+2) as `49475e0`, plus integration fix |
 | `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | `0e863d7` | done, all 3 tiers; 277 tests OK, 100/100; waiting to merge (after identity, inbox). Demo vendor: Dovetail Lane Printing, billing@dovetaillaneprinti.example (W-9 missing) |
-| `p3/design-shell` | `orchestra-wt/p3-design-shell` | from `a357880` | running (Opus) |
+| `p3/design-shell` | `orchestra-wt/p3-design-shell` | `345af43` | done, tiers 1+2; waiting to merge (last in wave 1) |
 
 ## Worker agents
 
@@ -48,6 +48,13 @@ Gate rule: **no new failures**. The flaky model-selection test is a known baseli
 - Seven route-calling test files (not five: `test_local_model.py` and `test_native_dialog.py` too) build headers from `tests/signin.py`.
 - The old smoke suite is retired from the gate until `p3/smoke` replaces it.
 
+## Integration fixes made by the orchestrator
+
+- `3579ba5` test_webapp: the shared ApiTests run is model-free. With qwen3.5:9b installed, the brief writer upgraded template briefs in the background and raced `test_run_processed_every_ticket_with_a_brief` (pre-existing on main whenever a chat model is installed; the assertion is unchanged).
+- After the inbox merge, `test_inbox.py` hung: each inbox list called `workflow.get_state` per thread (746 DB connections, over 2 s). Fixed with `workflow.get_states` (batch) and a cached route kind; lists are ~0.06 s warm.
+- `workflow_state` is keyed by ticket id only, so Advanced → Reset now calls `workflow.reset_states()`; a rebuilt inbox no longer inherits old states.
+- `test_inbox` assignee-filter test updated to routed assignees (it assumed the workflow stub).
+
 ## Open problems
 
-(none)
+- Needs from workers, still open: `api.js` run-progress stream must use `http.liveTicket()` (workspace-ui, wave 2); `ticket.scheduled` publish from scheduler (wave 2 or orchestrator); `workflow.decide` should call `inbox.on_decided` (orchestrator, after wave 1); remove `hub/session-fake.js` at the design-shell merge.
