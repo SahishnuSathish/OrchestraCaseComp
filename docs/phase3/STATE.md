@@ -5,7 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
-- Wave: **1 merged and green**; **wave 2 starting** (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
+- Wave: **2 running** (started Nov 18, ~23:50 CST) from `a78b09b` (adds `api-workflow.js`, the shared data module for workflow routes). (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
 - 22:30: identity-live, inbox-sync and design-shell hit the usage limit mid-work (work on disk, mostly uncommitted). 22:37: all three resumed via SendMessage with the same agent ids. direct-w9 had already finished.
 
@@ -17,6 +17,9 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 | `p3/identity-live` | `orchestra-wt/p3-identity-live` | `ec149c6` | **merged** (tiers 1+2) as `8378235` |
 | `p3/inbox-sync` | `orchestra-wt/p3-inbox-sync` | `6971e78` | **merged** (tiers 1+2) as `49475e0`, plus integration fix |
 | `p3/direct-w9` | `orchestra-wt/p3-direct-w9` | `0e863d7` | **merged** (tiers 1-3) as `bd5285d`, plus fix `3ff281f` |
+| `p3/workspace-ui` | `orchestra-wt/p3-workspace-ui` | from `a78b09b` | running (Opus) |
+| `p3/leadership-ui` | `orchestra-wt/p3-leadership-ui` | from `a78b09b` | running (Opus) |
+| `p3/direct-ui` | `orchestra-wt/p3-direct-ui` | from `a78b09b` | running (Opus) |
 | `p3/design-shell` | `orchestra-wt/p3-design-shell` | `345af43` | **merged** (tiers 1-2) as `1ba41f5`; stand-in session removed `56b4fc6` |
 
 ## Worker agents
@@ -27,6 +30,9 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 | p3/inbox-sync | aea55e76ba0103c85 |
 | p3/direct-w9 | a7d5d3e5582bc1292 |
 | p3/design-shell | afb5cc5f3bc50dae1 |
+| p3/workspace-ui | ad8cafd01c57948dc |
+| p3/leadership-ui | acf401ca9e503f8ec |
+| p3/direct-ui | aa0569610840b4010 |
 
 If the session was interrupted, these agents are gone: check each branch's `git log` and restart a worker for whatever tier is missing, with the same brief (the brief text is reproducible from CONTRACTS.md and the prompt's section 6.3).
 
