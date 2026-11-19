@@ -136,7 +136,8 @@ test("2 Ulla's morning: away card, Draft ready ticket, insight and evidence, App
   const insight = read.getByRole('region', { name: 'What Conductor found' });
   await insight.waitFor();
   const insightText = await insight.innerText();
-  for (const label of ['They want', 'Invoice matched', 'Records say', 'Sender', 'Why']) assert.ok(insightText.includes(label), `the insight strip has "${label}"`);
+  // "Invoice" / "Invoices" (the label was "Invoice matched" before the polish pass, review item #8)
+  for (const label of ['They want', 'Invoice', 'Records say', 'Sender', 'Why']) assert.ok(insightText.includes(label), `the insight strip has "${label}"`);
 
   const ev = await openDetails(page);
   await ev.getByText(/NetSuite · bill \d+/).first().waitFor();
@@ -520,7 +521,7 @@ test('10 advanced: Elena imports a tickets file and exports; Ulla is refused @12
   const elena = await t.pageAs('elena');
   await gotoApp(elena, '#/settings/advanced');
   await elena.getByRole('heading', { name: /Import a (mailbox export|tickets file)/ }).waitFor();
-  await elena.getByRole('heading', { name: /Batch runs and export|Export/ }).first().waitFor();
+  await elena.getByRole('heading', { name: /Imports and exports|Batch runs and export/i }).first().waitFor();
   await elena.getByRole('button', { name: /Import and process/ }).waitFor();
 
   // the stretch path through the page's own session: import data/tickets.json, wait for the run, export it
@@ -546,7 +547,7 @@ test('10 advanced: Elena imports a tickets file and exports; Ulla is refused @12
   assert.ok(out.results.every((r) => r.output_type), 'every result has an output_type');
   await elena.reload();                                                  // the run shows in the Advanced page's table
   await elena.getByRole('heading', { name: /Import a (mailbox export|tickets file)/ }).waitFor();
-  await elena.getByRole('button', { name: /^Export every result of/ }).first().waitFor();
+  await elena.getByRole('button', { name: /^Export every (result|reply) (of|from)/ }).first().waitFor();
 
   // Ulla is refused: in the page and on the API
   const ulla = await t.pageAs('ulla');
