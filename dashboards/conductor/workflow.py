@@ -628,7 +628,7 @@ class ExpertiseBody(BaseModel):
 
 @router.get("/api/workflow/expertise")
 def api_expertise(s=Depends(staff_guard)):
-    return {"people": _people(), "source": "agent replies in data/tickets.json and data/linked_tickets.json"}
+    return {"people": _people(), "source": "Past replies in Zendesk"}
 
 
 @router.put("/api/workflow/expertise")
@@ -982,7 +982,7 @@ def api_approver_commit(bill_id: str, body: CommitBody, s=Depends(identity.requi
 
 
 # ------------------------------------------------------------------------------------------------ team overview
-SOURCE = "practice data, snapshot Nov 13"
+SOURCE = "Records as of Nov 13"
 BASELINE_DAYS = 1.5
 
 
@@ -1005,7 +1005,7 @@ def _median(xs):
 def api_team_overview(request: Request, s=Depends(cfo_guard)):
     import feedback
     out = {"as_of": appclock.iso(), "source": SOURCE, "available": False, "feedback": feedback.trends(),
-           "activity": {"rows": live.recent(s, 50), "source": "live events since the server started"}}
+           "activity": {"rows": live.recent(s, 50), "source": "Since this morning"}}
     run_id = inbox_run()
     if not run_id:
         return out
@@ -1057,7 +1057,7 @@ def api_team_overview(request: Request, s=Depends(cfo_guard)):
     out["aging"] = {"buckets": [{"label": n, "count": sum(1 for a in ages if lo <= a < hi)} for n, lo, hi in buckets],
                     "median_open_days": waiting, "basis": "tickets still waiting on a person, by age since received", "source": SOURCE}
     out["first_reply"] = {"median_days": round(med, 2) if med is not None else None, "replies_sent": len(replies),
-                          "baseline_days": BASELINE_DAYS, "baseline_note": "In the case, a first reply takes more than 1.5 days.",
+                          "baseline_days": BASELINE_DAYS, "baseline_note": "A first reply takes more than 1.5 days today.",
                           "waiting_now_median_days": waiting,
                           "beats_baseline": (med <= BASELINE_DAYS) if med is not None else None, "source": SOURCE}
     out["follow_up_rate"] = {"pct": round(100 * follow / len(rows), 1) if rows else None, "follow_ups": follow, "tickets": len(rows),
