@@ -91,6 +91,7 @@ export function mount(root, { route, session }) {
   const queryFor = () => ({ queue: S.q ? undefined : (S.queue !== DEFAULT_QUEUE ? S.queue : undefined), q: S.q || undefined });
   const urlFor = (id) => href('inbox', { ticketId: id || undefined, query: queryFor() });
   ticketTabs.attach({
+    email: me,
     href: (id) => href('inbox', { ticketId: id, query: queryFor() }),
     closed: (id, wasActive, next) => { if (wasActive) navigate(next ? urlFor(next.id) : urlFor(null)); },
   });
