@@ -107,7 +107,7 @@ export function mount(root) {
     const escalated = (data.queues?.by_specialist || []).reduce((n, p) => n + (p.escalated || 0), 0);
     const beats = fr.beats_baseline;
     fill(kpis, h('div', { class: 'c-stat-grid tm-stats', role: 'group', 'aria-label': 'Headline figures' },
-      stat({ label: 'Open, waiting on a person', value: String(openTotal), icon: 'inbox', context: escalated ? `${escalated} escalated to you` : 'None escalated', source: data.queues?.source || SOURCE, href: '#/inbox' }),
+      stat({ label: 'Open, waiting on a person', value: String(openTotal), icon: 'inbox', context: escalated ? `${escalated} waiting for CFO sign-off` : 'None waiting for CFO sign-off', href: '#/inbox', source: sourceText(data.queues?.source) }),
       stat({ label: 'Median first reply', value: fr.median_days == null ? '—' : days(fr.median_days), icon: 'clock',
         tone: beats === true ? 'settled' : beats === false ? 'risk' : undefined,
         context: fr.median_days == null ? `No replies sent yet. Open tickets have waited a median ${days(ag.median_open_days)}.` : `${beats ? 'Faster than' : 'Slower than'} the case baseline of more than 1.5 days, over ${plural(fr.replies_sent, 'reply', 'replies')}.`,
@@ -132,7 +132,7 @@ export function mount(root) {
       h('h3', { class: 'tm-h3' }, 'By specialist'),
       barList({
         label: 'Open tickets by specialist', valueLabel: 'Open',
-        rows: spec.map((p) => ({ key: p.email, label: p.name || nameOf(p.email), sub: [p.escalated ? `${p.escalated} escalated` : null, p.returned ? `${p.returned} returned` : null].filter(Boolean).join(' · ') || null, value: p.open })),
+        rows: spec.map((p) => ({ key: p.email, label: p.name || nameOf(p.email), sub: [p.escalated ? `${p.escalated} waiting for CFO sign-off` : null, p.returned ? `${p.returned} returned` : null].filter(Boolean).join(' · ') || null, value: p.open })),
       }),
       h('h3', { class: 'tm-h3' }, 'By state'),
       barList({ label: 'Tickets by state', valueLabel: 'Tickets', rows: byState.map((s) => ({ key: s.state, label: STATE_LABEL[s.state] || s.state, value: s.count })) }),
@@ -229,7 +229,7 @@ export function mount(root) {
     if (d.note) return d.note;
     if (d.reason) return d.reason.replace(/_/g, ' ');
     if (d.to) return `To ${nameOf(d.to)}`;
-    if (d.reply_hash) return `Text fingerprint ${String(d.reply_hash).slice(0, 10)}`;
+    if (d.reply_hash) return 'Signed off the exact reply text';
     if (d.people) return d.people.map(nameOf).join(', ');
     return '';
   }
