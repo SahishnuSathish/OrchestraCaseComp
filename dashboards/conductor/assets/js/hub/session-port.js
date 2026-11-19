@@ -4,6 +4,7 @@
 // MERGE NOTE (orchestrator): once api-session.js exports every function below, delete ./session-fake.js and the
 // `fake` import and fallbacks here; the exported names and shapes stay the same.
 import * as real from '../api-session.js';
+import * as http from '../http.js';
 import * as fake from './session-fake.js';
 
 const pick = (name) => (typeof real[name] === 'function' ? real[name] : fake[name]);
@@ -25,6 +26,9 @@ export const verifyCode = (...a) => pick('verifyCode')(...a);
 export const current = (...a) => pick('current')(...a);
 /** Clears the session, then returns to the sign-in hub. */
 export const signOut = (...a) => pick('signOut')(...a);
+
+/** Forget this tab's session locally without leaving the page (used when a person backs out of the vendor picker). */
+export function forgetLocal() { http.session.clear(); }
 
 /** homeFor(role) -> '/app#/inbox' | '/app#/escalations' | '/app#/approver' | '/direct' */
 export function homeFor(role) {
