@@ -17,7 +17,9 @@
 }
 .ah-figure-label { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
 .ah-figure-sub { max-width: 52ch; font-size: var(--fs-sm); font-weight: var(--fw-regular); color: var(--color-text-secondary); }
-.ah-named { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-sm); }
+.ah-named-line { font-size: var(--fs-md); color: var(--color-text); }
+.ah-named-more { padding: 0; }
+.ah-named { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: var(--s-2); font-size: var(--fs-sm); }
 .ah-named .c-chip { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .ah-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 
@@ -26,7 +28,13 @@
 .ah-tabs { min-width: 0; max-width: 100%; }
 .ah-tabs .c-tabs-line { border-bottom: 0; }
 .ah-bar-tools { display: flex; align-items: center; gap: var(--s-2); padding-bottom: 6px; }
-.ah-bar-tools .lv-meta { margin: 0; }
+.ah-bar-tools .lv-meta { margin: 0; white-space: nowrap; }
+.ah-tabselect { display: none; }
+@media (max-width: 479px) {
+  .ah-bar { align-items: stretch; flex-direction: column; border-bottom: 0; }
+  .ah-tabs { display: none; }
+  .ah-tabselect { display: block; width: 100%; }
+}
 .ah-panel:focus { outline: none; }
 .ah-section { display: flex; flex-direction: column; gap: var(--s-3); }
 .ah-sent { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }

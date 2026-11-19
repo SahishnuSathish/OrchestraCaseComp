@@ -12,10 +12,9 @@ import {
   button, setBusy, badge, chip, statusBadge, fmtMoney, stat, skeletonText, skeletonRows, reading, empty, notice, tabs, toast, mark,
 } from '../components/index.js';
 import {
-  pageHead, sectionHead, sourceLine, reviewBadge, nameOf, fmtDay, fmtTime, plural, errText, liveRegion, say, dataAsOf,
+  pageHead, sectionHead, reviewBadge, nameOf, fmtDay, fmtTime, plural, errText, liveRegion, say, dataAsOf,
 } from '../components/leadership/util.js';
 
-const SOURCE = 'practice data, snapshot Nov 13';
 const MINUTES_PER_TICKET = 15; // the client's figure for an average ticket
 const NOTICE_FILTERS = [
   { id: 'pending', label: 'To review' }, { id: 'approved', label: 'Approved' }, { id: 'sent', label: 'Sent' },
@@ -23,13 +22,12 @@ const NOTICE_FILTERS = [
 ];
 const TABS = [{ id: 'updates', label: 'Vendor updates' }, { id: 'digests', label: 'Approver digests' }, { id: 'invoice', label: 'See it on one invoice' }];
 
-export function mount(root, { route, session }) {
+export function mount(root, { route }) {
   let alive = true;
   let runId = null;
   let data = null;           // prevention payload
   let threads = [];          // inbox rows, to name the tickets a notice covers
   let summary = null;        // inbox summary (prevented_this_week)
-  let lookups = session?.role === 'cfo' ? undefined : null; // self-serve lookups (CFO: from the team overview); null hides the tile
   let nudges = [];           // approver chases (outbound approver_nudge)
   let demo = null;
   let busy = false;
@@ -42,6 +40,9 @@ export function mount(root, { route, session }) {
   const figureSlot = h('div', { class: 'ah-figure-slot' });
   const statsSlot = h('div', { class: 'ah-stats-slot' });
   const tabSlot = h('div', { class: 'ah-tabs' });
+  const tabSelect = h('select', { class: 'c-input c-select ah-tabselect', id: 'ah-tabselect', 'aria-label': 'Ahead section' },
+    TABS.map((t) => h('option', { value: t.id }, t.label)));
+  tabSelect.addEventListener('change', () => chooseTab(tabSelect.value));
   const panel = h('div', { class: 'ah-panel', role: 'tabpanel', id: 'ah-panel', tabindex: '-1' });
   const builtLine = h('p', { class: 'lv-meta' });
   const rebuildBtn = button({ label: 'Rebuild from records', icon: 'refresh', size: 'sm', variant: 'quiet', onClick: () => build(true) });
@@ -53,7 +54,7 @@ export function mount(root, { route, session }) {
       lede: 'Ahead drafts status notices for vendors and reminders for approvers from our records. A person approves each one, then sends it. Every notice answers a question before it becomes a ticket.',
     }),
     h('section', { class: 'ah-hero', 'aria-label': 'Impact' }, figureSlot, statsSlot),
-    h('div', { class: 'ah-bar' }, tabSlot, h('div', { class: 'ah-bar-tools' }, builtLine, rebuildBtn)),
+    h('div', { class: 'ah-bar' }, tabSlot, tabSelect, h('div', { class: 'ah-bar-tools' }, builtLine, rebuildBtn)),
     panel, live));
 
   // ------------------------------------------------------------------ data
@@ -85,9 +86,6 @@ export function mount(root, { route, session }) {
       data = p;
       threads = th.rows || [];
       nudges = ob.rows || [];
-      if (session?.role === 'cfo') {
-        wf.teamOverview().then((o) => { if (alive) { lookups = o?.ahead?.self_serve_lookups?.value ?? null; renderImpact(); } }).catch(() => { lookups = null; if (alive) renderImpact(); });
-      }
       api.get(`/api/runs/${runId}/prevention/demo`).then((d) => { if (alive) { demo = d; if (tab === 'invoice') renderPanel(); } }).catch((e) => { demo = { available: false, message: errText(e) }; });
       if (!data.built) await build(false);
     } catch (e) {
@@ -147,27 +145,31 @@ export function mount(root, { route, session }) {
     const prevented = r.preventable_by_notice || { count: 0, ticket_ids: [] };
     const hours = (prevented.count * MINUTES_PER_TICKET) / 60;
     const sentCovered = summary?.prevented_this_week ?? 0;
+    const lookups = summary?.self_serve_lookups;
     const named = prevented.ticket_ids || [];
-    const showNamed = named.slice(0, 12);
+    // The same denominator as Team: every ticket in the inbox.
+    const total = threads.length || r.tickets || 0;
+    const pct = total ? Math.round((1000 * prevented.count) / total) / 10 : 0;
+    const top = (data.notices || []).map((n) => ({ vendor: n.vendor, n: coverageFor(n).length })).sort((a, b) => b.n - a.n)[0];
     fill(figureSlot,
       h('div', { class: 'ah-hero-figure' },
         h('div', { class: 'ah-figure' }, h('span', { class: 'ah-figure-value' }, String(prevented.count)),
-          h('span', { class: 'ah-figure-label' }, 'tickets prevented', h('span', { class: 'ah-figure-sub' }, `${prevented.pct ?? 0}% of ${r.tickets ?? 0} tickets. Each one asked about an invoice a drafted notice already covers.`))),
-        named.length ? h('div', { class: 'ah-named' },
-          h('span', { class: 'lv-muted' }, 'Would have prevented'),
-          showNamed.map((id) => chip({ label: `#${id}`, title: ticketTitle(id), onClick: () => { location.hash = `#/inbox/${id}`; } })),
-          named.length > showNamed.length ? h('span', { class: 'lv-muted' }, `and ${named.length - showNamed.length} more`) : null) : null,
-        sourceLine(`${SOURCE}. An estimate, from this batch of tickets.`)));
+          h('span', { class: 'ah-figure-label' }, 'tickets prevented', h('span', { class: 'ah-figure-sub' }, `${pct}% of the ${total} tickets in the inbox. Each one asked about an invoice a drafted notice already covers. An estimate.`))),
+        named.length ? h('p', { class: 'ah-named-line' },
+          `Would have answered ${plural(named.length, 'vendor email')}${top?.n ? `, e.g. ${top.vendor} (${top.n})` : ''}.`) : null,
+        named.length ? h('details', { class: 'lv-review-more ah-named-more' },
+          h('summary', null, `Show the ${plural(named.length, 'email')}`, icon('chev-down', 'icon-sm')),
+          h('div', { class: 'ah-named' }, named.map((id) => chip({ label: `#${id}`, title: ticketTitle(id), onClick: () => { location.hash = `#/inbox/${id}`; } })))) : null));
     fill(statsSlot,
       h('div', { class: 'c-stat-grid ah-stats', role: 'group', 'aria-label': 'Impact' },
         stat({ label: 'Estimated hours saved', value: hours.toFixed(1), unit: 'h', icon: 'clock',
-          context: `${prevented.count} tickets at ${MINUTES_PER_TICKET} minutes each, Orchestra's average. An estimate.`, source: SOURCE }),
+          context: `${prevented.count} tickets at ${MINUTES_PER_TICKET} minutes each, Orchestra's average. An estimate.` }),
         stat({ label: 'Prevented by sent notices', value: String(sentCovered), icon: 'send',
           context: sentCovered ? 'Tickets whose invoices a sent notice answered.' : 'Send a notice to start this count.', source: 'Notices sent from Conductor' }),
-        lookups !== null ? stat({ label: 'Self-serve lookups', value: lookups === undefined ? '…' : String(lookups), icon: 'search',
-          context: 'Vendors who checked an invoice in Conductor: Direct. Not counted as tickets prevented.', source: SOURCE }) : null,
-        stat({ label: 'Approver reminders', value: `${r.approver_consolidation?.notes ?? 0} → ${r.approver_consolidation?.digests ?? 0}`, icon: 'approver',
-          context: 'Separate approval chases become one digest per approver.', source: SOURCE })));
+        stat({ label: 'Self-serve lookups', value: lookups == null ? '—' : String(lookups), icon: 'search',
+          context: 'Vendors who checked an invoice in Conductor: Direct. Not counted as tickets prevented.' }),
+        stat({ label: 'Approver reminders', value: String(r.approver_consolidation?.digests ?? 0), icon: 'approver',
+          context: `${plural(r.approver_consolidation?.notes ?? 0, 'reminder')} become ${r.approver_consolidation?.digests ?? 0}: one digest per approver.` })));
   }
   const ticketTitle = (id) => { const t = threads.find((x) => x.ticket_id === id); return t ? `${t.subject} · ${t.from_name}` : `Ticket ${id}`; };
 
@@ -178,10 +180,18 @@ export function mount(root, { route, session }) {
     fill(tabSlot, tabs({
       label: 'Ahead sections', selected: tab,
       items: TABS.map((t) => ({ ...t, panelId: 'ah-panel', count: t.id === 'updates' && data?.built ? pendingN : t.id === 'digests' && data?.built ? digestN : null })),
-      onSelect: (id) => { tab = id; history.replaceState(null, '', `#/ahead${id === 'updates' ? '' : `?tab=${id}`}`); renderPanel(); },
+      onSelect: chooseTab,
     }));
+    tabSelect.value = tab;
     builtLine.textContent = data?.built_at ? `Built from records at ${fmtTime(data.built_at)}` : '';
     rebuildBtn.hidden = !data?.built;
+  }
+
+  function chooseTab(id) {
+    tab = id;
+    history.replaceState(null, '', `#/ahead${id === 'updates' ? '' : `?tab=${id}`}`);
+    renderTabs();
+    renderPanel();
   }
 
   function render() {
@@ -245,31 +255,32 @@ export function mount(root, { route, session }) {
           h('div', { class: 'lv-review-main' },
             h('h3', { class: 'lv-review-title' }, n.vendor),
             h('p', { class: 'lv-review-sub' }, h('span', { class: 'mono' }, n.to), ` · ${plural((n.bills || []).length, 'invoice')}`),
-            cov.length ? h('div', { class: 'lv-refs' }, h('span', { class: 'lv-muted' }, 'Would have prevented'),
+            cov.length ? h('div', { class: 'lv-refs' }, h('span', { class: 'lv-muted' }, `Would have answered ${plural(cov.length, 'email')}:`),
               cov.map((t) => chip({ label: `#${t.ticket_id}`, title: `${t.subject} · ${t.from_name}`, onClick: () => { location.hash = `#/inbox/${t.ticket_id}`; } }))) : null),
           h('div', { class: 'lv-review-actions' }, actions('notice', n, n.to, true))),
-        h('details', { class: 'lv-review-more' }, h('summary', null, 'Read the notice', icon('chev-down', 'icon-sm')),
+        h('details', { class: 'lv-review-more' }, h('summary', null, 'Preview', icon('chev-down', 'icon-sm')),
           h('div', { class: 'lv-letter' }, n.text))))) : empty({ icon: 'send', compact: true, title: noticeFilter === 'pending' ? 'Every notice is reviewed' : 'Nothing here', text: noticeFilter === 'pending' ? 'Approved notices wait under Approved until you send them.' : 'Try another filter.' }),
-      sourceLine(SOURCE));
+    );
   }
 
   // ------------------------------------------------------------------ approver digests
   function chaseLine(email) {
     const mine = nudges.filter((x) => (x.to || '').toLowerCase() === String(email || '').toLowerCase());
     const sent = mine.filter((x) => x.state === 'sent');
-    if (!mine.length) return 'Not chased from a ticket yet';
-    if (!sent.length) return `${plural(mine.length, 'chase')} drafted, not sent yet`;
+    if (!mine.length) return 'No reminder sent yet';
+    if (!sent.length) return `${plural(mine.length, 'reminder')} drafted, not sent yet`;
     const last = sent.map((x) => x.sent_at).sort().pop();
-    return `Chased ${plural(sent.length, 'time')}, last ${fmtDay(last)}`;
+    return `Reminder sent ${plural(sent.length, 'time')}, last ${fmtDay(last)}`;
   }
 
   function digestsView() {
-    const list = (data.digests || []).slice().sort((a, b) => ticketsOf(b).length - ticketsOf(a).length);
+    // Oldest wait first: the approver whose longest-pending bill has waited most.
+    const list = (data.digests || []).slice().sort((a, b) => oldestOf(b) - oldestOf(a) || ticketsOf(b).length - ticketsOf(a).length);
     return h('section', { class: 'ah-section', 'aria-labelledby': 'ah-digests-h' },
       sectionHead({ id: 'ah-digests-h', title: 'Approver digests', sub: 'Approvers whose pending approvals hold up vendor payments, with the tickets each one blocks. One reminder per approver replaces separate chases. Internal only.' }),
       list.length ? h('ul', { class: 'lv-reviews' }, list.map((d) => {
         const tickets = ticketsOf(d);
-        const oldest = Math.max(0, ...(d.bills || []).map((b) => b.days_pending || 0));
+        const oldest = oldestOf(d);
         const name = d.approver_name || nameOf(d.act_by) || 'No approver on record';
         const delegate = d.delegate_note && /inactive/.test(d.delegate_note)
           ? `Delegate for ${nameOf((d.delegate_note.match(/next approver (\S+)/) || [])[1])}, who is inactive` : null;
@@ -283,17 +294,17 @@ export function mount(root, { route, session }) {
               delegate ? h('p', { class: 'lv-review-sub' }, delegate) : null,
               h('p', { class: 'ah-chase' }, icon('clock', 'icon-sm'), chaseLine(d.act_by))),
             h('div', { class: 'lv-review-actions' }, actions('digest', d, d.act_by, d.sendable))),
-          h('details', { class: 'lv-review-more' }, h('summary', null, 'Bills and message', icon('chev-down', 'icon-sm')),
+          h('details', { class: 'lv-review-more' }, h('summary', null, 'Preview', icon('chev-down', 'icon-sm')),
             h('ul', { class: 'ah-bills' }, (d.bills || []).map((b) => h('li', { class: 'ah-bill' },
               h('span', { class: 'mono' }, b.tranId), h('span', { class: 'ah-bill-vendor' }, b.vendor),
               h('span', { class: 'money' }, fmtMoney(b.amount)),
               b.stuck_over_14_days ? badge({ label: `${b.days_pending} days`, tone: 'waiting', icon: 'clock' }) : h('span', { class: 'lv-muted' }, `${b.days_pending} days`),
               h('span', { class: 'ah-bill-tickets' }, (b.ticket_ids || []).map((t) => chip({ label: `#${t}`, title: ticketTitle(t), onClick: () => { location.hash = `#/inbox/${t}`; } })))))),
             h('div', { class: 'lv-letter' }, d.text)));
-      })) : empty({ icon: 'approver', compact: true, title: 'No approver is holding up a payment', text: 'When a ticket waits on an approval, its approver appears here.' }),
-      sourceLine(SOURCE));
+      })) : empty({ icon: 'approver', compact: true, title: 'No approver is holding up a payment', text: 'When a ticket waits on an approval, its approver appears here.' }));
   }
   const ticketsOf = (d) => [...new Set((d.bills || []).flatMap((b) => b.ticket_ids || []))];
+  const oldestOf = (d) => Math.max(0, ...(d.bills || []).map((b) => b.days_pending || 0));
 
   // ------------------------------------------------------------------ see it on one invoice
   function invoiceView() {
@@ -341,10 +352,9 @@ export function mount(root, { route, session }) {
             sent && lookup ? directCard(inv, lookup) : h('p', { class: 'lv-muted' }, 'After sending, the vendor’s own lookup for this invoice gives the same answer.')),
           step(5, 'The ticket it prevents', sent, false,
             sent ? (covered.length
-              ? h('div', { class: 'lv-refs' }, h('span', { class: 'lv-muted' }, 'Would have prevented'), covered.map((t) => chip({ label: `#${t}`, title: ticketTitle(Number(t)), onClick: () => { location.hash = `#/inbox/${t}`; } })))
+              ? h('div', { class: 'lv-refs' }, h('span', { class: 'lv-muted' }, 'Would have answered'), covered.map((t) => chip({ label: `#${t}`, title: ticketTitle(Number(t)), onClick: () => { location.hash = `#/inbox/${t}`; } })))
               : h('p', { class: 'lv-muted' }, 'No ticket in the inbox asked about this invoice.'))
-              : h('p', { class: 'lv-muted' }, 'The inbox ticket that asked about this invoice is the one nobody has to answer next time.')))),
-      sourceLine(SOURCE));
+              : h('p', { class: 'lv-muted' }, 'The inbox ticket that asked about this invoice is the one nobody has to answer next time.')))));
   }
 
   function directCard(inv, lookup) {
