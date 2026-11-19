@@ -143,11 +143,11 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.threads(S.q ? { q: S.q } : { queue: S.queue });
       if (destroyed || seq !== rowsSeq) return;
-      // Emails that arrived while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps
-      // the real time of day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
-      const rows = r.rows || [];
-      const order = [...S.arrived];
-      const top = order.map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
+      // Newest first within every queue, by the real instant (times come with different offsets). Emails that arrived
+      // while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps the real time of
+      // day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
+      const rows = [...(r.rows || [])].sort(newestFirst);
+      const top = [...S.arrived].map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
       S.rows = [...top, ...rows.filter((x) => !S.arrived.includes(x.ticket_id))];
       S.rowsError = null;
     } catch (e) {
@@ -166,7 +166,8 @@ export function mount(root, { route, session }) {
       h('div', { class: 'ws-list-titles' },
         S.queues.length ? wsQueuePicker({ queues: S.queues, selected: S.queue, onSelect: selectQueue }) : null,
         h('h2', { class: 'ws-list-title' }, title),
-        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n))),
+        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n)),
+        h('span', { class: 'ws-list-order' }, 'Newest first')),
       S.q ? button({ label: 'Clear', size: 'sm', variant: 'quiet', icon: 'x', onClick: () => { S.q = ''; setSearchValue(''); navigate(urlFor(S.selected), { replace: true }); loadRows(); paintQueues(); } }) : null,
       canSelect ? button({
         label: S.selectMode ? 'Done' : 'Select', size: 'sm', variant: 'quiet', icon: S.selectMode ? 'check' : 'square-check',
@@ -194,7 +195,7 @@ export function mount(root, { route, session }) {
     const hadFocus = listEl.contains(document.activeElement) ? Number(document.activeElement.closest('.ws-row')?.dataset.id) : null;
     fill(listEl, S.rows.map((r) => wsMessageRow(r, {
       selected: r.ticket_id === S.selected, opened: S.opened.has(r.ticket_id), href: urlFor(r.ticket_id), isNew: S.fresh.has(r.ticket_id),
-      selectMode: S.selectMode, checked: S.checked.has(r.ticket_id),
+      selectMode: S.selectMode, checked: S.checked.has(r.ticket_id), queue: S.q ? null : S.queue,
       onCheck: (row, on) => { if (on) S.checked.add(row.ticket_id); else S.checked.delete(row.ticket_id); listEl.querySelector(`.ws-row[data-id="${row.ticket_id}"]`)?.classList.toggle('is-checked', on); paintBulk(); },
       onOpen: (row) => openRow(row.ticket_id),
     })));
@@ -883,6 +884,9 @@ export function mount(root, { route, session }) {
     },
   };
 }
+
+const when = (r) => { const t = Date.parse(r.received_at || ''); return Number.isNaN(t) ? 0 : t; };
+const newestFirst = (a, b) => when(b) - when(a) || b.ticket_id - a.ticket_id;
 
 function loadSet(key) {
   try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); } catch { return new Set(); }

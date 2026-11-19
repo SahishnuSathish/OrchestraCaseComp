@@ -35,6 +35,7 @@ main[data-view="inbox"] { padding-bottom: 0; }
 .ws-list-titles { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--s-2); }
 .ws-list-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-md); font-weight: var(--fw-semibold); }
 .ws-list-count { font-size: var(--fs-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.ws-list-order { margin-left: auto; padding-right: var(--s-2); font-size: var(--fs-xs); color: var(--color-text-muted); white-space: nowrap; }
 .ws-queue-select { display: none; }
 .ws-list-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ws-list-body .c-skeleton-row { min-height: 104px; }
