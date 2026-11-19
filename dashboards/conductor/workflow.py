@@ -1004,7 +1004,7 @@ def _median(xs):
 @router.get("/api/team/overview")
 def api_team_overview(request: Request, s=Depends(cfo_guard)):
     import feedback
-    out = {"as_of": appclock.iso(), "source": SOURCE, "available": False, "feedback": feedback.trends(),
+    out = {"as_of": appclock.iso(), "source": SOURCE, "available": False, "feedback": {**feedback.trends(), "source": SOURCE},
            "activity": {"rows": live.recent(s, 50), "source": "Since this morning"}}
     run_id = inbox_run()
     if not run_id:
