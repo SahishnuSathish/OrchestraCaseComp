@@ -26,7 +26,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 from trace import NullTrace  # noqa: E402
 
 DATA = ROOT / "data"
-H = signin.headers()
+H = signin.headers("cfo")
 STORE = Store(FileBackend(DATA))
 DEMO = notices.build_demo(STORE)
 

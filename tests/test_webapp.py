@@ -199,7 +199,7 @@ class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = signin.headers()
+        cls.h = signin.headers("cfo")
         r = cls.c.post("/api/runs", json={"path": str(DATA), "use_model": False}, headers=cls.h)
         assert r.status_code == 200, r.text
         cls.rid = r.json()["run_id"]

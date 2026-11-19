@@ -172,7 +172,7 @@ class EndpointTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = signin.headers()
+        cls.h = signin.headers("cfo")
 
     def post(self, start=""):
         return self.c.post("/api/fs/pick", json={"start": start}, headers=self.h)

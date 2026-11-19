@@ -62,7 +62,7 @@ class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = signin.headers()
+        cls.h = signin.headers("cfo")
         cls.fake = FakeOllama(models=[A, B]).start()
 
     @classmethod
@@ -492,7 +492,7 @@ class CancelTests(Base):
     def open_stream(self):
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         conn.request("POST", "/api/model/test", json.dumps({"text": "Where is INV-9?"}),
-                     {"Content-Type": "application/json", **signin.headers()})
+                     {"Content-Type": "application/json", **signin.headers("cfo")})
         return conn, conn.getresponse()
 
     def test_disconnect_while_waiting_for_the_first_token(self):

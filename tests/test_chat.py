@@ -77,7 +77,7 @@ class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.c = TestClient(server.app, base_url="http://localhost")
-        cls.h = signin.headers()
+        cls.h = signin.headers("cfo")
         cls.fake = FakeOllama(models=[A]).start()
         cls.fake._content = lambda body: REPLY
         seed()
@@ -300,7 +300,7 @@ class CancelTests(Base):
         self.fake.token_delay = 0.2
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         conn.request("POST", self.url, json.dumps({"message": "Tell me more."}),
-                     {"Content-Type": "application/json", **signin.headers()})
+                     {"Content-Type": "application/json", **signin.headers("cfo")})
         resp = conn.getresponse()
         self.assertEqual(resp.status, 200)
         seen = b""
