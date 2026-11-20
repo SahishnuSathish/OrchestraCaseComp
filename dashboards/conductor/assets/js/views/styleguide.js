@@ -44,14 +44,14 @@ const TEXT_ROLES = [
 const SURFACES = [
   ['canvas', '--color-canvas'], ['surface', '--color-surface'], ['surface-subtle', '--color-surface-subtle'], ['surface-sunken', '--color-surface-sunken'],
   ['surface-selected', '--color-surface-selected'], ['surface-inverse', '--color-surface-inverse'], ['border', '--color-border'], ['border-strong', '--color-border-strong'],
-  ['border-input', '--color-border-input'], ['action', '--color-action'], ['focus', '--color-focus'], ['chrome', '--color-chrome'], ['direct', '--color-direct'],
+  ['border-input', '--color-border-input'], ['action', '--color-action'], ['focus', '--color-focus'], ['chrome', '--color-chrome'],
 ];
 const STATUS = [
   ['Settled', 'settled', 'circle-check', 'Paid, sent, verified'], ['Scheduled', 'scheduled', 'calendar', 'Approved, in a payment run'],
   ['Waiting', 'waiting', 'clock', 'Waiting on a person'], ['Risk', 'risk', 'alert', 'Legal, fraud, bank change'],
 ];
 const TYPE_SCALE = [
-  ['--fs-hero', 64, 'Hero figure · landing', 'editorial', '19 days'],
+  ['--fs-hero', 64, 'Hero figure · landing', 'editorial', 'Paid in full'],
   ['--fs-display-lg', 48, 'Editorial line', 'editorial', 'Composed, exact, quietly warm'],
   ['--fs-display', 40, 'Display number', 'display', '$29,262.63'],
   ['--fs-3xl', 34, 'Page title · .h1', 'display', 'Escalations'],
