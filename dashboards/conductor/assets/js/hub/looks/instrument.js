@@ -12,7 +12,7 @@
 /* ---- knobs (see docs/ui-upgrade/looks/instrument.md) ------------------------------------------------------------ */
 export const TUNE = {
   turnSeconds: 64,      // one revolution of the hand: 32 beats of 2 s
-  ticks: 128,           // tempo ticks on the bezel: 8 bars x 4 beats x 4 sixteenths
+  ticks: 64,            // tempo ticks on the bezel: 8 bars x 4 beats x 2 eighths (a multiple of 32)
   staffPitch: 5,        // px between the bezel's five lines (1px line + 4px gap, the staff rule)
   trail: 0.62,          // radians of ticks lit behind the hand
   lens: 1,              // pointer loupe strength (0 = off)
@@ -21,6 +21,7 @@ export const TUNE = {
   handshakeTempo: 4,    // accelerando: the hand runs this much faster during the hand-off to /app
   narrowAlpha: 0.7,     // line strength on the stacked layout, where text scrolls over the art...
   narrowCap: 0.2,       // ...and no line stronger than this there: muted text keeps >= 4.9:1 over any line
+  cardMargin: 16,       // px of clear stage the hand keeps around the card (it is clipped, never drawn over it)
 };
 
 const TAU = Math.PI * 2;
@@ -73,7 +74,9 @@ export function mount(artEl, { reduced = false } = {}) {
     born: performance.now(),
     last: 0, raf: 0,
     px: 0, py: 0, sx: 0, sy: 0, pointerIn: false, lensW: 0,
+    rects: null, rectsUntil: performance.now() + 900, // the card's entrance moves it for ~600 ms
   };
+  const watchPanels = (ms = 700) => { S.rectsUntil = Math.max(S.rectsUntil, performance.now() + ms); };
 
   function resize() {
     const W = artEl.clientWidth || window.innerWidth;
@@ -81,6 +84,7 @@ export function mount(artEl, { reduced = false } = {}) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (W === S.W && H === S.H && dpr === S.dpr) return;
     S.W = W; S.H = H; S.dpr = dpr;
+    watchPanels();
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     S.geom = geometry(W, H, S.handshake);
@@ -100,8 +104,8 @@ export function mount(artEl, { reduced = false } = {}) {
     const still = reduced || !g.wide;
     const reveal = reduced ? 1 : easeOutQuart(clamp((now - S.born) / TUNE.entranceMs, 0, 1));
     // the entrance: the hand makes one fast turn (the downbeat) and draws the dial in behind it. At rest under
-    // reduced motion it stands just above nine o'clock, where most of it shows beside the card.
-    const theta = reduced ? Math.PI + 0.38 : reveal < 1 ? TOP + TAU * reveal : TOP + (S.music / (TUNE.turnSeconds * 1000)) * TAU;
+    // reduced motion it stands at twelve o'clock, above the card.
+    const theta = reduced ? TOP : reveal < 1 ? TOP + TAU * reveal : TOP + (S.music / (TUNE.turnSeconds * 1000)) * TAU;
 
     // pointer: parallax and the loupe, both eased so the dial answers slowly
     let ox = 0; let oy = 0; let lensA = 0; let lensW = 0;
@@ -127,19 +131,19 @@ export function mount(artEl, { reduced = false } = {}) {
     };
     // the hall: three faint outer rings, so the stage has depth beyond the dial
     ring(R * 1.36, 0.07); ring(R * 1.8, 0.05); ring(R * 2.4, 0.04);
-    // the inner track: a ring and 64 short ticks, mostly behind the card
+    // the inner track: a ring and 32 short ticks, mostly behind the card
     const rIn = R * 0.8;
-    ring(rIn, 0.09);
-    ctx.strokeStyle = `rgb(${col.line} / ${A(0.14)})`;
+    ring(rIn, 0.07);
+    ctx.strokeStyle = `rgb(${col.line} / ${A(0.08)})`;
     ctx.beginPath();
-    for (let i = 0; i < 64; i += 1) {
-      const f = i / 64; if (f > reveal) break;
+    for (let i = 0; i < 32; i += 1) {
+      const f = i / 32; if (f > reveal) break;
       const a = TOP + f * TAU; const c = Math.cos(a); const s = Math.sin(a);
       ctx.moveTo(cx + c * rIn, cy + s * rIn); ctx.lineTo(cx + c * (rIn - 5), cy + s * (rIn - 5));
     }
     ctx.stroke();
     // the bezel: the staff rule bent into a circle
-    ctx.strokeStyle = `rgb(${col.line} / ${A(0.2)})`;
+    ctx.strokeStyle = `rgb(${col.line} / ${A(0.13)})`;
     ctx.beginPath();
     for (let j = -2; j <= 2; j += 1) {
       const r = R + j * p;
@@ -148,15 +152,16 @@ export function mount(artEl, { reduced = false } = {}) {
     }
     ctx.stroke();
 
-    // tempo ticks: sixteenths cross the staff, beats reach past it, bars reach furthest
+    // tempo ticks: the minor ticks only cross the staff and stay faint, beats reach past it, bars reach furthest
     const N = TUNE.ticks;
+    const beat = N / 32; const bar = beat * 4;
     const lit = []; // ticks the loupe or the hand's trail brightens, drawn again on top
-    for (const [every, r0, r1, a0] of [[1, R - 2 * p, R + 2 * p, 0.15], [4, R - 2 * p, R + 2 * p + 8, 0.3], [16, R - 2 * p - 3, R + 2 * p + 14, 0.42]]) {
+    for (const [every, r0, r1, a0] of [[1, R - 2 * p, R + 2 * p, 0.08], [beat, R - 2 * p, R + 2 * p + 8, 0.2], [bar, R - 2 * p - 3, R + 2 * p + 14, 0.32]]) {
       ctx.strokeStyle = `rgb(${col.line} / ${A(a0)})`;
       ctx.beginPath();
       for (let i = 0; i < N; i += 1) {
         const f = i / N; if (f > reveal) break;
-        if (i % every !== 0 || (every < 16 && i % (every * 4) === 0)) continue; // each tick belongs to one level
+        if (i % every !== 0 || (every === 1 && i % beat === 0) || (every === beat && i % bar === 0)) continue; // one level per tick
         const a = TOP + f * TAU; const c = Math.cos(a); const s = Math.sin(a);
         ctx.moveTo(cx + c * r0, cy + s * r0); ctx.lineTo(cx + c * r1, cy + s * r1);
         let behind = (theta - a) % TAU; if (behind < 0) behind += TAU;
@@ -174,15 +179,28 @@ export function mount(artEl, { reduced = false } = {}) {
         ctx.beginPath(); ctx.moveTo(cx + c * r0, cy + s * r0); ctx.lineTo(cx + c * r2, cy + s * r2); ctx.stroke();
       }
       if (trail > 0.02) {
-        ctx.strokeStyle = `rgb(${col.brass} / ${(0.35 + 0.55 * (a0 / 0.42)) * trail})`;
+        ctx.strokeStyle = `rgb(${col.brass} / ${(0.35 + 0.55 * (a0 / 0.32)) * trail})`;
         ctx.beginPath(); ctx.moveTo(cx + c * r0, cy + s * r0); ctx.lineTo(cx + c * r2, cy + s * r2); ctx.stroke();
       }
     }
 
-    // the hand: the mark's sweep, 1px at the pivot swelling to 3.2px at the tip (the crescendo). Wide layout only:
-    // there it stays inside the sign-in column, so it never passes behind text.
+    // the hand: the mark's sweep, 1px at the inner track swelling to 3.2px at the tip (the crescendo). Wide layout
+    // only: there it stays inside the sign-in column, so it never passes behind text. It is clipped to the stage
+    // outside the card (and the mailbox) plus a margin, so it never touches or crosses them.
     if (g.wide) {
-      const r0 = R * 0.34; const r1 = R + 2 * p + 26;
+      const r0 = rIn; const r1 = R + 2 * p + 26;
+      ctx.save();
+      const m = TUNE.cardMargin;
+      if (now < S.rectsUntil || !S.rects) { // panels are re-measured only while they can move (see watchPanels)
+        S.rects = [...document.querySelectorAll('.hub-card, .hub-inbox, .hub-handshake-card')].map((el) => el.getBoundingClientRect());
+      }
+      for (const b of S.rects) {
+        if (!b.width || !b.height) continue;
+        ctx.beginPath(); // each clip keeps the stage minus one panel; clips intersect, so panels may overlap safely
+        ctx.rect(0, 0, W, H);
+        ctx.roundRect(b.left - m, b.top - m, b.width + 2 * m, b.height + 2 * m, 14 + m);
+        ctx.clip('evenodd');
+      }
       const c = Math.cos(theta); const s = Math.sin(theta);
       const w0 = 0.5; const w1 = 1.6;
       ctx.fillStyle = `rgb(${col.brass} / ${0.92 * (reduced ? 1 : clamp((reveal - 0.1) / 0.5, 0, 1))})`;
@@ -193,6 +211,7 @@ export function mount(artEl, { reduced = false } = {}) {
       ctx.lineTo(cx + c * r0 + s * w0, cy + s * r0 - c * w0);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
     }
   }
 
@@ -240,19 +259,30 @@ export function mount(artEl, { reduced = false } = {}) {
   const onVis = () => { if (document.hidden) { cancelAnimationFrame(S.raf); S.raf = 0; } else kick(); };
   document.addEventListener('visibilitychange', onVis);
 
+  // When the loop is idle (reduced motion, narrow), repaint once after the card changes size or the page scrolls, so
+  // the hand's clip around the card stays true.
+  let pending = 0;
+  const repaint = () => {
+    watchPanels();
+    if (S.raf || pending) return;
+    pending = requestAnimationFrame(() => { pending = 0; if (!S.raf && S.geom) draw(performance.now()); });
+  };
+  window.addEventListener('scroll', repaint, { passive: true });
+
   const root = document.getElementById('hub-root');
   const mo = root ? new MutationObserver(() => {
     const hs = !!root.querySelector(':scope > .hub-handshake');
-    if (hs === S.handshake) return;
+    if (hs === S.handshake) { repaint(); return; }
     S.handshake = hs;
     const now = performance.now();
     S.tempoFrom = S.tempo; S.tempoStart = now;
+    watchPanels(900);
     S.to = geometry(S.W, S.H, hs);
     if (reduced) { S.geom = S.to; S.from = null; S.to = null; draw(now); return; }
     S.from = { ...S.geom }; S.tweenStart = now;
     kick();
   }) : null;
-  mo?.observe(root, { childList: true });
+  mo?.observe(root, { childList: true, subtree: true });
 
   resize();
 
@@ -264,6 +294,8 @@ export function mount(artEl, { reduced = false } = {}) {
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('pointerleave', onLeave);
       document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('scroll', repaint);
+      cancelAnimationFrame(pending);
       canvas.remove();
     },
   };
