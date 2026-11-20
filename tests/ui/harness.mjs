@@ -37,8 +37,8 @@ export const vp = (width) => ({ width, height: width <= 480 ? 800 : width < 1000
 export const DESKTOP = vp(1280);
 export const TEST_TIMEOUT = 40000;
 
-export const PORT_MAIN = 8808;   // the main server: every story but the background-arrival one
-export const PORT_LIVE = 8809;   // a second server whose background arrivals run quickly
+export const PORT_MAIN = Number(process.env.UI_PORT_MAIN) || 8808;   // the main server: every story but the background-arrival one
+export const PORT_LIVE = Number(process.env.UI_PORT_LIVE) || 8809;   // a second server whose background arrivals run quickly
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -212,7 +212,11 @@ export async function poll(fn, { timeout = 10000, interval = 100, message = 'con
 // ------------------------------------------------------------------------------------------------ page helpers
 export async function assertNoOverflow(page, label = '') {
   const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-  assert.ok(m.sw <= m.cw, `horizontal overflow${label ? ` (${label})` : ''}: scrollWidth ${m.sw} > clientWidth ${m.cw}`);
+  if (m.sw > m.cw) {
+    const wide = await page.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1 && e.getClientRects().length)
+      .slice(0, 4).map((e) => e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.split(' ').slice(0, 2).join('.') : '') + ' right=' + Math.round(e.getBoundingClientRect().right)));
+    assert.fail(`horizontal overflow${label ? ` (${label})` : ''}: scrollWidth ${m.sw} > clientWidth ${m.cw}; wide: ${wide.join(' | ')}`);
+  }
 }
 
 /** Wait until a hash route matches (string or RegExp). */
@@ -299,6 +303,20 @@ export function a11yProblems(a) {
   return out;
 }
 
+// axe-core (wcag2a + wcag2aa). Returns null when axe-core is not installed, so the caller can skip with a note.
+const AXE_PATH = path.join(REPO, 'node_modules', 'axe-core', 'axe.min.js');
+export const axeAvailable = () => fs.existsSync(AXE_PATH);
+export async function axeRun(page) {
+  // a dialog or page that is still fading in would be measured against blended colours: let every animation finish first
+  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => null)))).catch(() => {});
+  await sleep(150);
+  if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ path: AXE_PATH });
+  return page.evaluate(async () => {
+    const r = await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] });
+    return r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.length, targets: v.nodes.slice(0, 4).map((n) => `${n.target.join(' ')} :: ${(n.failureSummary || '').split(String.fromCharCode(10)).slice(1, 3).join(' ').trim().slice(0, 220)}`) }));
+  });
+}
+
 // ------------------------------------------------------------------------------------------------ test registry and runner
 export const tests = [];
 /** test(name, fn, { timeout, known }) - `known` is the text of a product bug this test is expected to hit (reported as KNOWN, not as a regression). */
@@ -327,9 +345,9 @@ export async function runOne(t, ctxApps) {
       return track(await ctx.newPage());
     },
     /** A page (in its own browser context, so its own tab session) already signed in as `who`. Returns the page; page.signin is the API answer. */
-    async pageAs(who, viewport = DESKTOP, app = ctxApps.app) {
+    async pageAs(who, viewport = DESKTOP, app = ctxApps.app, ctxOpts = {}) {
       const answer = await signInApi(app, who);
-      const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, acceptDownloads: true });
+      const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, acceptDownloads: true, ...ctxOpts });
       ctxs.push(ctx);
       await ctx.addInitScript((s) => {
         try { if (!sessionStorage.getItem('__seeded')) { sessionStorage.setItem('conductor.session', s); sessionStorage.setItem('__seeded', '1'); } } catch { /* storage blocked */ }

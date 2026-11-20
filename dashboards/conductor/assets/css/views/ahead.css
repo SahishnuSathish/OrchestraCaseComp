@@ -35,6 +35,8 @@
   .ah-tabs, .ah-section .lv-section-actions > .c-tabs { display: none; }
   .ah-tabselect, .ah-filtersel { display: block; width: 100%; }
   .ah-section .lv-section-actions { width: 100%; }
+  .ah-bar-tools { flex-wrap: wrap; }
+  .ah-bar-tools .lv-meta { white-space: normal; }
 }
 .ah-panel:focus { outline: none; }
 .ah-section { display: flex; flex-direction: column; gap: var(--s-3); }
