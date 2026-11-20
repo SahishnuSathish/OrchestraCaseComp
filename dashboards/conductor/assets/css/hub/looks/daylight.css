@@ -22,16 +22,14 @@ html[data-look="daylight"] {
   --dl-air-top: #dbe8e6;        /* art: sky-mint morning air at the windows (wash-sky, a touch greener) */
   --dl-air-mid: #e8eee6;        /* art: the hall's middle air (between wash-mint and paper-100) */
   --dl-air-low: #f2ebdf;        /* art: warm floor light (wash-peach towards brass-100) */
-  --dl-air-warm: #f8efe0;       /* art: the warmer air the handshake brings up (the day begins) */
   /* light */
   --dl-beam: rgb(255 250 238 / 0.72);   /* art: a window shaft, warm white */
-  --dl-band-cool: #f7fcf2;      /* art: the sweep's thin end, a mint-white light */
-  --dl-band-warm: #fff5df;      /* art: the sweep's swell, a sunlit brass-white */
-  --dl-echo: #eef6f3;           /* art: the lower gesture, a sky-white light */
-  /* ink in the art: Orchestra green at low strength, so the staff and the line read as printed, not as UI */
+  --dl-halo: #fff8e6;           /* art: the daylight around the sweep, a sunlit white */
+  /* the mark at room scale: staff lines in Orchestra green ink, the sweep from green ink into pale brass */
   --dl-ink: 34 51 7;            /* art: #223307 as rgb channels */
-  --dl-staff-alpha: 0.2;
-  --dl-core-alpha: 0.34;
+  --dl-staff-alpha: 0.3;
+  --dl-sweep-from: rgb(34 51 7 / 0.5);       /* art: Orchestra green, as the mark's sweep */
+  --dl-sweep-to: rgb(196 172 110 / 0.62);     /* art: brass-400 (#c4ac6e): the swell catches the sun */
   /* knobs (see docs/ui-upgrade/looks/daylight.md) */
   --dl-enter: 620ms;            /* the light coming up on first load (the whole entrance stays under 700 ms) */
   --dl-card-radius: 20px;
@@ -42,25 +40,26 @@ html[data-look="daylight"] {
     6px 18px 40px -12px rgb(var(--p-shadow-rgb) / 0.16),
     10px 36px 72px -24px rgb(var(--p-shadow-rgb) / 0.12);   /* falls down and to the right: the light is upper left */
   --dl-hairline: rgb(var(--p-shadow-rgb) / 0.09);
+  --dl-scrim: rgb(var(--p-shadow-rgb) / 0.58);
 }
 
 /* ---- the page and the art --------------------------------------------------------------------------------- */
-html[data-look="daylight"] body.c-hub-page { background: var(--dl-air-mid); }
+html[data-look="daylight"] body.c-hub-page { background: var(--dl-air-low); }
+/* wide screens: the art scrolls with the page, so the staff and the sweep stay in the space the layout leaves for them
+   (between the headline and the proof points, and up the gutter beside the card) and never sit behind text */
+@media (min-width: 961px) {
+  html[data-look="daylight"] body.c-hub-page { position: relative; }
+  html[data-look="daylight"] .hub-art { position: absolute; }
+}
 
 html[data-look="daylight"] .dl-scene { position: absolute; inset: 0; }
 html[data-look="daylight"] .dl-air {
   position: absolute; inset: 0;
   background: linear-gradient(172deg, var(--dl-air-top) 0%, var(--dl-air-mid) 46%, var(--dl-air-low) 100%);
 }
-/* the warmer air of the handshake waits on top at 0, so the change is an opacity fade only */
-html[data-look="daylight"] .dl-air::after {
-  content: ""; position: absolute; inset: 0; opacity: 0;
-  background: linear-gradient(172deg, var(--dl-air-mid) 0%, var(--dl-air-warm) 70%);
-  transition: opacity 900ms var(--ease-out);
-}
 html[data-look="daylight"] .dl-depth,
-html[data-look="daylight"] .dl-lift { position: absolute; inset: 0; }
-/* layers are promoted only where the pointer parallax can run */
+html[data-look="daylight"] .dl-state { position: absolute; inset: 0; }
+/* the gesture layer is promoted only where the pointer parallax can run */
 @media (hover: hover) and (pointer: fine) and (min-width: 961px) and (prefers-reduced-motion: no-preference) {
   html[data-look="daylight"] .dl-depth { will-change: transform; }
 }
@@ -79,39 +78,34 @@ html[data-look="daylight"] .dl-beam {
   transform: rotate(-24deg); transform-origin: 50% 0;
 }
 
-/* the mark at the size of the room */
+/* the mark at the size of the room: five staff lines opened by a bar line, one sweep rising from the lowest line */
 html[data-look="daylight"] .dl-gesture { position: absolute; inset: 0; overflow: visible; }
-html[data-look="daylight"] .dl-band-main { fill: url(#dl-band-grad); }
-html[data-look="daylight"] .dl-band-echo { fill: var(--dl-echo); opacity: 0.9; }
-html[data-look="daylight"] .dl-band-grad-a { stop-color: var(--dl-band-cool); }
-html[data-look="daylight"] .dl-band-grad-b { stop-color: var(--dl-band-warm); }
-html[data-look="daylight"] .dl-staff line { stroke: url(#dl-staff-grad); stroke-width: 1; shape-rendering: crispEdges; }
-html[data-look="daylight"] .dl-staff-grad-a { stop-color: rgb(var(--dl-ink)); stop-opacity: 0; }
-html[data-look="daylight"] .dl-staff-grad-b { stop-color: rgb(var(--dl-ink)); stop-opacity: var(--dl-staff-alpha); }
-html[data-look="daylight"] .dl-core { fill: none; stroke: url(#dl-core-grad); stroke-width: 1.5; stroke-linecap: round; }
-html[data-look="daylight"] .dl-core-grad-a { stop-color: rgb(var(--dl-ink)); stop-opacity: var(--dl-core-alpha); }
-html[data-look="daylight"] .dl-core-grad-b { stop-color: rgb(var(--dl-ink)); stop-opacity: 0; }
+html[data-look="daylight"] .dl-halo { fill: var(--dl-halo); opacity: 0.95; }
+html[data-look="daylight"] .dl-staff line { stroke: rgb(var(--dl-ink) / var(--dl-staff-alpha)); stroke-width: 1; shape-rendering: crispEdges; }
+html[data-look="daylight"] .dl-staff .dl-bar { stroke: rgb(var(--dl-ink) / calc(var(--dl-staff-alpha) + 0.12)); }
+html[data-look="daylight"] .dl-sweep-a { stop-color: var(--dl-sweep-from); }
+html[data-look="daylight"] .dl-sweep-b { stop-color: var(--dl-sweep-to); }
 
-/* ---- entrance: the light comes up (under 700 ms), then holds ---------------------------------------------- */
+/* two states, crossfaded on the composited layer: beside the sign-in card, and settled behind the handshake card */
+html[data-look="daylight"] .dl-state { transition: opacity 700ms var(--ease-out); }
+html[data-look="daylight"] .dl-at-handshake { opacity: 0; }
+html[data-look="daylight"]:has(.hub-handshake) .dl-at-hub { opacity: 0; }
+html[data-look="daylight"]:has(.hub-handshake) .dl-at-handshake { opacity: 1; }
+html[data-look="daylight"]:has(.hub-handshake) .dl-beams { opacity: 1; }
+
+/* ---- entrance: the light comes up, the staff is laid, the sweep rises (under 700 ms), then holds ------------- */
 html[data-look="daylight"] .hub-art[data-enter] .dl-beams { animation: dl-fade var(--dl-enter) var(--ease-out) both; }
-html[data-look="daylight"] .hub-art[data-enter] .dl-bands { animation: dl-swell var(--dl-enter) var(--ease-emphasized) 40ms both; }
-html[data-look="daylight"] .hub-art[data-enter] .dl-staff { animation: dl-fade 360ms var(--ease-out) both; }
-html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: 1; animation: dl-draw var(--dl-enter) var(--ease-emphasized) 60ms both; }
+html[data-look="daylight"] .hub-art[data-enter] .dl-at-hub .dl-bands { animation: dl-swell var(--dl-enter) var(--ease-emphasized) 60ms both; }
+html[data-look="daylight"] .hub-art[data-enter] .dl-at-hub .dl-lines { animation: dl-lay var(--dl-enter) var(--ease-emphasized) both; }
 @keyframes dl-fade { from { opacity: 0; } }
 @keyframes dl-swell { from { opacity: 0; transform: translate3d(-16px, 20px, 0); } }
-@keyframes dl-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes dl-lay { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
 
 html[data-look="daylight"] .hub-brand,
 html[data-look="daylight"] .hub-proof,
 html[data-look="daylight"] .hub-family { animation: dl-fade 420ms var(--ease-out) 80ms both; }
 html[data-look="daylight"] .hub-signin-inner { animation: dl-rise 480ms var(--ease-emphasized) 120ms both; }
 @keyframes dl-rise { from { opacity: 0; transform: translate3d(0, 12px, 0); } }
-
-/* the handshake: the day begins. The air warms, the beams come up to full, the sweep settles a little higher */
-html[data-look="daylight"] .dl-lift { transition: transform 1200ms var(--ease-emphasized); }
-html[data-look="daylight"]:has(.hub-handshake) .dl-air::after { opacity: 1; }
-html[data-look="daylight"]:has(.hub-handshake) .dl-beams { opacity: 1; }
-html[data-look="daylight"]:has(.hub-handshake) .dl-lift { transform: translate3d(0, -14px, 0); }
 
 /* ---- the brand column, on light ----------------------------------------------------------------------------- */
 html[data-look="daylight"] .hub::before { display: none; }
@@ -138,7 +132,7 @@ html[data-look="daylight"] .hub-value {
 }
 
 /* the three proof points read as three beats of one bar: side by side, a fine bar line between them */
-html[data-look="daylight"] .hub-proof { padding-top: 48px; }
+html[data-look="daylight"] .hub-proof { padding-top: 104px; }   /* the empty band the staff runs through */
 html[data-look="daylight"] .hub-proof-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 0; max-width: 640px; }
 html[data-look="daylight"] .hub-proof-list li {
   max-width: none; padding: 2px 20px 4px; border: 0; border-left: 1px solid rgb(var(--p-shadow-rgb) / 0.18);
@@ -148,9 +142,15 @@ html[data-look="daylight"] .hub-proof-list li:first-child { padding-left: 0; bor
 html[data-look="daylight"] .hub-proof-source { padding-top: 16px; color: var(--color-text-muted); }
 
 html[data-look="daylight"] .hub-family { padding-top: 32px; padding-bottom: 40px; }
-html[data-look="daylight"] .hub-family ul { gap: 8px; padding-top: 20px; border-top: 1px solid var(--dl-hairline); max-width: 640px; }
-html[data-look="daylight"] .hub-family-text strong { color: var(--color-text); }
-html[data-look="daylight"] .hub-family-text span { color: var(--color-text-secondary); }
+/* the family is a footnote to the proof points: smaller, quieter, 16px marks */
+html[data-look="daylight"] .hub-family ul { gap: 6px; padding-top: 16px; border-top: 1px solid var(--dl-hairline); max-width: 640px; }
+html[data-look="daylight"] .hub-family-item { gap: 10px; }
+html[data-look="daylight"] .hub-family .c-mark { width: 16px; height: 16px; }
+html[data-look="daylight"] .hub-family-text { font-size: var(--fs-xs); }
+html[data-look="daylight"] .hub-family-text strong { font-weight: var(--fw-medium); color: var(--color-text-secondary); }
+html[data-look="daylight"] .hub-family-text span { color: var(--color-text-muted); }
+/* the pale Ahead field needs a firmer edge on this light page (BRAND.md has it at 30%) */
+html[data-look="daylight"] .hub .c-mark-ahead .c-mark-edge { stroke: var(--color-chrome); opacity: 0.62; }
 
 @media (min-width: 961px) {
   html[data-look="daylight"] .hub { grid-template-columns: minmax(440px, 6fr) minmax(480px, 5fr); }
@@ -192,7 +192,7 @@ html[data-look="daylight"] dialog.hub-provider {
   --modal-radius: var(--dl-card-radius); --modal-bg: var(--color-surface-raised);
   --modal-shadow: 0 2px 4px rgb(var(--p-shadow-rgb) / 0.05), 10px 32px 80px -16px rgb(var(--p-shadow-rgb) / 0.26);
 }
-html[data-look="daylight"] dialog.hub-provider::backdrop { background: rgb(var(--p-shadow-rgb) / 0.22); }
+html[data-look="daylight"] dialog.hub-provider::backdrop { background: var(--dl-scrim); -webkit-backdrop-filter: saturate(0.7); backdrop-filter: saturate(0.7); }
 html[data-look="daylight"] .hub-provider-title { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: var(--ls-heading); color: var(--color-text-display); }
 html[data-look="daylight"] dialog.hub-provider .c-btn:not(.c-btn-sm),
 html[data-look="daylight"] dialog.hub-provider .c-input { border-radius: var(--dl-control-radius); }
@@ -230,8 +230,8 @@ html[data-look="daylight"] .hub-handshake-who strong { color: var(--color-text-d
 }
 
 /* ---- reduced motion: the room at full morning, still --------------------------------------------------------------- */
+/* The JS sets no data-enter and runs no parallax here; the hub-to-handshake crossfade collapses to a frame (base.css). */
 @media (prefers-reduced-motion: reduce) {
-  html[data-look="daylight"] .hub-art[data-enter] .dl-beams { animation: none; }
-  html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: none; animation: none; }
-  html[data-look="daylight"] .dl-lift { transition: none; }
+  html[data-look="daylight"] .hub-art .dl-beams,
+  html[data-look="daylight"] .hub-art .dl-state { animation: none; transition: none; }
 }
