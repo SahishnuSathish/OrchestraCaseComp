@@ -1,1 +1,156 @@
-/* Hub look "score" (stub, filled by the ui/look-score worker). Every rule is scoped to html[data-look="score"]. */
+/* Hub look A, "Score". Every rule is scoped to html[data-look="score"].
+   Warm paper, faint printed staves, and one line that swells like a crescendo into a ribbon of engraved strokes,
+   opening toward the sign-in card and running under it. The card is a crisp sheet lying on the score. The headline is
+   the page's one editorial moment (Instrument Serif). Art: js/hub/looks/score.js. Notes: docs/ui-upgrade/looks/score.md.
+
+   This is an art file: primitives (--p-*) are used on purpose for the paper and the inks, and say so. */
+
+/* ---- proposed tokens (scoped to this look; the orchestrator may move them into tokens.css) ------------------- */
+html[data-look="score"] {
+  --score-paper: color-mix(in oklab, var(--p-paper-50) 74%, var(--p-brass-100));  /* warm paper, about #f6f4ec */
+  --score-staff: rgb(var(--p-shadow-rgb) / 0.085);       /* the printed staves */
+  --score-bar: rgb(var(--p-shadow-rgb) / 0.16);          /* bar lines on the layout's edges */
+  --score-ink: var(--deco-ink);                          /* the ribbon: Orchestra green */
+  --score-brass: var(--deco-brass-line);                 /* one brass stroke in the ribbon */
+  --score-sheet: var(--color-surface-raised);            /* the card: a white sheet on the paper */
+  --score-sheet-edge: rgb(var(--p-shadow-rgb) / 0.09);
+  --score-sheet-shadow:
+    0 1px 0 rgb(var(--p-shadow-rgb) / 0.03),
+    0 1px 2px rgb(var(--p-shadow-rgb) / 0.06),
+    0 10px 24px -10px rgb(var(--p-shadow-rgb) / 0.16),
+    0 28px 60px -28px rgb(var(--p-shadow-rgb) / 0.20);
+  --score-rule: var(--color-border);                     /* hairlines on the paper */
+}
+
+/* ---- the page and the art ------------------------------------------------------------------------------------ */
+html[data-look="score"] body.c-hub-page { position: relative; min-height: 100dvh; background: var(--score-paper); }
+/* The art scrolls with the page (absolute, the height of the document), so the ribbon stays in its band when the
+   page is taller than the window; it never takes part in layout. */
+html[data-look="score"] .hub-art { position: absolute; inset: 0; }
+html[data-look="score"] .score-staff,
+html[data-look="score"] .score-ribbon { position: absolute; inset: 0 auto auto 0; }
+html[data-look="score"] .score-staff,
+html[data-look="score"] .score-ribbon-svg { display: block; max-width: none; overflow: visible; }
+html[data-look="score"] .score-staff-lines { fill: none; stroke: var(--score-staff); stroke-width: 1; shape-rendering: crispEdges; }
+html[data-look="score"] .score-staff-bars { fill: none; stroke: var(--score-bar); stroke-width: 1; shape-rendering: crispEdges; }
+html[data-look="score"] .score-stroke { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+html[data-look="score"] .score-stop-ink { stop-color: var(--score-ink); }
+html[data-look="score"] .score-stop-brass { stop-color: var(--score-brass); }
+
+/* First load: the staves print in, the line draws itself from the left (under 700 ms), then the ribbon breathes
+   very slowly on its own compositor layer. Hidden tabs pause it. */
+html[data-look="score"] .score-art .score-staff { opacity: 0; transition: opacity var(--dur-enter) var(--ease-out); }
+html[data-look="score"] .score-art.is-ready .score-staff { opacity: 1; }
+html[data-look="score"] .score-art.is-drawing .score-stroke {
+  stroke-dasharray: 1 1;
+  animation: score-draw 560ms var(--ease-emphasized) var(--delay, 0ms) both;
+}
+@keyframes score-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+html[data-look="score"] .score-ribbon { will-change: transform; animation: score-breathe 9s var(--ease-in-out) 900ms infinite alternate; }
+@keyframes score-breathe { from { transform: scaleY(1); } to { transform: scaleY(1.045); } }
+html[data-look="score"] .score-art.is-paused .score-ribbon,
+html[data-look="score"] .score-art.is-paused .score-stroke { animation-play-state: paused; }
+
+/* ---- the brand column: on paper now, the headline set as the editorial moment --------------------------------- */
+html[data-look="score"] .hub::before { display: none; }
+html[data-look="score"] .hub-brand,
+html[data-look="score"] .hub-proof,
+html[data-look="score"] .hub-family { background: transparent; color: var(--color-text); }
+html[data-look="score"] .hub-brand :focus-visible,
+html[data-look="score"] .hub-proof :focus-visible,
+html[data-look="score"] .hub-family :focus-visible { outline-color: var(--color-focus); }
+
+/* the lockup and the family marks take their on-paper pairs (BRAND.md: field chrome, ink highlight) */
+html[data-look="score"] .hub-brand .c-lockup { color: var(--color-text-display); }
+html[data-look="score"] .hub-brand .c-lockup-rule { opacity: 0.38; }
+html[data-look="score"] .hub .c-mark-conductor { --mark-bg: var(--color-chrome); --mark-ink: var(--color-chrome-highlight); }
+html[data-look="score"] .hub .c-mark-direct { --mark-bg: var(--color-direct); --mark-ink: var(--color-direct-highlight); }
+
+html[data-look="score"] .hub-brand { padding-bottom: clamp(72px, 11vh, 128px); }
+html[data-look="score"] .hub-value {
+  margin-top: clamp(48px, 11vh, 120px); max-width: 17ch;
+  font-family: var(--font-editorial); font-weight: var(--fw-regular); font-size: clamp(42px, 4vw, 58px);
+  line-height: 1.02; letter-spacing: var(--ls-editorial); color: var(--color-text-display);
+}
+
+html[data-look="score"] .hub-proof { padding-top: 0; }
+html[data-look="score"] .hub-proof-list { border-top: 1px solid var(--score-rule); max-width: 46ch; }
+html[data-look="score"] .hub-proof-list li { padding: 12px 0; border-bottom: 1px solid var(--score-rule); font-size: var(--fs-body-lg); color: var(--color-text); }
+html[data-look="score"] .hub-proof-source { padding-top: 10px; color: var(--color-text-muted); }
+
+html[data-look="score"] .hub-family { padding-top: 28px; }
+html[data-look="score"] .hub-family ul { border-top: 0; padding-top: 0; gap: 12px; }
+html[data-look="score"] .hub-family-text span { color: var(--color-text-secondary); }
+
+/* ---- the card: a crisp sheet lying on the score -------------------------------------------------------------- */
+html[data-look="score"] .hub-card {
+  background: var(--score-sheet); border: 1px solid var(--score-sheet-edge); border-radius: var(--radius-panel);
+  box-shadow: var(--score-sheet-shadow); padding: 40px 40px 32px;
+}
+html[data-look="score"] .hub-card-title { color: var(--color-text-display); letter-spacing: var(--ls-heading); }
+html[data-look="score"] .hub-choice { border-top-color: var(--color-border); }
+html[data-look="score"] .hub-help { padding-top: 20px; border-top: 1px solid var(--color-border); }
+html[data-look="score"] .hub-link { border-radius: var(--radius-xs); }
+html[data-look="score"] .hub-link:hover { color: var(--color-link-hover); }
+
+/* the one entrance: the sheet settles onto the page while the line draws in */
+html[data-look="score"] .hub-signin-inner > .hub-card:not(.hub-card-code) { animation: score-settle var(--dur-moment) var(--ease-emphasized) 60ms both; }
+html[data-look="score"] .hub-brand, html[data-look="score"] .hub-proof, html[data-look="score"] .hub-family { animation: score-fade var(--dur-enter) var(--ease-out) both; }
+@keyframes score-settle { from { opacity: 0; transform: translateY(10px); } }
+@keyframes score-fade { from { opacity: 0; } }
+
+/* the simulated mailbox: a second, smaller sheet under the card */
+html[data-look="score"] .hub-inbox {
+  border: 1px solid var(--score-sheet-edge); border-radius: var(--radius-card); overflow: hidden;
+  box-shadow: inset 0 3px 0 var(--color-direct), var(--shadow-float);
+}
+html[data-look="score"] .hub-inbox-head { background: var(--color-surface-subtle); padding-top: 3px; height: 43px; }
+
+/* ---- the provider window (staff picker, vendor email step) --------------------------------------------------- */
+html[data-look="score"] dialog.hub-provider { background: var(--score-sheet); border-color: var(--score-sheet-edge); }
+html[data-look="score"] dialog.hub-provider::backdrop { background: rgb(var(--p-shadow-rgb) / 0.30); }
+html[data-look="score"] .hub-provider-title { font-family: var(--font-display); color: var(--color-text-display); }
+html[data-look="score"] .hub-picker-group-title { background: var(--score-sheet); }
+html[data-look="score"] .hub-provider-form > .hub-account,
+html[data-look="score"] .hub-last-row { border-radius: var(--radius-control); }
+html[data-look="score"] .hub-last-account { border-radius: var(--radius-control) 0 0 var(--radius-control); }
+
+/* ---- the handshake: the same paper and score behind it; the line draws again toward the card ------------------ */
+html[data-look="score"] .hub-handshake { background: transparent; }
+html[data-look="score"] .hub-handshake-card {
+  background: var(--score-sheet); border: 1px solid var(--score-sheet-edge); border-radius: var(--radius-panel);
+  box-shadow: var(--score-sheet-shadow);
+  animation: score-settle var(--dur-enter) var(--ease-emphasized) both;
+}
+html[data-look="score"] .hub-handshake-who { border-color: var(--color-border); }
+html[data-look="score"] .hub-handshake-who strong { color: var(--color-text-display); }
+html[data-look="score"] .hub-step-node .icon { color: var(--color-settled); }
+
+/* ---- narrow: stacked; the ribbon runs in a band under the headline and tucks under the card ------------------- */
+@media (max-width: 960px) {
+  html[data-look="score"] .hub-brand { padding: 24px var(--s-4) 80px; background: transparent; }
+  html[data-look="score"] .hub-value { margin-top: 32px; max-width: 18ch; font-size: clamp(36px, 7.4vw, 52px); line-height: 1.04; }
+  html[data-look="score"] .hub-proof, html[data-look="score"] .hub-family { background: transparent; }
+  html[data-look="score"] .hub-proof { padding-top: 40px; }
+  html[data-look="score"] .hub-proof-list li { font-size: var(--fs-md); }
+  html[data-look="score"] .hub-signin-inner { margin-inline: auto; }
+}
+@media (max-width: 520px) {
+  html[data-look="score"] .hub-card { padding: 28px 20px 24px; }
+  html[data-look="score"] .hub-brand .c-lockup-lg .c-lockup-parent,
+  html[data-look="score"] .hub-brand .c-lockup-lg .c-lockup-product { font-size: 20px; }
+  html[data-look="score"] dialog.hub-provider { border-radius: 0; }
+}
+
+/* ---- reduced motion: drawn complete, nothing moves; the static page is the composition ------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html[data-look="score"] .score-ribbon,
+  html[data-look="score"] .score-art.is-drawing .score-stroke,
+  html[data-look="score"] .hub-signin-inner > .hub-card,
+  html[data-look="score"] .hub-brand, html[data-look="score"] .hub-proof, html[data-look="score"] .hub-family,
+  html[data-look="score"] .hub-handshake-card { animation: none; }
+  html[data-look="score"] .score-art.is-drawing .score-stroke { stroke-dasharray: none; }
+  html[data-look="score"] .score-art .score-staff { transition: none; }
+}
+html[data-look="score"] .score-art.is-still .score-ribbon,
+html[data-look="score"] .score-art.is-still .score-stroke { animation: none; }
