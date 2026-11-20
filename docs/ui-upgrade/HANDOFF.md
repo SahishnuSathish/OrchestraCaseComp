@@ -53,15 +53,15 @@ elevation scales; motion = one ease-out, 120-240 ms for responses, one entrance 
 | Baseline (bc8ea0c) | 24/24, axe clean | 85/85 | 396 run, 4 errors (pre-existing: no `tkinter` in the container) | clean |
 | Foundation + brand | 24/24, axe clean | 85/85 | no new failures | clean |
 | Three looks (A default; B and C each tested as default) | 24/24, axe clean | 85/85 | no new failures | clean |
-| Final (this hand-off) | see `STATE.md` "Gate results" | | | |
+| **Final** (all three looks with round-1 fixes; A default, B re-tested as default) | **24/24, axe clean** | **85/85** | **no new failures** | **clean** |
 
 ## 6. Not verified, skipped, open decisions
 
 - **Not done (stopped early)**: Tier 2 (shell chrome, inbox/review "What Conductor found" moment, sent confirmation,
   Direct pages), Tier 3 (Ahead/Team/Escalations charts, empty/loading/404 states), Tier 4 (count-ups, motion spec).
   Briefs for all of them are ready in `docs/ui-upgrade/briefs/` and can be re-issued as is.
-- **Look B round 1** (hand kept off the card, calmer ticks, readable caption): merged only if its worker finished in
-  time; check `git log ui/overnight --oneline | grep instrument`. If it is not merged, B still has those three faults.
+- All three looks got one refinement round from the blind review (merged). The Tier 2 shell worker was stopped before
+  it changed anything (`ui/shell` = no work).
 - Only headless Chromium was used; no Safari/Firefox or real-GPU check. Entrance animations were checked as stills.
 - Decision for you: which look; whether the Ahead mark's edge (BRAND.md 30%; look C uses 62%) should change globally.
 

@@ -4,6 +4,7 @@ On resume: read this file, then `git log --oneline -15` on `ui/overnight` and ea
 and `git status` in each worktree. Never redo merged work.
 
 ## Now
+- **STOPPED by the owner after Tier 1** (demo recording). Final gate GREEN on ui/overnight: smoke 24/24 + axe clean, JS 85/85, Python no new failures, git clean. Looks A/B/C round 1 merged; shell worker stopped with no changes. Hand-off: HANDOFF.md, gallery/index.html. To continue: Tier 2 briefs are ready (shell, workspace, direct).
 - **Tier**: 1 step 4 finishing (B, C round 1 running) + Tier 2 started (shell) as slots free up (max 3 workers).
 - Was: Tier 1, step 4. Looks merged + gated green; blind review done (A > C > B); DEFAULT = a (DIRECTION.md). Refinement round 1 running in the three look workers (same agent ids, same branches).
 - Done on ui/overnight meanwhile: hub look loader + stubs (0004460), look briefs (briefs/looks.md, look-a/b/c.md).
