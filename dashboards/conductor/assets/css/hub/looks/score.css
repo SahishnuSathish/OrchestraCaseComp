@@ -114,7 +114,6 @@ html[data-look="score"] .hub-picker-group-title { background: var(--score-sheet)
 html[data-look="score"] .hub-provider-form > .hub-account,
 html[data-look="score"] .hub-last-row { border-radius: var(--radius-control); }
 html[data-look="score"] .hub-last-account { border-radius: var(--radius-control) 0 0 var(--radius-control); }
-html[data-look="score"] .hub-account { border-radius: var(--radius-control); }
 
 /* ---- the handshake: the same paper and score behind it; the line draws again toward the card ------------------ */
 html[data-look="score"] .hub-handshake { background: transparent; }

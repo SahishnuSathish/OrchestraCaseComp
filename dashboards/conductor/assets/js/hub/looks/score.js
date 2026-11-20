@@ -18,7 +18,7 @@ const KNOBS = {
   staffGap: 8,        // px between the five lines of a staff
   systemPitch: 128,   // px from one staff (system) to the next
   strokes: 15,        // engraved lines in the ribbon
-  swellMax: 0.105,    // the ribbon's half-height at the right edge, as a share of the page width (desktop)
+  swellMax: 0.09,     // the ribbon's half-height at the right edge, as a share of the page width (desktop)
   rise: 0.2,          // how far the ribbon climbs from the left to the right edge, as a share of the viewport height
   wave: 0.16,         // waveform amplitude, as a share of the ribbon's half-height
 };
@@ -71,7 +71,9 @@ function measure() {
   const y0 = (value.bottom + gapBottom) / 2;
   return {
     W, H, vh, mode: 'split', y0, y1: Math.max(card.top + 48, y0 - vh * KNOBS.rise),
-    colX: brand ? brand.right : W * 0.42, room, card, edgeHalf: W * KNOBS.swellMax, textX: value.left,
+    // the ribbon must fit the band only as far as the copy reaches; past that it may open toward the card
+    colX: Math.min(brand ? brand.right : W * 0.42, Math.max(value.right, proof ? proof.right : 0) + 16),
+    room, card, edgeHalf: W * KNOBS.swellMax, textX: value.left,
   };
 }
 
