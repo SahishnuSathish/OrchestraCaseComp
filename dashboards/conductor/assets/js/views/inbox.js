@@ -487,6 +487,8 @@ export function mount(root, { route, session }) {
       items.push({ label: `Invoice copy, ${it.bill.tranId}`, icon: 'file', onSelect: () => attach(t, 'invoice', it.bill.internalId) });
       if (it.payment && ['Settled', 'Released'].includes(it.payment.release_status)) items.push({ label: `Remittance advice, ${it.bill.tranId}`, icon: 'file', onSelect: () => attach(t, 'remittance', it.bill.internalId) });
     }
+    const firstBill = (t.evidence?.items || []).find((i) => i.bill)?.bill;
+    if (firstBill) items.push({ label: 'W-9 request form', icon: 'file', onSelect: () => attach(t, 'w9_request', firstBill.internalId) });
     if (!items.length) items.push({ label: 'No invoice on record for this ticket', icon: 'file', disabled: true });
     return { items, onRemove: (a) => detach(t, a), onPreview: (a) => preview(a) };
   }
@@ -592,7 +594,7 @@ export function mount(root, { route, session }) {
     await guarded(null, async () => {
       await composer?.flush();
       await inboxApi.addAttachment(t.ticket_id, kind, billId);
-      toast({ message: kind === 'invoice' ? 'Invoice copy attached' : 'Remittance advice attached' });
+      toast({ message: { invoice: 'Invoice copy attached', remittance: 'Remittance advice attached', w9_request: 'W-9 request form attached' }[kind] || 'Document attached' });
       await openThread(t.ticket_id, { soft: true });
       if (pendingRender) paintReading();
     });

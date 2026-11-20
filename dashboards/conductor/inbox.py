@@ -998,7 +998,7 @@ def api_sync():
 
 
 class AttachBody(BaseModel):
-    kind: Literal["invoice", "remittance"]
+    kind: Literal["invoice", "remittance", "w9_request"]
     bill_id: str
 
 

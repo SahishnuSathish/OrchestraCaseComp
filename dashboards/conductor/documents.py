@@ -24,7 +24,7 @@ import runner
 router = APIRouter()
 STAFF = ("ap_specialist", "cfo")
 
-KINDS = ("invoice", "remittance")
+KINDS = ("invoice", "remittance", "w9_request")
 FORMATS = {"html": "text/html; charset=utf-8", "pdf": "application/pdf"}
 PAYER = "Orchestra Accounts Payable"
 _ACCOUNT_KEYS = ("bankAccount", "accountNumber", "account", "bank_account", "routingNumber", "routing")
@@ -164,11 +164,30 @@ def _remittance_doc(r):
     }
 
 
+def _w9_request_doc(r):
+    """A request for the vendor's Form W-9, addressed from records. It asks for the form only: never for bank details."""
+    bill, vendor = r["bill"], r["vendor"] or {}
+    name = vendor.get("companyName") or bill.get("entityName")
+    meta = [("Vendor", name), ("Requested on", _date(appclock.today().isoformat())), ("Related invoice", bill["tranId"])]
+    return {
+        "kind": "w9_request", "title": "W-9 request", "number": "W-9 " + str(vendor.get("internalId") or bill.get("entity") or ""),
+        "intro": f"Please send {display.subsidiary(bill.get('subsidiary')) or PAYER} a completed, signed Form W-9 "
+                 "(Request for Taxpayer Identification Number and Certification).",
+        "parties": [("Requested by", [display.subsidiary(bill.get("subsidiary")) or PAYER]), ("Requested from", [name])],
+        "meta": meta,
+        "lines": [("Form W-9, completed, signed and dated", "Needed")],
+        "total": ("How to send it", "Upload in Conductor: Direct"),
+        "notes": ["Upload the form securely in Conductor: Direct, or reply to this email with the PDF attached.",
+                  "Never send bank account details by email. Bank changes are confirmed by phone with our team."],
+    }
+
+
 def _doc(kind, bill_internal_id):
     if kind not in KINDS:
         raise NotAvailable("Unknown document type.", "missing")
     r = _load(bill_internal_id)
-    return (_invoice_doc(r) if kind == "invoice" else _remittance_doc(r)), r
+    build = {"invoice": _invoice_doc, "remittance": _remittance_doc, "w9_request": _w9_request_doc}[kind]
+    return build(r), r
 
 
 # ---------------------------------------------------------------------------- HTML
@@ -257,7 +276,7 @@ def _to_pdf(doc):
 
 # ---------------------------------------------------------------------------- public
 def _filename(kind, doc, bill, fmt):
-    stem = ("Invoice-" + bill["tranId"]) if kind == "invoice" else ("Remittance-" + str(doc["number"]))
+    stem = {"invoice": "Invoice-" + bill["tranId"], "w9_request": "W-9-request-" + bill["tranId"]}.get(kind, "Remittance-" + str(doc["number"]))
     return re.sub(r"[^A-Za-z0-9._-]+", "_", stem) + "." + fmt
 
 

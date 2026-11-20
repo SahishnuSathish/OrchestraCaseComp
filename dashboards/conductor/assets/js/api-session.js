@@ -60,5 +60,11 @@ export async function signOut() {
     await http.del('/api/session', quiet);
   } catch { /* the server may already have forgotten it */ }
   http.session.clear();
+  try { // this person's open ticket tabs (components/workspace/tabs-store.js) leave with them
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith('conductor.ticketTabs')) sessionStorage.removeItem(k);
+    }
+  } catch { /* storage unavailable */ }
   location.assign('/');
 }

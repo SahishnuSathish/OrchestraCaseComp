@@ -151,5 +151,16 @@ class DocumentRouteTests(unittest.TestCase):
         self.assertEqual(self.c.get("/api/documents/invoice/50000.pdf").status_code, 401)  # no token
 
 
+class W9RequestTests(unittest.TestCase):
+    def test_w9_request_asks_for_the_form_and_never_for_bank_details(self):
+        html = documents.render("w9_request", "50000", "html")[0].decode("utf-8")
+        self.assertIn("Form W-9", html)
+        self.assertIn("Never send bank account details", html)
+        self.assertNotIn("Mock Agency", html)
+        data, mime, name = documents.render("w9_request", "50000", "pdf")
+        self.assertEqual(mime, "application/pdf")
+        self.assertTrue(name.startswith("W-9-request-"))
+
+
 if __name__ == "__main__":
     unittest.main()
