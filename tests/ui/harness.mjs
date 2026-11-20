@@ -299,6 +299,17 @@ export function a11yProblems(a) {
   return out;
 }
 
+// axe-core (wcag2a + wcag2aa). Returns null when axe-core is not installed, so the caller can skip with a note.
+const AXE_PATH = path.join(REPO, 'node_modules', 'axe-core', 'axe.min.js');
+export const axeAvailable = () => fs.existsSync(AXE_PATH);
+export async function axeRun(page) {
+  if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ path: AXE_PATH });
+  return page.evaluate(async () => {
+    const r = await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] });
+    return r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.length, targets: v.nodes.slice(0, 4).map((n) => `${n.target.join(' ')} :: ${(n.failureSummary || '').split(String.fromCharCode(10)).slice(1, 3).join(' ').trim().slice(0, 220)}`) }));
+  });
+}
+
 // ------------------------------------------------------------------------------------------------ test registry and runner
 export const tests = [];
 /** test(name, fn, { timeout, known }) - `known` is the text of a product bug this test is expected to hit (reported as KNOWN, not as a regression). */
@@ -327,9 +338,9 @@ export async function runOne(t, ctxApps) {
       return track(await ctx.newPage());
     },
     /** A page (in its own browser context, so its own tab session) already signed in as `who`. Returns the page; page.signin is the API answer. */
-    async pageAs(who, viewport = DESKTOP, app = ctxApps.app) {
+    async pageAs(who, viewport = DESKTOP, app = ctxApps.app, ctxOpts = {}) {
       const answer = await signInApi(app, who);
-      const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, acceptDownloads: true });
+      const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, acceptDownloads: true, ...ctxOpts });
       ctxs.push(ctx);
       await ctx.addInitScript((s) => {
         try { if (!sessionStorage.getItem('__seeded')) { sessionStorage.setItem('conductor.session', s); sessionStorage.setItem('__seeded', '1'); } } catch { /* storage blocked */ }

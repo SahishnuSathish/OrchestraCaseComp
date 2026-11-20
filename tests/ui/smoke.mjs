@@ -29,7 +29,7 @@ import path from 'node:path';
 import {
   assert, chromium, setBrowser, REPO, DATA_DIR, W9_SAMPLES, DESKTOP, WIDTHS, vp, PORT_MAIN, PORT_LIVE,
   startApp, apiAs, rawApi, poll, sleep, test, tests, runOne, shortError, cleanup, shuttingDown,
-  assertCleanPage, visibleText, a11yAudit, a11yProblems, waitForHash, pickThread, PEOPLE,
+  assertCleanPage, visibleText, a11yAudit, a11yProblems, axeAvailable, axeRun, waitForHash, pickThread, PEOPLE,
 } from './harness.mjs';
 
 const A = { main: null, live: null, question: null };
@@ -667,6 +667,46 @@ test('11 accessibility basics on the main pages @1280', async (t) => {
 
   const lines = [...problems].map(([text, routes]) => `[${routes.join(', ')}] ${text}`);
   assert.ok(lines.length === 0, `accessibility problems:\n        ${lines.join('\n        ')}`);
+}, { timeout: 120000 });
+
+test('11 axe-core (WCAG 2 A and AA): no serious or critical violations on the main pages @1280', async (t) => {
+  if (!axeAvailable()) { console.log('        note: axe-core is not installed (npm install axe-core); axe check skipped'); return; }
+  const draft = (await (await apiAs(A.main, 'ulla')).get('/api/inbox/threads?queue=needs_reply')).json.rows.find((r) => r.outcome === 'draft_ready');
+  const vapi = await apiAs(A.main, 'vendor');
+  const inv = (await vapi.get('/api/direct/invoices')).json.rows[0].invoice;
+  const bad = [];
+  const check = async (page, route) => {
+    const vs = await axeRun(page);
+    const sev = vs.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    const rest = vs.filter((v) => !(v.impact === 'serious' || v.impact === 'critical'));
+    console.log(`        axe ${route}: ${sev.length} serious/critical, ${rest.length} moderate/minor`);
+    for (const v of sev) for (const x of v.targets) console.log(`          ${v.id}: ${x}`);
+    for (const v of rest) console.log(`          note [${v.impact}] ${v.id} x${v.nodes}: ${v.help}`);
+    for (const v of sev) bad.push(`[${route}] ${v.impact} ${v.id} x${v.nodes}: ${v.help}\n          ${v.targets.join('\n          ')}`);
+  };
+  const hub = await t.newPage(DESKTOP, { bypassCSP: true });
+  await hub.goto(`${A.main.base}/`);
+  await hub.getByRole('heading', { name: 'Orchestra staff' }).waitFor();
+  await check(hub, 'hub');
+  await hub.getByRole('button', { name: 'Sign in with Microsoft' }).click();
+  await hub.getByRole('dialog').getByRole('button', { name: /Ulla Abernathy/ }).waitFor();
+  await check(hub, 'hub picker');
+
+  const ulla = await t.pageAs('ulla', DESKTOP, A.main, { bypassCSP: true });
+  for (const [route, hash] of [['inbox', '#/inbox'], ['inbox ticket', `#/inbox/${draft.ticket_id}`], ['ahead', '#/ahead'], ['vendor setup', '#/vendor-setup'], ['settings', '#/settings']]) {
+    await gotoApp(ulla, hash);
+    if (route === 'inbox') await inboxReady(ulla);
+    else if (route === 'inbox ticket') await readingPane(ulla).getByRole('region', { name: 'What Conductor found' }).waitFor();
+    else await settle(ulla);
+    await check(ulla, route);
+  }
+  const elena = await t.pageAs('elena', DESKTOP, A.main, { bypassCSP: true });
+  for (const [route, hash] of [['escalations', '#/escalations'], ['team', '#/team'], ['advanced', '#/settings/advanced']]) { await gotoApp(elena, hash); await settle(elena); await check(elena, route); }
+  const ben = await t.pageAs('ben', DESKTOP, A.main, { bypassCSP: true });
+  await gotoApp(ben, '#/approver'); await settle(ben); await check(ben, 'waiting on you');
+  const v = await t.pageAs('vendor', DESKTOP, A.main, { bypassCSP: true });
+  for (const [route, hash] of [['direct invoices', '#/invoices'], ['direct invoice', `#/invoices/${encodeURIComponent(inv)}`]]) { await gotoDirect(v, hash); await settle(v); await check(v, route); }
+  assert.ok(bad.length === 0, `axe serious/critical violations:\n        ${bad.join('\n        ')}`);
 }, { timeout: 120000 });
 
 // ---------------------------------------------------------------------------------------------- repository hygiene (runs last)
