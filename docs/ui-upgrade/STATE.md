@@ -29,14 +29,14 @@ and `git status` in each worktree. Never redo merged work.
 | Branch | Worktree | Base | Head | Status |
 |---|---|---|---|---|
 | `ui/overnight` | /home/user/OrchestraCaseComp | ui/overnight-base bc8ea0c | (see git) | integration branch |
-| `ui/foundation` | /home/user/wt-foundation | ui/overnight | - | running |
-| `ui/brand` | /home/user/wt-brand | ui/overnight | - | running |
+| `ui/foundation` | /home/user/wt-foundation | ui/overnight | 264662d | running (tokens, base, core done; style guide + gate left) |
+| `ui/brand` | /home/user/wt-brand | ui/overnight | 52c0d77 | **done**, reviewed (specimen OK at 16 px); waits for foundation merge |
 
 ## Workers
 | Area | Agent id | Brief | Model | Status |
 |---|---|---|---|---|
 | foundation | a6b9b604bd430752d | briefs/foundation.md | opus | running (started ~09:50 UTC) |
-| brand | af18070f9a574b05e | briefs/brand.md | opus | running (started ~09:50 UTC) |
+| brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, gate green (worker) |
 
 ## Gate results after merges
 (none yet)
@@ -47,10 +47,11 @@ and `git status` in each worktree. Never redo merged work.
   `css/components/brand.css`, imported by components.css; orchestrator added the stub + import). Foundation merges first.
 - The orchestrator (not a look worker) writes the hub look loader and presentational hooks in hub.js before the three
   look workers start, so the three never touch the same file.
+- shots.mjs: the style guide is CFO-only; shot as Elena (18084cd).
 - Screenshots are JPEG (q78) to stay well under 300 KB.
 
 ## Open problems
 (none)
 
 ## Last limit hit
-(none)
+- ~10:30 UTC, 5-hour limit, reset 11:20 UTC. Foundation worker stopped mid-way (clean worktree, 4 commits). Resumed 15:08 UTC via SendMessage.
