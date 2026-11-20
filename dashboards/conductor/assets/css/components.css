@@ -4,6 +4,7 @@
    calmly inside the new shell until wave 2 replaces them. New code uses the c- components. */
 @import url("components/core.css");
 @import url("components/direct-shell.css");
+@import url("components/brand.css");
 
 /* ---- legacy: buttons -------------------------------------------------------------------------------------- */
 .btn {
