@@ -1,2 +1,53 @@
 /* Brand: the Conductor family marks and lockups (owner: ui/brand). Imported by components.css after core.css,
-   so these rules override the marks-and-lockups section of core.css. */
+   so these rules override the marks-and-lockups section of core.css. Usage rules: docs/ui-upgrade/BRAND.md.
+   No proposed tokens: every colour below is an existing token. */
+
+/* ---- the mark ----------------------------------------------------------------------------------------
+   Field, three printed staff lines, one swelling line. Two colours per variant: the field and the ink. The staff
+   lines are the ink at reduced strength, so the sweep is the one solid thing in the mark. */
+.c-mark { flex: none; display: inline-block; vertical-align: middle; }
+.c-mark { --mark-bg: var(--color-chrome-highlight); --mark-ink: var(--color-chrome); --mark-staff: 0.42; }
+.c-mark-conductor { --mark-bg: var(--color-chrome-highlight); --mark-ink: var(--color-chrome); }
+.c-mark-direct { --mark-bg: var(--color-direct-highlight); --mark-ink: var(--color-direct); }
+.c-mark-ahead { --mark-bg: var(--color-ahead); --mark-ink: var(--color-ahead-ink); }
+.c-mark .c-mark-bg { fill: var(--mark-bg); }
+.c-mark .c-mark-staff { fill: var(--mark-ink); opacity: var(--mark-staff); }
+.c-mark .c-mark-sweep { fill: var(--mark-ink); }
+.c-mark .c-mark-edge { stroke: var(--mark-ink); stroke-width: 1; opacity: 0.16; }
+
+/* On paper the field takes the chrome colour and the ink the highlight, so the mark keeps its weight on white.
+   Ahead keeps its mint field everywhere (it is the notice, not the place); its edge carries it on paper. */
+.c-lockup-light .c-mark-conductor { --mark-bg: var(--color-chrome); --mark-ink: var(--color-chrome-highlight); }
+.c-lockup-light .c-mark-direct { --mark-bg: var(--color-direct); --mark-ink: var(--color-direct-highlight); }
+.c-lockup-light .c-mark-ahead { --mark-bg: var(--color-ahead); --mark-ink: var(--color-ahead-ink); }
+
+/* ---- the lockup: [mark]  Orchestra | Conductor --------------------------------------------------------
+   Orchestra is the client and is set as text, never drawn. The parent name carries the weight, the product name
+   sits one step lighter, and a hairline rule at cap height separates them. Clear space: half the mark on every side. */
+.c-lockup {
+  display: inline-flex; align-items: center; gap: 10px; min-width: 0;
+  color: var(--color-text); text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+a.c-lockup:hover { text-decoration: none; }
+.c-lockup-dark { color: var(--color-chrome-text); }
+.c-lockup-words {
+  display: inline-flex; align-items: center; gap: 9px; min-width: 0;
+  font-family: var(--font-display); font-optical-sizing: auto; font-size: 17px; line-height: 1; white-space: nowrap;
+  font-kerning: normal;
+}
+.c-lockup-parent { font-weight: 640; letter-spacing: -0.012em; }
+.c-lockup-product { font-weight: 430; letter-spacing: -0.004em; }
+.c-lockup .c-lockup-rule { flex: none; width: 1px; height: 0.82em; background: currentColor; opacity: 0.38; transform: translateY(0.04em); }
+.c-lockup-dark .c-lockup-rule { opacity: 0.45; }
+
+.c-lockup-sm { gap: 8px; }
+.c-lockup-sm .c-lockup-words { gap: 7px; font-size: 15px; }
+.c-lockup-sm .c-lockup-parent { letter-spacing: -0.006em; }
+.c-lockup-sm .c-lockup-product { letter-spacing: 0; }
+
+.c-lockup-lg { gap: 14px; }
+.c-lockup-lg .c-lockup-words { gap: 13px; font-size: 24px; }
+.c-lockup-lg .c-lockup-parent { letter-spacing: -0.02em; }
+.c-lockup-lg .c-lockup-product { letter-spacing: -0.01em; }
+/* the old rules sized each word; keep words inheriting the size set on .c-lockup-words */
+.c-lockup .c-lockup-parent, .c-lockup .c-lockup-product { font-size: inherit; }
