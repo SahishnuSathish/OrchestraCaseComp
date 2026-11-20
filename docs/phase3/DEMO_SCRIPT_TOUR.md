@@ -12,14 +12,14 @@
   the bills it holds up, and **Request W-9**.
 - **Ahead**: Thistledown has a drafted **vendor update** listing where its invoices stand.
 
-(Verified against this build on Nov 20 for everything except the ticket text itself, which lives in `unseen_tickets.json`.)
+(Verified against this build on Nov 20 for everything except the ticket text itself, which lives in `data/unseen_tickets.json`.)
 
 ## Before you record (about 4 minutes, once)
 
 1. Start the app with a **fresh state folder** (or Elena → Settings → Advanced → Reset the inbox with **Start completely
    fresh**). For the chat step, also have the local model running (Ollama with the model you used, e.g. `qwen3.5:9b`).
 2. **Window A, Elena (CFO).** `http://127.0.0.1:8790/` → Orchestra staff → Sign in with Microsoft → **Elena Lockhart**.
-   Settings → **Advanced** → Tickets file `...\Downloads\unseen_tickets.json` → Only these ticket numbers `41784` →
+   Settings → **Advanced** → Tickets file `<repo>\data\unseen_tickets.json` (e.g. `C:\Users\Sahishnu Sathish\Projects\Orchestra Case Comp\data\unseen_tickets.json`) → Only these ticket numbers `41784` →
    **Add to the inbox as new mail**. Then go to **Escalations** and leave it there.
 3. **Window B, Vendor.** `http://127.0.0.1:8790/` → Vendors & partners → **Continue with Microsoft** →
    `finance@thistledownstaffin.example` → Next. Leave it on **Invoices**, with "INV-93806" typed in the search box.
