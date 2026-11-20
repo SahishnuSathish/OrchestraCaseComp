@@ -172,3 +172,10 @@ dialog.hub-provider.c-modal-sm { --modal-w: 440px; }
   .hub-handshake-card { padding: 20px; }
   .hub-brand .c-lockup-lg .c-lockup-parent, .hub-brand .c-lockup-lg .c-lockup-product { font-size: 20px; }
 }
+
+/* ---- landing looks (js/hub/looks/index.js) ------------------------------------------------------------ */
+/* One decorative art layer behind the hub and the handshake; each look draws into it and scopes its rules to
+   html[data-look="<name>"]. It never takes pointer events and never moves the layout. */
+.hub-art { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; contain: strict; }
+.hub-art:empty { display: none; }
+#hub-root { position: relative; z-index: 1; }

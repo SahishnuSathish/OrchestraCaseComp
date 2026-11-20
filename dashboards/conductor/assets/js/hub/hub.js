@@ -10,6 +10,7 @@ import { ensureIcons } from '../components/icons.js';
 import { current, homeFor } from './session-port.js';
 import { openStaffPicker } from './staff.js';
 import { openVendorSignIn, codePanel } from './vendor.js';
+import { applyLook } from './looks/index.js';
 
 const root = $('#hub-root');
 
@@ -85,6 +86,7 @@ async function boot() {
   let s = null;
   try { s = await current(); } catch { s = null; }
   if (s && s.role) { location.replace(s.home || homeFor(s.role)); return; }
+  try { await applyLook(); } catch { /* a look is decoration: never block sign-in */ }
   render();
 }
 
