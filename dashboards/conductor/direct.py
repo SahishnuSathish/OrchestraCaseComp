@@ -7,6 +7,7 @@ Wording for an invoice comes from the same path as status_service.lookup_status 
 snippets, egress_guard); this module never writes its own status sentence. Vendors never get totals or counts
 across their invoices, internal names, ticket ids or approval dates.
 """
+import display
 import datetime as dt
 import json
 import re
@@ -267,7 +268,7 @@ def me(s=Depends(vendor_session)):
     w = w9.vendor_status(vendor["internalId"])
     n = lambda t: db._one(f"SELECT COUNT(*) AS n FROM {t} WHERE vendor_id=? AND read=0", (vendor["internalId"],))["n"]  # noqa: E731
     return {"contact": {"email": contact, "name": getattr(s, "name", None) or _name_from_email(contact)},
-            "vendor": {"name": vendor["companyName"], "subsidiary": vendor.get("subsidiary")},
+            "vendor": {"name": vendor["companyName"], "subsidiary": display.subsidiary(vendor.get("subsidiary"))},
             "w9": {"status": w["status"], "label": w["label"]},
             "unread_messages": n("direct_messages"), "unread_updates": n("direct_updates")}
 

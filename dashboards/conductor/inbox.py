@@ -7,6 +7,7 @@ The inbox sits on ONE persistent run (`runs.source = 'inbox'`, id in settings `i
 existing `/api/runs/{id}/...` route works on it. The 8 held-back tickets arrive later through `ingest`. A user overlay
 (table `inbox_users`) lets new requesters exist for the pipeline without writing `data/`.
 """
+import display
 import json
 import random
 import re
@@ -622,7 +623,7 @@ def _evidence(tid, m, run_id):
         if it["status"] == "found":
             o = rules.classify_bill(it["bill"], lk)
             b = it["bill"]
-            entry["bill"] = {k: b.get(k) for k in _BILL_FIELDS}
+            entry["bill"] = {k: (display.subsidiary(b.get(k)) if k == "subsidiary" else b.get(k)) for k in _BILL_FIELDS}
             entry["outcome"] = o.get("outcome")
             entry["sources"].append({"label": f"NetSuite · bill {b['internalId']}", "ref": b["tranId"]})
             if o.get("payment"):
@@ -637,7 +638,7 @@ def _evidence(tid, m, run_id):
     v = next(iter(store.backend.query("vendor", internalId=str(vid))), None) if vid else None
     if v:
         contacts = [c.strip() for c in v["authorizedContacts"].split(";") if c.strip()]
-        vendor = {"id": v["internalId"], "name": v["companyName"], "subsidiary": v["subsidiary"], "terms": v["terms"],
+        vendor = {"id": v["internalId"], "name": v["companyName"], "subsidiary": display.subsidiary(v["subsidiary"]), "terms": v["terms"],
                   "contacts": [{"email": c, "is_requester": c.lower() == (view.sender_email or "").lower()} for c in contacts],
                   "w9_status": _w9_status(v["internalId"])}
     planned = [int(x) for x in ((m["bundle"].get("plan") or {}).get("zendesk_ticket_ids") or [])]

@@ -7,6 +7,7 @@ account, routing and TIN numbers are shown as the last 4 digits at most. A remit
 Released payment, and a returned payment's reference is never shown. Vendors see these documents (through Direct),
 so nothing internal (approver, approval notes, failure reasons) is ever put on one.
 """
+import display
 import datetime as dt
 import html
 import io
@@ -125,7 +126,7 @@ def _invoice_doc(r):
     return {
         "kind": "invoice", "title": "Invoice copy", "number": bill["tranId"],
         "intro": "A copy of the invoice as recorded in Orchestra's accounts payable system.",
-        "parties": [("Billed to", [bill.get("subsidiary") or PAYER]), ("From", [vendor.get("companyName") or bill.get("entityName")])],
+        "parties": [("Billed to", [display.subsidiary(bill.get("subsidiary")) or PAYER]), ("From", [vendor.get("companyName") or bill.get("entityName")])],
         "meta": meta,
         "lines": [(bill.get("memo") or "Services", _money(bill.get("userTotal"), bill.get("currency")))],
         "total": ("Invoice total", _money(bill.get("userTotal"), bill.get("currency"))),
@@ -157,7 +158,7 @@ def _remittance_doc(r):
     return {
         "kind": "remittance", "title": "Remittance advice", "number": pay["tranId"],
         "intro": f"Payment details for invoice {bill['tranId']}.",
-        "parties": [("Paid by", [bill.get("subsidiary") or PAYER]), ("Paid to", [vendor.get("companyName") or bill.get("entityName")])],
+        "parties": [("Paid by", [display.subsidiary(bill.get("subsidiary")) or PAYER]), ("Paid to", [vendor.get("companyName") or bill.get("entityName")])],
         "meta": meta, "lines": lines, "total": ("Payment total", _money(pay.get("total"), bill.get("currency"))),
         "notes": notes,
     }

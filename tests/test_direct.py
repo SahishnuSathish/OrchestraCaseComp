@@ -95,7 +95,7 @@ class ReadSideTests(unittest.TestCase):
 
     def test_me_shape(self):
         r = client.get("/api/direct/me").json()
-        self.assertEqual(r["vendor"], {"name": "Dovetail Lane Printing", "subsidiary": "Mock Agency Studio Inc"})
+        self.assertEqual(r["vendor"], {"name": "Dovetail Lane Printing", "subsidiary": "Orchestra Studio Inc"})  # display name (display.py)
         self.assertEqual(r["contact"]["email"], "billing@dovetaillaneprinti.example")
         self.assertEqual(set(r), {"contact", "vendor", "w9", "unread_messages", "unread_updates"})
 
