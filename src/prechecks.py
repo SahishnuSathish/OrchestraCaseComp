@@ -95,7 +95,7 @@ def tier2(view, cues, sender_kind):
     local = view.sender_email.split("@")[0] if "@" in view.sender_email else view.sender_email
     if NO_REPLY_LOCAL.match(local):
         return "no_reply_sender", f"Sender {view.sender_email} is a no-reply address."
-    if cues.get("machine_notice") or MACHINE_LOCAL.match(local):
+    if (cues.get("machine_notice") and not _person_asking_while_away(view, cues)) or MACHINE_LOCAL.match(local):
         what = (cues.get("machine_notice") or [local + "@ sender"])[0]
         return "machine_notice", f"Automated notice with no request ({what!r})."
     if cues.get("no_reply_text"):
@@ -110,9 +110,43 @@ def tier2(view, cues, sender_kind):
     return None, None
 
 
+OUT_OF_OFFICE = re.compile(r"\bout of (the )?office\b|\bi am (currently )?(away|on leave|out)\b|\blimited access to (my )?e-?mail\b", re.I)
+
+
+def _asks_something(text, cues):
+    return bool(cues.get("request") and any(c != "?" for c in cues["request"])) or "?" in text
+
+
+def _person_asking_while_away(view, cues):
+    """An out-of-office phrase in a message that still asks us for something ("I'm out of the office, could you send
+    me...") is a person writing, not an auto-reply. Only the away-type phrases are excused; codes, webinars and
+    e-signature notices stay automated notices."""
+    hits = cues.get("machine_notice") or []
+    if not hits or not all(OUT_OF_OFFICE.search(h) for h in hits):
+        return False
+    return _asks_something((view.body or ""), cues)
+
+
+# Where quoted or forwarded mail starts: only the sender's own words above it say what they want.
+QUOTE_START = re.compile(r"^\s*(-{2,}\s*(forwarded message|original message)\s*-{0,}|on .{3,120} wrote:|from:\s.+)$", re.I | re.M)
+
+
+def own_text(text):
+    m = QUOTE_START.search(text or "")
+    return (text[:m.start()] if m else (text or "")).strip()
+
+
 def is_no_request(view, cues):
     text = (view.body or "").strip()
-    if cues.get("request") and any(c != "?" for c in cues["request"]) or "?" in text:
+    own = own_text(text)
+    if own and own != text:
+        # A thank-you above a quoted thread ("Thanks for confirming" over our own forwarded reply): judge the
+        # sender's own words only, so the quoted "let us know" or "payment" in our reply does not count as a request.
+        oc = scan(own)
+        if not _asks_something(own, oc) and not (oc.get("threat") or oc.get("not_received") or oc.get("expedite")
+                                                 or oc.get("late_fee")):
+            return bool(oc.get("gratitude")) and len(own) < 400
+    if _asks_something(text, cues):
         return False
     if cues.get("threat") or cues.get("not_received") or cues.get("expedite") or cues.get("late_fee"):
         return False
