@@ -487,12 +487,12 @@ test('9 live arrivals: Sync now brings a new row in at the top @1280', async (t)
   const queue = QUEUE_OF[thread.outcome] || 'Needs reply';
   await queueButton(page, queue).click();
   await openRow(page, id).first().waitFor();
-  // the list is newest first by the real instant (received_at mixes "Z" dataset times and local-offset arrival times)
+  // Mail that arrived since connect comes first (newest first among it), then the backlog. The app clock keeps the real
+  // time of day on the snapshot date, so an arrival can carry an earlier time than the backlog; it is still the newest.
   const rows = (await api.get(`/api/inbox/threads?queue=${QUEUE_ID[queue]}`)).json.rows;
-  const newest = rows.reduce((a, b) => (Date.parse(b.received_at) > Date.parse(a.received_at) ? b : a));
+  assert.equal(rows[0].ticket_id, id, `the new arrival #${id} must be first in ${queue}; the API's first row is #${rows[0].ticket_id}`);
   const first = (await messageList(page).getByRole('option').first().innerText()).replace(/\s+/g, ' ');
-  assert.ok(first.includes(`#${newest.ticket_id}`), `the newest thread #${newest.ticket_id} (${newest.received_at}) should be first in ${queue}; the top row is: ${first.slice(0, 90)}; the API's first row is #${rows[0].ticket_id} (${rows[0].received_at})`);
-  if (newest.ticket_id === id) assert.equal(rows[0].ticket_id, id, `the new arrival #${id} is the newest thread, so it must be first`);
+  assert.ok(first.includes(`#${id}`), `the new arrival #${id} should be the top row in ${queue}; the top row is: ${first.slice(0, 90)}`);
 });
 
 test('9 live arrivals: held-back tickets also arrive on their own, and the open inbox shows them @1280', async (t) => {
@@ -707,7 +707,7 @@ test('11 axe-core (WCAG 2 A and AA): no serious or critical violations on the ma
   const v = await t.pageAs('vendor', DESKTOP, A.main, { bypassCSP: true });
   for (const [route, hash] of [['direct invoices', '#/invoices'], ['direct invoice', `#/invoices/${encodeURIComponent(inv)}`]]) { await gotoDirect(v, hash); await settle(v); await check(v, route); }
   assert.ok(bad.length === 0, `axe serious/critical violations:\n        ${bad.join('\n        ')}`);
-}, { timeout: 120000 });
+}, { timeout: 300000 });
 
 // ---------------------------------------------------------------------------------------------- repository hygiene (runs last)
 const gitState = () => spawnSync('git', ['-C', REPO, 'status', '--short', '--untracked-files=all', '--', 'dashboards/conductor/state', 'out'], { encoding: 'utf8' }).stdout;

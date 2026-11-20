@@ -308,7 +308,13 @@ const AXE_PATH = path.join(REPO, 'node_modules', 'axe-core', 'axe.min.js');
 export const axeAvailable = () => fs.existsSync(AXE_PATH);
 export async function axeRun(page) {
   // a dialog or page that is still fading in would be measured against blended colours: let every animation finish first
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => null)))).catch(() => {});
+  // (only animations that can end: a looping "live" pulse never finishes; and never wait more than 2 s)
+  await page.evaluate(() => Promise.race([
+    Promise.all(document.getAnimations()
+      .filter((a) => (a.effect?.getComputedTiming?.().iterations ?? 1) !== Infinity)
+      .map((a) => a.finished.catch(() => null))),
+    new Promise((resolve) => setTimeout(resolve, 2000)),
+  ])).catch(() => {});
   await sleep(150);
   if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ path: AXE_PATH });
   return page.evaluate(async () => {
