@@ -4,10 +4,11 @@ On resume: read this file, then `git log --oneline -15` on `ui/overnight` and ea
 and `git status` in each worktree. Never redo merged work.
 
 ## Now
-- **Tier**: 1 (foundation + brand running in parallel, disjoint files)
+- **Tier**: 1, step 3 (three landing looks running in parallel). Foundation + brand merged and gated green (7efbd81).
 - Done on ui/overnight meanwhile: hub look loader + stubs (0004460), look briefs (briefs/looks.md, look-a/b/c.md).
-- **Next step**: when both report, review diff + shots, run full gate on each, merge foundation then brand into
-  `ui/overnight`, push. Then add the hub look loader + art hooks (orchestrator), then spawn looks A/B/C.
+- **Next step**: when the three looks report: check diffs and shots, gate each with its look as DEFAULT, merge all three,
+  spawn one fresh reviewer (only screenshots + goal + rubric), apply cheap fixes, set DEFAULT, write the decision in
+  DIRECTION.md. Then Tier 2 (briefs ready: shell.md, workspace.md, direct.md).
 
 ## Environment (cloud container, rebuilt on restart)
 - Setup: `pip install -r requirements.txt`; `npm install --no-save --no-audit --no-fund playwright@1.63.0 axe-core`
@@ -29,17 +30,24 @@ and `git status` in each worktree. Never redo merged work.
 | Branch | Worktree | Base | Head | Status |
 |---|---|---|---|---|
 | `ui/overnight` | /home/user/OrchestraCaseComp | ui/overnight-base bc8ea0c | (see git) | integration branch |
-| `ui/foundation` | /home/user/wt-foundation | ui/overnight | 264662d | running (tokens, base, core done; style guide + gate left) |
-| `ui/brand` | /home/user/wt-brand | ui/overnight | 52c0d77 | **done**, reviewed (specimen OK at 16 px); waits for foundation merge |
+| `ui/foundation` | /home/user/wt-foundation | ui/overnight | 0b4905d | **merged** (7bd5bcd) |
+| `ui/brand` | /home/user/wt-brand | ui/overnight | 52c0d77 | **merged** (7efbd81) |
+| `ui/look-score` | /home/user/wt-look-score | 7efbd81 | - | running |
+| `ui/look-instrument` | /home/user/wt-look-instrument | 7efbd81 | - | running |
+| `ui/look-daylight` | /home/user/wt-look-daylight | 7efbd81 | - | running |
 
 ## Workers
 | Area | Agent id | Brief | Model | Status |
 |---|---|---|---|---|
-| foundation | a6b9b604bd430752d | briefs/foundation.md | opus | running (started ~09:50 UTC) |
+| foundation | a6b9b604bd430752d | briefs/foundation.md | opus | done 0b4905d, merged |
 | brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, gate green (worker) |
 
 ## Gate results after merges
-(none yet)
+| Merge | Smoke | JS | Py | git | Shots |
+|---|---|---|---|---|---|
+| foundation + brand (7efbd81) | 24/24, axe clean | 85/85 | 396 run, only the 4 tkinter errors | clean | shots/after/tier1, no console errors; looked at hub, inbox-ticket, styleguide, ahead, direct@375 |
+
+Fresh-eyes critique for the foundation is folded into the Tier 2 critiques: its visible change on working screens is deliberately subtle (warm paper neutrals, softer badges); Tier 2 applies it.
 
 ## Decisions
 - Phase 0: verdict "light slop, heavy blandness" (AUDIT.md). Direction written to DIRECTION.md.
