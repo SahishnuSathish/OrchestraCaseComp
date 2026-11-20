@@ -60,6 +60,7 @@ export function wsMessageRow(r, { selected = false, opened = false, selectMode =
     r.group_size > 1 ? chip({ label: `${r.group_size} in group`, icon: 'link', title: 'Same invoice or a follow-up of another thread' }) : null,
   ].filter(Boolean);
   const el = h('li', {
+    role: 'none',
     class: ['ws-row', selected && 'is-selected', unread && 'is-unread', r.reading && 'is-reading', isNew && 'is-new', checked && 'is-checked'].filter(Boolean).join(' '),
     dataset: { id: r.ticket_id },
   },
