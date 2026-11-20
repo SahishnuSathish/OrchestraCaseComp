@@ -1,1 +1,120 @@
-/* Hub look "instrument" (stub, filled by the ui/look-instrument worker). Every rule is scoped to html[data-look="instrument"]. */
+/* Hub look "instrument" (b). A precision instrument on a deep ink-green stage: the Conductor mark's staff bent into a
+   dial's bezel, tempo ticks around it, its sweep turned into the one slow hand (js/hub/looks/instrument.js draws it).
+   The dial is centred on the sign-in card, so the card is the instrument's face: a bright paper panel floating on the
+   stage, the one bright thing on the screen. The brand column is set like an instrument's legend: a light condensed
+   headline, the proof points on a scale with index ticks, the true snapshot date as a mono readout.
+   Every rule is scoped to html[data-look="instrument"]. */
+
+html[data-look="instrument"] {
+  /* proposed tokens (look b only; built from tokens.css) */
+  --instr-stage: var(--deco-hall);                                   /* the stage: deep hall ink */
+  --instr-stage-lift: var(--p-green-950);                            /* tone shift toward the dial's centre (same hue) */
+  --instr-line: color-mix(in srgb, var(--p-mint) 14%, transparent);  /* hairlines on the stage */
+  --instr-index: color-mix(in srgb, var(--p-mint) 46%, transparent); /* index ticks on the stage (non-text) */
+  --instr-shadow-rgb: 3 6 1;   /* near-black green: a shadow must read darker than the stage (not hex; an rgb triple) */
+  --instr-card-shadow:
+    0 0 0 1px rgb(var(--instr-shadow-rgb) / 0.5),
+    0 1px 2px rgb(var(--instr-shadow-rgb) / 0.4),
+    0 8px 20px -4px rgb(var(--instr-shadow-rgb) / 0.45),
+    0 32px 72px -12px rgb(var(--instr-shadow-rgb) / 0.7);
+  background: var(--instr-stage);
+}
+/* where the stage is lit from: the dial's centre. Registered so it can glide with the dial into the handshake. */
+@property --instr-dial-x { syntax: "<percentage>"; inherits: false; initial-value: 70.83%; }
+@property --instr-dial-y { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+
+/* ---- the stage -------------------------------------------------------------------------------------------------- */
+html[data-look="instrument"] body.c-hub-page { background: var(--instr-stage); }
+html[data-look="instrument"] .hub-art {
+  --instr-dial-x: 70.83%;      /* 5/12 + 7/24: the centre of the sign-in column, where the dial is centred */
+  --instr-dial-y: 50%;
+  background: radial-gradient(farthest-corner at var(--instr-dial-x) var(--instr-dial-y), var(--instr-stage-lift) 0%, var(--instr-stage) 72%);
+  transition: --instr-dial-x 700ms var(--ease-in-out), --instr-dial-y 700ms var(--ease-in-out);
+}
+html[data-look="instrument"]:has(.hub-handshake) .hub-art { --instr-dial-x: 50%; --instr-dial-y: 50%; }
+html[data-look="instrument"] .hub-art canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+/* ---- the brand column: an instrument's legend --------------------------------------------------------------------- */
+html[data-look="instrument"] .hub::before { display: none; }
+html[data-look="instrument"] .hub-brand,
+html[data-look="instrument"] .hub-proof,
+html[data-look="instrument"] .hub-family { background: transparent; }
+
+html[data-look="instrument"] .hub-value {
+  margin-top: clamp(56px, 16vh, 176px); max-width: 17ch;
+  font-size: clamp(38px, 3.65vw, 54px); font-weight: 300; font-stretch: 84%;
+  line-height: 1.02; letter-spacing: -0.024em;
+}
+
+/* the proof points sit on a scale: one vertical hairline, an index tick at each point */
+html[data-look="instrument"] .hub-proof-list { position: relative; border-top: 0; padding-left: 22px; }
+html[data-look="instrument"] .hub-proof-list::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--instr-line);
+}
+html[data-look="instrument"] .hub-proof-list li { position: relative; padding: 11px 0; border-bottom: 0; }
+html[data-look="instrument"] .hub-proof-list li::before {
+  content: ""; position: absolute; left: -22px; top: calc(11px + 0.7em); width: 11px; height: 1px; background: var(--instr-index);
+}
+/* the one true readout on the page: the practice data's snapshot date */
+html[data-look="instrument"] .hub-proof-source {
+  padding: 12px 0 0 22px;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
+}
+html[data-look="instrument"] .hub-family ul { border-top-color: var(--instr-line); }
+
+/* ---- the card: the instrument's face ------------------------------------------------------------------------------ */
+html[data-look="instrument"] .hub-card {
+  border: 0; border-radius: var(--radius-panel); padding: 44px 44px 36px;
+  background: var(--color-surface); box-shadow: var(--instr-card-shadow);
+}
+html[data-look="instrument"] .hub-card-title { color: var(--color-text-display); }
+html[data-look="instrument"] .hub-choice { margin-top: 26px; padding-top: 22px; }
+html[data-look="instrument"] .hub-help { padding-top: 18px; border-top: 1px solid var(--color-border); }
+html[data-look="instrument"] .hub-inbox {
+  border: 0; border-radius: var(--radius-card); overflow: hidden;
+  box-shadow: inset 0 3px 0 var(--color-direct), var(--instr-card-shadow);
+}
+
+/* the provider window floats on the same stage */
+html[data-look="instrument"] dialog.hub-provider { border: 0; box-shadow: var(--instr-card-shadow); }
+html[data-look="instrument"] dialog.hub-provider::backdrop { background: rgb(var(--instr-shadow-rgb) / 0.6); }
+
+/* ---- the handshake: the dial glides to the centre and the hand quickens; the card arrives on it -------------------- */
+html[data-look="instrument"] .hub-handshake { background: transparent; }
+html[data-look="instrument"] .hub-handshake-card {
+  border: 0; border-radius: var(--radius-panel); box-shadow: var(--instr-card-shadow);
+  animation: instr-arrive var(--dur-moment) var(--ease-emphasized) both;
+}
+
+/* ---- the entrance: the hand draws the dial in (canvas) while the card rises and the legend fades in; < 700 ms ------ */
+@keyframes instr-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes instr-fade { from { opacity: 0; } }
+@keyframes instr-arrive { from { opacity: 0; transform: translateY(var(--rise)) scale(0.985); } }
+html[data-look="instrument"] .hub-signin-inner { animation: instr-rise 480ms var(--ease-emphasized) 120ms both; }
+html[data-look="instrument"] .hub-brand,
+html[data-look="instrument"] .hub-proof,
+html[data-look="instrument"] .hub-family { animation: instr-fade 420ms var(--ease-out) 60ms both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-look="instrument"] .hub-signin-inner,
+  html[data-look="instrument"] .hub-brand,
+  html[data-look="instrument"] .hub-proof,
+  html[data-look="instrument"] .hub-family,
+  html[data-look="instrument"] .hub-handshake-card { animation: none; }
+  html[data-look="instrument"] .hub-art { transition: none; }
+}
+
+/* ---- narrow: the stacked layout. A quarter of the dial rises from the top-right corner behind the header, fainter
+   and still; the card stays first-class --------------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  html[data-look="instrument"] .hub-art { --instr-dial-x: 96%; --instr-dial-y: 0%; }
+  html[data-look="instrument"]:has(.hub-handshake) .hub-art { --instr-dial-x: 50%; --instr-dial-y: 50%; }
+  html[data-look="instrument"] .hub-brand,
+  html[data-look="instrument"] .hub-proof,
+  html[data-look="instrument"] .hub-family { background: transparent; }
+  html[data-look="instrument"] .hub-value { margin-top: 32px; font-size: clamp(30px, 7.6vw, 40px); max-width: 15ch; }
+  html[data-look="instrument"] .hub-proof { margin-top: var(--s-5); }
+}
+@media (max-width: 520px) {
+  html[data-look="instrument"] .hub-card { padding: 28px 22px 24px; }
+}
