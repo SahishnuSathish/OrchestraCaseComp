@@ -67,4 +67,5 @@ Fresh-eyes critique for the foundation is folded into the Tier 2 critiques: its 
 (none)
 
 ## Last limit hit
+- ~19:00 UTC, 5-hour limit (reset 19:30 UTC). Look B (uncommitted round-1 edits), look C (round 1 committed d052a47; doc + shots uncommitted) and shell (nothing yet) stopped. Owner asked to hold; resumed all three at 21:49 UTC via SendMessage.
 - ~10:30 UTC, 5-hour limit, reset 11:20 UTC. Foundation worker stopped mid-way (clean worktree, 4 commits). Resumed 15:08 UTC via SendMessage.
