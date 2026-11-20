@@ -307,6 +307,9 @@ export function a11yProblems(a) {
 const AXE_PATH = path.join(REPO, 'node_modules', 'axe-core', 'axe.min.js');
 export const axeAvailable = () => fs.existsSync(AXE_PATH);
 export async function axeRun(page) {
+  // a dialog or page that is still fading in would be measured against blended colours: let every animation finish first
+  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => null)))).catch(() => {});
+  await sleep(150);
   if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ path: AXE_PATH });
   return page.evaluate(async () => {
     const r = await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] });
