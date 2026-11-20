@@ -75,7 +75,7 @@ one sweep that leaves its lowest line and swells, green into sunlit brass, up th
 ## Contrast
 
 Measured on the rendered art (text hidden, darkest art pixel under each text run): worst **5.06:1** (a 12px muted
-caption "Practice data, snapshot Nov 13, 2026") at 1440, 1280 and 1024; 10.8:1 at 768 and 375. Against the air stops:
+family tagline, now muted text at 12px) at 1440 and 1280; 10.8:1 at 768 and 375. Against the air stops:
 text 13.1 to 13.9, secondary 6.4 to 6.9, muted 4.8 to 5.1, display green 10.8 to 11.5. The light only lightens.
 
 ## Decisions and what was rejected
