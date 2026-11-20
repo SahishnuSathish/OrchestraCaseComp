@@ -5,16 +5,15 @@
 // card, and one sweep leaves the lowest line and swells to the upper right, as the sweep does in the mark. A second,
 // fainter gesture dips under the card (the downbeat). Colours live in css/hub/looks/daylight.css.
 //
-// Cost: the art is drawn once per viewport size (SVG paths + five CSS-gradient beams). Motion is compositor-only:
-// a slow CSS drift of the beams, and on desktop a pointer parallax of a few px that runs a rAF loop only while the
-// layers are still catching up with the pointer. Paused when the tab is hidden; still under reduced motion and on
-// narrow screens.
+// Cost: the art is drawn once per viewport size (SVG paths + five CSS-gradient beams) and then rests: no continuous
+// animation. On desktop a pointer parallax of a few px runs a rAF loop only while the layers are catching up with the
+// pointer (transform only). Stopped when the tab is hidden; still under reduced motion and on narrow screens.
 
 /** The knobs. docs/ui-upgrade/looks/daylight.md says what each one does. */
 export const KNOBS = {
   staffAt: 0.6,          // the staff's height on the page (fraction of the viewport height)
   swell: [1.5, 0.2],      // the sweep's width at its start (px) and at its swell (fraction of the viewport width)
-  parallax: [3, 7],      // how far the beams and the gesture follow the pointer, in px
+  parallax: 7,           // how far the gesture follows the pointer, in px (the beams stay put: the depth reads from that)
   beams: [               // the five window shafts: x (fraction of width), width (fraction of width), strength
     [0.02, 0.07, 0.9], [0.13, 0.05, 0.7], [0.24, 0.09, 1], [0.38, 0.05, 0.6], [0.5, 0.08, 0.75],
   ],
@@ -63,8 +62,8 @@ const curve = (P) => `M${P[0].map(r1)}C${P.slice(1).map((p) => p.map(r1).join(' 
 
 function geometry(w, h) {
   if (w <= KNOBS.narrow) {
-    // stacked layout: one gesture that leaves the left edge under the headline and rises at the far right, no staff
-    // (the stack scrolls, so nothing in the art may depend on where the text lands)
+    // stacked layout: only the soft band of the sweep, rising to the top right; no staff and no crisp line, because
+    // the stack scrolls and a printed line would cross the headline
     const y = Math.min(h * 0.4, 330);
     return {
       main: [[-w * 0.08, y], [w * 0.55, y], [w * 0.86, y * 0.62], [w * 1.04, -h * 0.04]],
@@ -113,7 +112,7 @@ function scene(w, h) {
     lineDefs.append(grad('dl-staff-grad', [[x0, 0], [x0 + 120, 0]], 'dl-staff-grad-a', 'dl-staff-grad-b'));
     lines.append(s('g', { class: 'dl-staff' }, ...[0, 4, 8, 12, 16].map((dy) => s('line', { x1: x0, x2: x1, y1: top + dy, y2: top + dy }))));
   }
-  lines.append(s('path', { class: 'dl-core', d: curve(g.main), pathLength: 1 }));
+  if (g.staff) lines.append(s('path', { class: 'dl-core', d: curve(g.main), pathLength: 1 }));   // crisp line: wide screens only
   return [bands, lines];
 }
 
@@ -125,7 +124,6 @@ export function mount(artEl, { reduced = false } = {}) {
 
   const root = d('dl-scene');
   const air = d('dl-air');
-  const beamDepth = d('dl-depth');
   const beams = d('dl-beams');
   for (const [x, bw, o] of KNOBS.beams) {
     const b = d('dl-beam');
@@ -134,11 +132,10 @@ export function mount(artEl, { reduced = false } = {}) {
     b.style.setProperty('--o', o);
     beams.append(b);
   }
-  beamDepth.append(beams);
   const gestureDepth = d('dl-depth');
   const lift = d('dl-lift');
   gestureDepth.append(lift);
-  root.append(air, beamDepth, gestureDepth);
+  root.append(air, beams, gestureDepth);
 
   let size = '';
   const draw = () => {
@@ -149,15 +146,13 @@ export function mount(artEl, { reduced = false } = {}) {
   };
 
   const still = () => reduced || reducedQ.matches || narrowQ.matches;
-  const setStill = () => { if (still()) artEl.dataset.still = ''; else delete artEl.dataset.still; };
 
   // ---- pointer parallax (desktop only): a short rAF loop that stops once the layers have caught up
   const target = [0, 0]; const pos = [0, 0];
   let raf = 0;
   const apply = () => {
-    const [a, b] = KNOBS.parallax;
-    beamDepth.style.transform = `translate3d(${r1(-pos[0] * a)}px, ${r1(-pos[1] * a)}px, 0)`;
-    gestureDepth.style.transform = `translate3d(${r1(pos[0] * b)}px, ${r1(pos[1] * b)}px, 0)`;
+    const k = KNOBS.parallax;
+    gestureDepth.style.transform = `translate3d(${r1(pos[0] * k)}px, ${r1(pos[1] * k)}px, 0)`;
   };
   /** One frame of the parallax: ease the layers toward the pointer. Returns true while still moving. */
   const tick = () => {
@@ -181,17 +176,15 @@ export function mount(artEl, { reduced = false } = {}) {
   let resizeRaf = 0;
   const onResize = () => {
     if (resizeRaf) return;
-    resizeRaf = requestAnimationFrame(() => { resizeRaf = 0; draw(); setStill(); if (still()) settle(); });
+    resizeRaf = requestAnimationFrame(() => { resizeRaf = 0; draw(); if (still()) settle(); });
   };
   const onVisibility = () => {
-    if (document.hidden) { artEl.dataset.paused = ''; if (raf) cancelAnimationFrame(raf); raf = 0; } else delete artEl.dataset.paused;
+    if (document.hidden && raf) { cancelAnimationFrame(raf); raf = 0; }
   };
-  const onMotionChange = () => { setStill(); if (still()) settle(); };
+  const onMotionChange = () => { if (still()) settle(); };
 
   draw();
-  setStill();
-  if (!(reduced || reducedQ.matches)) artEl.dataset.enter = '';
-  if (document.hidden) artEl.dataset.paused = '';
+  if (!(reduced || reducedQ.matches)) artEl.dataset.enter = '';   // the light comes up once (css: dl-fade, dl-swell, dl-draw)
   artEl.append(root);
 
   window.addEventListener('resize', onResize, { passive: true });

@@ -33,8 +33,6 @@ html[data-look="daylight"] {
   --dl-staff-alpha: 0.2;
   --dl-core-alpha: 0.34;
   /* knobs (see docs/ui-upgrade/looks/daylight.md) */
-  --dl-drift: -2.4vw;           /* how far the beams drift with the sun over --dl-drift-time */
-  --dl-drift-time: 48s;
   --dl-enter: 620ms;            /* the light coming up on first load (the whole entrance stays under 700 ms) */
   --dl-card-radius: 20px;
   --dl-control-radius: 12px;
@@ -61,13 +59,17 @@ html[data-look="daylight"] .dl-air::after {
   transition: opacity 900ms var(--ease-out);
 }
 html[data-look="daylight"] .dl-depth,
-html[data-look="daylight"] .dl-lift { position: absolute; inset: 0; will-change: transform; }
+html[data-look="daylight"] .dl-lift { position: absolute; inset: 0; }
+/* layers are promoted only where the pointer parallax can run */
+@media (hover: hover) and (pointer: fine) and (min-width: 961px) and (prefers-reduced-motion: no-preference) {
+  html[data-look="daylight"] .dl-depth { will-change: transform; }
+}
 
-/* five window shafts: soft across their width, fading along their length; a slow drift as the sun moves */
+/* five window shafts: soft across their width, fading along their length. They hold still: a continuous drift was
+   tried and dropped (it kept every layer compositing; see the doc). The room moves only with the pointer. */
 html[data-look="daylight"] .dl-beams {
   position: absolute; inset: 0; opacity: 0.82;
   transition: opacity 900ms var(--ease-out);
-  animation: dl-drift var(--dl-drift-time) ease-in-out infinite alternate;
 }
 html[data-look="daylight"] .dl-beam {
   position: absolute; top: -30%; height: 150%; left: var(--x); width: var(--w); opacity: var(--o, 1);
@@ -76,15 +78,9 @@ html[data-look="daylight"] .dl-beam {
   mask-image: linear-gradient(180deg, transparent 6%, #000 30%, #000 52%, transparent 86%);
   transform: rotate(-24deg); transform-origin: 50% 0;
 }
-@keyframes dl-drift { to { transform: translate3d(var(--dl-drift), 0, 0); } }
-html[data-look="daylight"] .hub-art[data-paused] .dl-beams { animation-play-state: paused; }
-/* still (narrow screens, reduced motion): no drift; on narrow screens the light still comes up once */
-html[data-look="daylight"] .hub-art[data-still] .dl-beams { animation: none; }
-html[data-look="daylight"] .hub-art[data-still][data-enter] .dl-beams { animation: dl-fade var(--dl-enter) var(--ease-out) both; }
 
 /* the mark at the size of the room */
 html[data-look="daylight"] .dl-gesture { position: absolute; inset: 0; overflow: visible; }
-html[data-look="daylight"] .dl-bands { will-change: transform, opacity; }
 html[data-look="daylight"] .dl-band-main { fill: url(#dl-band-grad); }
 html[data-look="daylight"] .dl-band-echo { fill: var(--dl-echo); opacity: 0.9; }
 html[data-look="daylight"] .dl-band-grad-a { stop-color: var(--dl-band-cool); }
@@ -97,9 +93,7 @@ html[data-look="daylight"] .dl-core-grad-a { stop-color: rgb(var(--dl-ink)); sto
 html[data-look="daylight"] .dl-core-grad-b { stop-color: rgb(var(--dl-ink)); stop-opacity: 0; }
 
 /* ---- entrance: the light comes up (under 700 ms), then holds ---------------------------------------------- */
-html[data-look="daylight"] .hub-art[data-enter] .dl-beams {
-  animation: dl-fade var(--dl-enter) var(--ease-out) both, dl-drift var(--dl-drift-time) ease-in-out var(--dl-enter) infinite alternate;
-}
+html[data-look="daylight"] .hub-art[data-enter] .dl-beams { animation: dl-fade var(--dl-enter) var(--ease-out) both; }
 html[data-look="daylight"] .hub-art[data-enter] .dl-bands { animation: dl-swell var(--dl-enter) var(--ease-emphasized) 40ms both; }
 html[data-look="daylight"] .hub-art[data-enter] .dl-staff { animation: dl-fade 360ms var(--ease-out) both; }
 html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: 1; animation: dl-draw var(--dl-enter) var(--ease-emphasized) 60ms both; }
@@ -234,7 +228,6 @@ html[data-look="daylight"] .hub-handshake-who strong { color: var(--color-text-d
 
 /* ---- reduced motion: the room at full morning, still --------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  html[data-look="daylight"] .dl-beams,
   html[data-look="daylight"] .hub-art[data-enter] .dl-beams { animation: none; }
   html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: none; animation: none; }
   html[data-look="daylight"] .dl-lift { transition: none; }
