@@ -29,6 +29,10 @@ That is the client's "15 minutes per ticket" done in about 15 seconds, with noth
 3. **Window B, as Ulla (AP specialist).** Open a second browser window (each window is its own sign-in) → http://127.0.0.1:8790/ → Sign in with Microsoft → **Ulla Abernathy** → Inbox. Close the "While you were away" card if you want a cleaner frame, or leave it, since it helps the story.
 4. Size window B to about 1440 × 900 and start recording window B only.
 
+**Timing tip:** an added email also arrives on its own within 30 to 90 seconds (the inbox checks for new mail on that cadence). So do step 2.4 last, then switch to window B and start recording straight away. If #41864 is already at the top of Needs reply when you start, skip the Sync now line and just say "A new email just came in from Ironbark Rentals" as you click it.
+
+*(Rehearsed on Nov 20 against this build: the steps, toasts and receipt above appear exactly as written.)*
+
 ## The recording (60 seconds)
 
 | Time | Do | Say |
