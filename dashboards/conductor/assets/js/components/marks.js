@@ -1,7 +1,10 @@
 // Product marks, lockups and taglines for the Conductor family. Our own drawings; no third-party logos.
-//   Conductor           staff workspace   baton on a mint square (green chrome)
-//   Conductor: Direct   vendor dashboard  baton on a sky square (navy chrome)
-//   Conductor: Ahead    proactive notices the upbeat: a rising stroke on a mint square
+// One construction for the whole family (see docs/ui-upgrade/BRAND.md): a rounded field, three printed staff lines
+// and one line that swells out of the lowest one and rises across the staff (a crescendo, the conductor's sweep).
+//   Conductor           staff workspace   mint field on green chrome (green field on paper)
+//   Conductor: Direct   vendor dashboard  sky field on navy chrome (navy field on paper)
+//   Conductor: Ahead    proactive notices mint field; the staff lines fall back and the sweep runs ahead of the score
+// Drawn on a 32-unit grid: the staff lines sit on even units, so at 16 px they land on whole pixels.
 import { h } from '../lib.js';
 
 export const PRODUCTS = {
@@ -19,27 +22,26 @@ function svg(tag, attrs, ...kids) {
   return el;
 }
 
+// The geometry, shared with the favicons in /static/brand/ and the specimen in docs/ui-upgrade/brand/.
+const STAFF_Y = [8, 14, 20];                       // three staff lines, 2 units thick, 4 units apart
+const STAFF_W = { conductor: [22, 22, 22], direct: [22, 22, 22], ahead: [16, 13, 8] };
+const SWEEP = 'M5 26C15 26 22.5 20.5 27.4 8.4L23.2 6.6C19 17.5 12.5 23.6 5 24.4Z';
+
 /** The product mark (a 32-unit square). product: conductor | direct | ahead. Decorative unless `label` is given. */
 export function mark({ product = 'conductor', size = 28, label = null } = {}) {
   const el = svg('svg', {
     class: `c-mark c-mark-${product}`, viewBox: '0 0 32 32', width: size, height: size, focusable: 'false',
     ...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }),
   });
-  el.append(svg('rect', { class: 'c-mark-bg', width: 32, height: 32 }));
+  const widths = STAFF_W[product] || STAFF_W.conductor;
+  el.append(
+    svg('rect', { class: 'c-mark-bg', width: 32, height: 32, rx: 7 }),
+    svg('g', { class: 'c-mark-staff' }, ...STAFF_Y.map((y, i) => svg('rect', { x: 5, y, width: widths[i], height: 2 }))),
+    svg('path', { class: 'c-mark-sweep', d: SWEEP }),
+  );
   if (product === 'ahead') {
-    // the upbeat: a stroke rising from the downbeat, ending forward
-    el.append(
-      svg('path', { class: 'c-mark-stroke', d: 'M7.5 24.5c7.6 0 12.8-5.2 15.4-14', fill: 'none', 'stroke-width': '2.4', 'stroke-linecap': 'square' }),
-      svg('path', { class: 'c-mark-stroke', d: 'M17.6 11.6 23.2 9.1 25.6 14.7', fill: 'none', 'stroke-width': '2.4', 'stroke-linecap': 'square', 'stroke-linejoin': 'miter' }),
-      svg('rect', { class: 'c-mark-ink', x: 5.6, y: 22.6, width: 3.8, height: 3.8 }),
-    );
-  } else {
-    // the baton: tip top-right, handle bottom-left, and the faint arc of the beat it draws
-    el.append(
-      svg('path', { class: 'c-mark-arc', d: 'M25.2 15.2A9.4 9.4 0 0 1 16.4 25', fill: 'none', 'stroke-width': '1.6', 'stroke-linecap': 'square' }),
-      svg('polygon', { class: 'c-mark-ink', points: '9.6,20.8 11.9,23.1 24.9,8.6 23.9,7.6' }),
-      svg('rect', { class: 'c-mark-ink', x: 6.6, y: 21.4, width: 5.2, height: 5.2, transform: 'rotate(45 9.2 24)' }),
-    );
+    // a mint field on a pale page needs an edge; drawn inside the field so the outline never grows the mark
+    el.append(svg('rect', { class: 'c-mark-edge', x: 0.5, y: 0.5, width: 31, height: 31, rx: 6.5, fill: 'none' }));
   }
   return el;
 }
@@ -52,7 +54,7 @@ export function lockup({ product = 'conductor', tone = 'light', orchestra = true
   const name = PRODUCTS[product]?.name || PRODUCTS.conductor.name;
   const label = orchestra ? `Orchestra ${name}` : name;
   const kids = [
-    mark({ product, size: size === 'lg' ? 36 : size === 'sm' ? 22 : 28 }),
+    mark({ product, size: size === 'lg' ? 36 : size === 'sm' ? 20 : 28 }),
     h('span', { class: 'c-lockup-words', 'aria-hidden': 'true' },
       orchestra ? h('span', { class: 'c-lockup-parent' }, 'Orchestra') : null,
       orchestra ? h('span', { class: 'c-lockup-rule' }) : null,
