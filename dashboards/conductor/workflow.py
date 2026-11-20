@@ -930,6 +930,12 @@ def api_approver_queue(request: Request, approver: str = "", s=Depends(identity.
     if index:
         wanted = {b["internalId"] for em in emails for b in _bill_rows_for(em)}
         for tid, x in index.items():
+            # Blocked means the answer is waiting on this approval: the ticket's own outcome is "pending approval",
+            # the same test as the Ahead digest. A ticket that only mentions the bill (a several-invoice reply that can
+            # already go out, a fraud email, a holding reply) is not waiting on the approver.
+            rule = ((x.get("bundle") or {}).get("decision") or {}).get("rule")
+            if rule not in ("pending_approval", "pending_inactive_approver"):
+                continue
             bids = {i["bill"]["internalId"] for i in x["items"] if i["status"] == "found"} & wanted
             if not bids:
                 continue   # only tickets that block one of these bills are loaded (each record is a large bundle)
