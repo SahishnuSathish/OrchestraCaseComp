@@ -539,7 +539,16 @@ export function mount(root, { route, session }) {
       S.scheduleOpen.add(id);
       resetScheduleCache();
       await afterChange(id);
-      setTimeout(() => readCol.querySelector('#schedule-at')?.focus(), 200);
+      // The reading pane re-renders after the change; wait for the schedule field rather than guessing a delay, so
+      // keyboard focus lands on it (or, failing that, on the pane) instead of dropping to the page body.
+      const started = Date.now();
+      const tryFocus = () => {
+        const el = readCol.querySelector('#schedule-at');
+        if (el) { el.focus(); return; }
+        if (Date.now() - started < 1500) setTimeout(tryFocus, 100);
+        else (readCol.querySelector('[tabindex="-1"], h2, h1') || readCol).focus?.();
+      };
+      setTimeout(tryFocus, 50);
     });
   }
 
