@@ -33,7 +33,7 @@ and `git status` in each worktree. Never redo merged work.
 | `ui/foundation` | /home/user/wt-foundation | ui/overnight | 0b4905d | **merged** (7bd5bcd) |
 | `ui/brand` | /home/user/wt-brand | ui/overnight | 52c0d77 | **merged** (7efbd81) |
 | `ui/look-score` | /home/user/wt-look-score | 7efbd81 | eee6c72 | done, gate green (worker); shots reviewed |
-| `ui/look-instrument` | /home/user/wt-look-instrument | 7efbd81 | - | running |
+| `ui/look-instrument` | /home/user/wt-look-instrument | 7efbd81 | 3160f52 | done, gate green (worker); shots reviewed |
 | `ui/look-daylight` | /home/user/wt-look-daylight | 7efbd81 | - | running |
 
 ## Workers
@@ -42,7 +42,7 @@ and `git status` in each worktree. Never redo merged work.
 | foundation | a6b9b604bd430752d | briefs/foundation.md | opus | done 0b4905d, merged |
 | brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, merged |
 | look-score (a) | af9033e20c561d588 | briefs/looks.md + look-a.md | opus | done eee6c72 |
-| look-instrument (b) | a803656ef26f74c25 | briefs/looks.md + look-b.md | opus | running |
+| look-instrument (b) | a803656ef26f74c25 | briefs/looks.md + look-b.md | opus | done 3160f52 |
 | look-daylight (c) | abeeef41ec8d60fb3 | briefs/looks.md + look-c.md | opus | running |
 
 ## Gate results after merges
