@@ -42,11 +42,19 @@ CREATE TABLE IF NOT EXISTS prevention_reviews (
 """
 
 
+_PREPARED = set()   # database files whose folder exists and that are in WAL mode (WAL is stored in the file itself)
+
+
 def _connect():
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    key = str(DB_PATH)
+    fresh = key not in _PREPARED or not DB_PATH.exists()
+    if fresh:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB_PATH, timeout=30)
     con.row_factory = sqlite3.Row
-    con.execute("PRAGMA journal_mode=WAL")
+    if fresh:   # once per database file, not on every query
+        con.execute("PRAGMA journal_mode=WAL")
+        _PREPARED.add(key)
     return con
 
 

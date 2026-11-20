@@ -920,6 +920,9 @@ def api_approver_queue(request: Request, approver: str = "", s=Depends(identity.
         who = approver.strip().lower() or None
     emails = [who] if who else sorted(identity.approver_emails())
     blocked, digest_text = {}, None
+    pending = identity.pending_bills()
+    acts = {na: identity.approver_for(na) for na in {x.get("nextApprover") for x in pending}}   # one lookup per approver
+    rows_by_email = {em: [x for x in pending if acts[x.get("nextApprover")] == em] for em in emails}
     run_id = inbox_run()
     index = store = None
     if run_id:
@@ -928,7 +931,7 @@ def api_approver_queue(request: Request, approver: str = "", s=Depends(identity.
         except HTTPException:
             index = None
     if index:
-        wanted = {b["internalId"] for em in emails for b in _bill_rows_for(em)}
+        wanted = {b["internalId"] for em in emails for b in rows_by_email[em]}
         for tid, x in index.items():
             # Blocked means the answer is waiting on this approval: the ticket's own outcome is "pending approval",
             # the same test as the Ahead digest. A ticket that only mentions the bill (a several-invoice reply that can
@@ -952,7 +955,7 @@ def api_approver_queue(request: Request, approver: str = "", s=Depends(identity.
         latest[(r["bill_id"], r["approver"], r["kind"])] = r
     bills = []
     for em in emails:
-        for b in _bill_rows_for(em):
+        for b in rows_by_email[em]:
             commit, ack = latest.get((b["internalId"], em, "commit")), latest.get((b["internalId"], em, "ack"))
             bills.append({"bill_id": b["internalId"], "tranId": b["tranId"], "vendor": b["entityName"],
                           "amount": float(b["userTotal"] or 0), "status": b["status"], "since": b["tranDate"], "approver": em,
