@@ -1,1 +1,2 @@
-/* Phase 3 seam stub. Owner: p3/design-shell. */
+/* Style guide view: all of its layout lives in css/components/styleguide.css (loaded on every staff page, so the
+   spec can also be dropped into other views). This file stays as the per-view seam. */

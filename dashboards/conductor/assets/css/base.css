@@ -1,5 +1,5 @@
 /* Base: reset, type, focus, utilities. Shared by the sign-in hub (/), the staff workspace (/app) and Direct (/direct).
-   Tokens come from /shared/css/tokens.css. The staff shell lives in css/components/shell.css. */
+   Tokens come from /shared/css/tokens.css (read its header for the rules). The staff shell lives in css/components/shell.css. */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
@@ -16,26 +16,43 @@ ul, ol { padding: 0; list-style: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: var(--color-link); text-decoration: none; }
-a:hover { text-decoration: underline; text-underline-offset: 2px; }
+a { transition: color var(--dur-instant) var(--ease-out); }
+a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 img, svg { display: block; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; }
 [hidden] { display: none !important; }
 
-/* Focus: always visible for keyboard users, never for mouse clicks. */
+/* Focus: always visible for keyboard users, never for mouse clicks. A 2px ring, 2px off the control.
+   Navy on paper; inside dark chrome (green, navy, hall ink) add .on-dark to the container to switch the ring to mint. */
 :focus { outline: none; }
 :focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+.on-dark :focus-visible, .on-dark:focus-visible { outline: var(--focus-ring-on-dark); }
 main:focus { outline: none; }
-::selection { background: var(--p-navy-100); }
+::selection { background: var(--color-chrome-highlight); color: var(--color-text); }
 
-/* Headings use Bricolage Grotesque; its optical size axis follows the font size. */
-.display, h1.display, .h1, .h2, .h3 { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: -0.01em; color: var(--color-text); }
+/* Headings use Bricolage Grotesque; its optical size axis follows the font size. Display ink is Orchestra green. */
+.display, h1.display, .h1, .h2, .h3 { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: var(--ls-heading); color: var(--color-text-display); text-wrap: balance; }
+.display { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-semibold); letter-spacing: var(--ls-display); }
 .h1 { font-size: var(--fs-3xl); line-height: var(--lh-tight); font-weight: var(--fw-semibold); }
 .h2 { font-size: var(--fs-xl); line-height: var(--lh-snug); font-weight: var(--fw-semibold); }
-.h3 { font-size: var(--fs-lg); line-height: var(--lh-snug); font-weight: var(--fw-semibold); }
+.h3 { font-size: var(--fs-lg); line-height: var(--lh-snug); font-weight: var(--fw-semibold); letter-spacing: var(--ls-normal); }
+.lead { font-size: var(--fs-lead); line-height: var(--lh-snug); color: var(--color-text-secondary); max-width: 60ch; text-wrap: pretty; }
+
+/* The editorial moment: Instrument Serif, one per screen at most (the hub headline, the Ahead promise, a big
+   empty-state line). Regular weight only; italic only for a single word inside it. Never for labels or buttons. */
+.editorial {
+  font-family: var(--font-editorial); font-weight: var(--fw-regular); font-size: var(--fs-display-lg);
+  line-height: var(--lh-display); letter-spacing: var(--ls-editorial); color: var(--color-text-display);
+  font-optical-sizing: auto; text-wrap: balance;
+}
+.editorial-sm { font-size: var(--fs-2xl); line-height: var(--lh-tight); }
+.editorial-lg { font-size: var(--fs-hero); }
+.editorial em, .editorial i { font-style: italic; }
+@media (max-width: 640px) { .editorial { font-size: var(--fs-display); } .editorial-lg { font-size: var(--fs-display-lg); } .editorial-sm { font-size: var(--fs-xl); } }
 
 /* IDs, amounts and references: Geist Mono with tabular figures. Money in prose: .num */
 .mono { font-family: var(--font-mono); font-size: 0.92em; font-variant-numeric: tabular-nums; }
-.num, .money { font-variant-numeric: tabular-nums; }
+.num, .money, .tabular { font-variant-numeric: tabular-nums; }
 .money { font-family: var(--font-mono); font-size: 0.95em; white-space: nowrap; }
 .muted { color: var(--color-text-secondary); }
 .faint { color: var(--color-text-muted); }
@@ -61,7 +78,13 @@ main:focus { outline: none; }
   .page { padding-top: var(--s-4); padding-bottom: var(--s-5); }
 }
 
-/* Motion is short and never bounces. Reduced motion keeps fades and color, and removes movement. */
+/* The page entrance: one per page, on the main content only. Children may set --i (0..5) for a short stagger.
+   Uses opacity and transform only; under reduced motion it is already in place (--rise is 0, durations collapse). */
+@keyframes c-enter { from { opacity: 0; transform: translateY(var(--rise)); } }
+.c-enter { animation: c-enter var(--dur-enter) var(--ease-emphasized) both; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+
+/* Motion is short and never bounces. Reduced motion removes movement: durations collapse to a frame and the movement
+   tokens in tokens.css (--rise, --press-scale) flatten, so every component shows its designed static state. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
