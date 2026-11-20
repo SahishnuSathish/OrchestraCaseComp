@@ -37,8 +37,8 @@ export const vp = (width) => ({ width, height: width <= 480 ? 800 : width < 1000
 export const DESKTOP = vp(1280);
 export const TEST_TIMEOUT = 40000;
 
-export const PORT_MAIN = 8808;   // the main server: every story but the background-arrival one
-export const PORT_LIVE = 8809;   // a second server whose background arrivals run quickly
+export const PORT_MAIN = Number(process.env.UI_PORT_MAIN) || 8808;   // the main server: every story but the background-arrival one
+export const PORT_LIVE = Number(process.env.UI_PORT_LIVE) || 8809;   // a second server whose background arrivals run quickly
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -212,7 +212,11 @@ export async function poll(fn, { timeout = 10000, interval = 100, message = 'con
 // ------------------------------------------------------------------------------------------------ page helpers
 export async function assertNoOverflow(page, label = '') {
   const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-  assert.ok(m.sw <= m.cw, `horizontal overflow${label ? ` (${label})` : ''}: scrollWidth ${m.sw} > clientWidth ${m.cw}`);
+  if (m.sw > m.cw) {
+    const wide = await page.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1 && e.getClientRects().length)
+      .slice(0, 4).map((e) => e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.split(' ').slice(0, 2).join('.') : '') + ' right=' + Math.round(e.getBoundingClientRect().right)));
+    assert.fail(`horizontal overflow${label ? ` (${label})` : ''}: scrollWidth ${m.sw} > clientWidth ${m.cw}; wide: ${wide.join(' | ')}`);
+  }
 }
 
 /** Wait until a hash route matches (string or RegExp). */
