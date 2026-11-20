@@ -46,9 +46,10 @@ only draw inside `artEl` (and listen to resize/pointer/visibility); it must not 
 `docs/ui-upgrade/looks/<name>.md`, `docs/ui-upgrade/shots/looks/<name>/`.
 
 ## Done means
-- `gate.sh smoke <your base>` → GATE GREEN. (The smoke suite runs the hub with the default look, which may not be yours:
-  also run `node tests/ui/smoke.mjs "^1 |^11 "` after temporarily setting nothing; instead, check your look by
-  running the shots tool with `--look <letter>`, which also reports console errors.)
+- The smoke suite opens the hub with the DEFAULT look, which may not be yours. To gate yours: temporarily set
+  `DEFAULT = '<your letter>'` in `js/hub/looks/index.js`, run `gate.sh smoke <your base>` until GATE GREEN, then
+  `git checkout -- dashboards/conductor/assets/js/hub/looks/index.js` (never commit that file). The orchestrator re-runs
+  the suite with each look as the default before merging.
 - Screenshots in `docs/ui-upgrade/shots/looks/<name>/`: `node docs/ui-upgrade/tools/shots.mjs
   docs/ui-upgrade/shots/looks/<name> --widths 375,1440 --port <your shots port> --look <letter> --only '^hub'`
   (gives hub, staff picker = the staff step, vendor = the vendor step, code, handshake). Look at every one.
