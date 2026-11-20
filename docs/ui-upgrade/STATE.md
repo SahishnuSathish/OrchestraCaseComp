@@ -4,7 +4,8 @@ On resume: read this file, then `git log --oneline -15` on `ui/overnight` and ea
 and `git status` in each worktree. Never redo merged work.
 
 ## Now
-- **Tier**: 1, step 4. Looks merged + gated green; blind review done (A > C > B); DEFAULT = a (DIRECTION.md). Refinement round 1 running in the three look workers (same agent ids, same branches).
+- **Tier**: 1 step 4 finishing (B, C round 1 running) + Tier 2 started (shell) as slots free up (max 3 workers).
+- Was: Tier 1, step 4. Looks merged + gated green; blind review done (A > C > B); DEFAULT = a (DIRECTION.md). Refinement round 1 running in the three look workers (same agent ids, same branches).
 - Done on ui/overnight meanwhile: hub look loader + stubs (0004460), look briefs (briefs/looks.md, look-a/b/c.md).
 - **Next step**: merge refinement round 1 of each look, gate, re-shoot hub looks into shots/after/looks/. Then Tier 2
   (briefs ready: shell.md, workspace.md, direct.md; worktrees wt-shell, wt-workspace, wt-direct; smoke 8820/8822/8824).
@@ -40,7 +41,8 @@ and `git status` in each worktree. Never redo merged work.
 |---|---|---|---|---|
 | foundation | a6b9b604bd430752d | briefs/foundation.md | opus | done 0b4905d, merged |
 | brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, merged |
-| look-score (a) | af9033e20c561d588 | briefs/looks.md + look-a.md | opus | done eee6c72 |
+| look-score (a) | af9033e20c561d588 | briefs/looks.md + look-a.md | opus | round 1 done 33850e0, merged 37e7c93 |
+| shell (tier 2) | a0a4439227a48540b | briefs/shell.md | opus | running (wt-shell, smoke 8820, shots 8840) |
 | look-instrument (b) | a803656ef26f74c25 | briefs/looks.md + look-b.md | opus | done 3160f52 |
 | look-daylight (c) | abeeef41ec8d60fb3 | briefs/looks.md + look-c.md | opus | running |
 
