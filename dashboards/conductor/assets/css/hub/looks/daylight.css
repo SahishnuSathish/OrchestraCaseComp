@@ -155,6 +155,12 @@ html[data-look="daylight"] .hub-family-text span { color: var(--color-text-secon
 @media (min-width: 961px) {
   html[data-look="daylight"] .hub { grid-template-columns: minmax(440px, 6fr) minmax(480px, 5fr); }
 }
+/* below 1200 the column is too narrow for three beats side by side: a plain list between hairlines */
+@media (max-width: 1199px) {
+  html[data-look="daylight"] .hub-proof-list { display: block; max-width: 44ch; }
+  html[data-look="daylight"] .hub-proof-list li { padding: 12px 0; border-left: 0; border-bottom: 1px solid var(--dl-hairline); font-size: var(--fs-md); }
+  html[data-look="daylight"] .hub-proof-list li:first-child { border-top: 1px solid var(--dl-hairline); }
+}
 
 /* ---- the card: the one bright thing in the room --------------------------------------------------------------- */
 html[data-look="daylight"] .hub-card {
@@ -215,9 +221,6 @@ html[data-look="daylight"] .hub-handshake-who strong { color: var(--color-text-d
   html[data-look="daylight"] .hub-value { margin-top: 40px; max-width: 16ch; font-size: clamp(32px, 8.6vw, 44px); letter-spacing: var(--ls-display); }
   html[data-look="daylight"] .hub-signin { padding: 0 var(--s-4) var(--s-4); }
   html[data-look="daylight"] .hub-proof { margin-top: var(--s-4); padding-top: 24px; }
-  html[data-look="daylight"] .hub-proof-list { display: block; }
-  html[data-look="daylight"] .hub-proof-list li { padding: 12px 0; border-left: 0; border-bottom: 1px solid var(--dl-hairline); font-size: var(--fs-md); }
-  html[data-look="daylight"] .hub-proof-list li:first-child { border-top: 1px solid var(--dl-hairline); }
 }
 @media (max-width: 520px) {
   html[data-look="daylight"] .hub-card { padding: 28px 20px 24px; border-radius: 16px; }
