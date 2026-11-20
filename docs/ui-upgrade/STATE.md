@@ -40,7 +40,10 @@ and `git status` in each worktree. Never redo merged work.
 | Area | Agent id | Brief | Model | Status |
 |---|---|---|---|---|
 | foundation | a6b9b604bd430752d | briefs/foundation.md | opus | done 0b4905d, merged |
-| brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, gate green (worker) |
+| brand | af18070f9a574b05e | briefs/brand.md | opus | done 52c0d77, merged |
+| look-score (a) | af9033e20c561d588 | briefs/looks.md + look-a.md | opus | running |
+| look-instrument (b) | a803656ef26f74c25 | briefs/looks.md + look-b.md | opus | running |
+| look-daylight (c) | abeeef41ec8d60fb3 | briefs/looks.md + look-c.md | opus | running |
 
 ## Gate results after merges
 | Merge | Smoke | JS | Py | git | Shots |
