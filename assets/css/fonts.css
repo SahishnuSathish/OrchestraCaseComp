@@ -31,9 +31,10 @@
   src: url("/static/fonts/geist-mono-latin-ext-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-/* Instrument Serif: no Conductor style uses this family any more (--font-display is Bricolage Grotesque), so browsers
-   never download it. The rules stay because the old vendor portal (dashboards/vendor_portal/page.py) serves these files
-   from an allowlist and tests/test_portal_page.py checks that each allowlisted file is named in this stylesheet. */
+/* Instrument Serif: the editorial face (--font-editorial, the .editorial utility in base.css), used for at most one
+   moment per screen, so browsers download it only on screens that have one. The old vendor portal
+   (dashboards/vendor_portal/page.py) also serves these files from an allowlist, and tests/test_portal_page.py checks that
+   each allowlisted file is named in this stylesheet: keep every rule below. */
 @font-face {
   font-family: "Instrument Serif"; font-style: normal; font-weight: 400; font-display: swap;
   src: url("/static/fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
