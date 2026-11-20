@@ -535,5 +535,24 @@ class MailboxExportToInboxTests(InboxCase):
         self.assertEqual(self.c.post("/api/admin/inbox-import", json={"path": str(bad)}, headers=self.cfo).status_code, 400)
 
 
+class FreshStartTests(InboxCase):
+    def test_reset_everything_clears_the_history_around_the_inbox_and_keeps_sign_ins(self):
+        import db as _db
+        _db._exec("INSERT INTO outbound (kind, to_email, subject, body, state, created_by, created_at) VALUES "
+                  "('approver_nudge','a@b.example','s','b','pending','x',0)")
+        _db._exec("INSERT INTO approver_actions (bill_id, approver, kind, date, at) VALUES ('1','a@b.example','commit','2026-11-20',0)")
+        _db._exec("UPDATE w9_status SET status='on_file' WHERE vendor_id='3023'")
+        plain = self.c.post("/api/admin/reset", headers=self.cfo)          # no body: the old behavior
+        self.assertEqual(plain.status_code, 200, plain.text)
+        self.assertEqual(_db._one("SELECT COUNT(*) AS n FROM outbound")["n"], 1)
+        r = self.c.post("/api/admin/reset", json={"everything": True}, headers=self.cfo)
+        self.assertEqual(r.status_code, 200, r.text)
+        for table in ("outbound", "approver_actions"):
+            self.assertEqual(_db._one(f"SELECT COUNT(*) AS n FROM {table}")["n"], 0, table)
+        self.assertEqual(_db._one("SELECT status FROM w9_status WHERE vendor_id='3023'")["status"], "missing")  # back to the seed
+        self.assertEqual(self.c.get("/api/inbox/summary", headers=self.h).status_code, 200)  # still signed in
+        self.assertEqual(self.c.post("/api/admin/reset", json={"everything": True}, headers=self.h).status_code, 403)
+
+
 if __name__ == "__main__":
     unittest.main()

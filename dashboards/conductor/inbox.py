@@ -176,9 +176,34 @@ def _build():
     return run_id
 
 
-def reset():
-    """Delete the inbox run and everything keyed to it, then rebuild it from the data. Held-back tickets wait again."""
+FRESH_TABLES = ("outbound", "approver_actions", "feedback", "feedback_edits", "audit_log", "direct_messages", "direct_updates",
+                "direct_lookups", "direct_questions", "w9_uploads", "w9_status")
+
+
+def _clear_everything_else():
+    """For a fresh start: the history around the inbox too (outbound items, approver dates, feedback, the audit log,
+    vendor messages, updates, lookups and questions, W-9 uploads and their files). W-9 statuses go back to the seed.
+    Sign-ins, settings and imported batch runs are kept."""
+    for table in FRESH_TABLES:
+        try:
+            db._exec(f"DELETE FROM {table}")
+        except Exception as e:   # a table from a module that is not installed
+            print(f"[inbox] fresh start: {table} not cleared ({type(e).__name__})", flush=True)
+    try:
+        import shutil
+        import w9
+        shutil.rmtree(w9._uploads_root(), ignore_errors=True)
+        w9.init_schema()          # re-seeds W-9 statuses from seed/w9/status.json
+    except Exception as e:
+        print(f"[inbox] fresh start: W-9 reseed failed ({type(e).__name__}: {e})", flush=True)
+
+
+def reset(everything=False):
+    """Delete the inbox run and everything keyed to it, then rebuild it from the data. Held-back tickets wait again.
+    everything=True also clears the history around the inbox (see _clear_everything_else)."""
     stop_sync()
+    if everything:
+        _clear_everything_else()
     with _BUILD_LOCK:
         rid = db.get_setting(RUN_KEY)
         if rid:
@@ -1068,10 +1093,14 @@ def api_inbox_import(body: InboxImportBody):
     return out
 
 
+class ResetBody(BaseModel):
+    everything: bool = False
+
+
 @router.post("/api/admin/reset", dependencies=cfo_only)
-def api_reset(request: Request):
+def api_reset(request: Request, body: ResetBody = None):
     old = db.get_setting(RUN_KEY)
-    out = reset()
+    out = reset(everything=bool(body and body.everything))
     try:
         request.app.state.get_manager().live.pop(old, None)
     except Exception:

@@ -44,7 +44,7 @@ export const documentPath = (kind, billId, fmt) => `/api/documents/${enc(kind)}/
 export const documentBlobUrl = (kind, billId, fmt = 'pdf') => blob(documentPath(kind, billId, fmt));
 
 // Advanced (CFO only).
-export const adminReset = () => postJSON('/api/admin/reset');                  // {run_id, old_run_id, read, held_back}
+export const adminReset = (everything = false) => postJSON('/api/admin/reset', { everything });                  // {run_id, old_run_id, read, held_back}
 export const adminImport = (path) => postJSON('/api/admin/import', { path });  // {run_id}: a normal batch run; follow it at /api/runs/{run_id}
 // Add a mailbox export to the inbox as new mail (all tickets, or only ticketIds). {queued: [ids], skipped: [{id, why}]}
 export const adminInboxImport = (path, ticketIds = []) => postJSON('/api/admin/inbox-import', { path, ticket_ids: ticketIds });

@@ -8,7 +8,7 @@ import { api } from '../api.js';
 import * as inbox from '../api-inbox.js';
 import { S, on, emit, refreshModel } from '../state.js';
 import {
-  button, setBusy, field, setFieldError, badge, dot, table, skeletonText, skeletonRows, empty, notice, tabs, modal, toast, reading,
+  button, setBusy, field, setFieldError, checkbox, badge, dot, table, skeletonText, skeletonRows, empty, notice, tabs, modal, toast, reading,
 } from '../components/index.js';
 import { pageHead, kv, errText, fmtWhen, ago, liveRegion, say, onAppCalendar } from '../components/leadership/util.js';
 import { openFolderPicker } from '../components/leadership/folder-picker.js';
@@ -352,18 +352,20 @@ export function mount(root, { route, session }) {
     // ---- reset
     const resetBtn = button({ label: 'Reset the inbox', variant: 'danger', icon: 'rotate' });
     resetBtn.addEventListener('click', () => {
+      const fresh = checkbox({ label: 'Start completely fresh', help: 'Also clear sent reminders and W-9 requests, approver dates, feedback, the change history, vendor messages and updates, and W-9 uploads. Sign-ins and settings stay.' });
       modal({
         title: 'Reset the inbox?', size: 'sm',
         description: 'Conductor reads every email again from Zendesk and Outlook and starts the inbox over.',
         body: h('div', { class: 'cx-stack' },
           h('p', null, 'Drafts, approvals, escalations, sign-offs, schedules and chat on inbox tickets are cleared. Messages already sent stay sent. Imported files below are not touched.'),
+          fresh,
           notice({ tone: 'risk', text: 'This can’t be undone.' })),
         actions: (dlg) => {
           const go = button({ label: 'Reset the inbox', variant: 'danger' });
           go.addEventListener('click', async () => {
             setBusy(go, true);
             try {
-              const r = await inbox.adminReset();
+              const r = await inbox.adminReset(Boolean(fresh.querySelector('input')?.checked));
               dlg.close();
               toast({ message: `Inbox reset. Conductor read ${fmtInt(r.read)} emails; ${fmtInt(r.held_back)} more will arrive.`, tone: 'settled' });
               say(live, 'Inbox reset.');
