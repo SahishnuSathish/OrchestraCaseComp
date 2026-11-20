@@ -94,7 +94,7 @@ export function mount(root, { route, session }) {
       fill(logSlot, h('section', { class: 'c-pane cx-log', 'aria-labelledby': 'cx-log-h' },
         h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-log-h' }, 'Sync log'), h('p', { class: 'c-pane-sub' }, 'Newest first.'))),
         h('div', { class: 'c-pane-body is-flush' }, (conn.log || []).length
-          ? h('ol', { class: 'cx-logs' }, conn.log.slice(0, 40).map((l) => h('li', null, h('time', { class: 'cx-log-at' }, fmtWhen(l.at)), h('span', null, l.text))))
+          ? h('ol', { class: 'cx-logs', tabindex: '0', 'aria-label': 'Sync log, newest first' }, conn.log.slice(0, 40).map((l) => h('li', null, h('time', { class: 'cx-log-at' }, fmtWhen(l.at)), h('span', null, l.text))))
           : h('p', { class: 'cx-pad lv-muted' }, 'Nothing synced yet.'))));
     }
 

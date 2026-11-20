@@ -985,7 +985,11 @@ def api_threads(request: Request, queue: str = "", q: str = "", assignee: str = 
             if needle not in hay:
                 continue
         rows.append(row)
-    rows.sort(key=lambda r: _instant(r["received_at"]), reverse=True)
+    # Mail that arrived since connect comes first (newest first among it), then the backlog, newest first. The app clock
+    # keeps the real time of day on the snapshot date, so early in the morning a new arrival can carry an earlier time
+    # than the backlog's own timestamps; it is still the newest mail.
+    arrived = {t for t, st in _inbox_state().items() if st["arrived_at"]}
+    rows.sort(key=lambda r: (r["ticket_id"] in arrived, _instant(r["received_at"])), reverse=True)
     return {"rows": rows}
 
 
