@@ -8,8 +8,8 @@
 /* ---- proposed tokens (scoped to this look; the orchestrator may move them into tokens.css) ------------------- */
 html[data-look="score"] {
   --score-paper: color-mix(in oklab, var(--p-paper-50) 74%, var(--p-brass-100));  /* warm paper, about #f6f4ec */
-  --score-staff: rgb(var(--p-shadow-rgb) / 0.085);       /* the printed staves */
-  --score-bar: rgb(var(--p-shadow-rgb) / 0.16);          /* bar lines on the layout's edges */
+  --score-staff: rgb(var(--p-shadow-rgb) / 0.13);        /* the one printed staff */
+  --score-scrim: rgb(var(--p-shadow-rgb) / 0.58);        /* behind the provider window: 58% of the green ink */
   --score-ink: var(--deco-ink);                          /* the ribbon: Orchestra green */
   --score-brass: var(--deco-brass-line);                 /* one brass stroke in the ribbon */
   --score-sheet: var(--color-surface-raised);            /* the card: a white sheet on the paper */
@@ -32,7 +32,6 @@ html[data-look="score"] .score-ribbon { position: absolute; inset: 0 auto auto 0
 html[data-look="score"] .score-staff,
 html[data-look="score"] .score-ribbon-svg { display: block; max-width: none; overflow: visible; }
 html[data-look="score"] .score-staff-lines { fill: none; stroke: var(--score-staff); stroke-width: 1; shape-rendering: crispEdges; }
-html[data-look="score"] .score-staff-bars { fill: none; stroke: var(--score-bar); stroke-width: 1; shape-rendering: crispEdges; }
 html[data-look="score"] .score-stroke { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 html[data-look="score"] .score-stop-ink { stop-color: var(--score-ink); }
 html[data-look="score"] .score-stop-brass { stop-color: var(--score-brass); }
@@ -78,9 +77,16 @@ html[data-look="score"] .hub-proof-list { border-top: 1px solid var(--score-rule
 html[data-look="score"] .hub-proof-list li { padding: 12px 0; border-bottom: 1px solid var(--score-rule); font-size: var(--fs-body-lg); color: var(--color-text); }
 html[data-look="score"] .hub-proof-source { padding-top: 10px; color: var(--color-text-muted); }
 
-html[data-look="score"] .hub-family { padding-top: 28px; }
-html[data-look="score"] .hub-family ul { border-top: 0; padding-top: 0; gap: 12px; }
-html[data-look="score"] .hub-family-text span { color: var(--color-text-secondary); }
+/* the family: a quiet footer, one line per product (it must not compete with the proof points) */
+html[data-look="score"] .hub-family { padding-top: 24px; }
+html[data-look="score"] .hub-family ul { border-top: 0; padding-top: 0; gap: 6px; }
+html[data-look="score"] .hub-family-item { gap: 10px; }
+html[data-look="score"] .hub-family .c-mark { width: 16px; height: 16px; }
+html[data-look="score"] .hub-family-text { display: block; font-size: var(--fs-xs); line-height: 1.4; color: var(--color-text-muted); }
+html[data-look="score"] .hub-family-text strong { font-weight: var(--fw-medium); color: var(--color-text-secondary); margin-right: 6px; }
+html[data-look="score"] .hub-family-text span { color: var(--color-text-muted); }
+/* Ahead keeps its mint field everywhere (BRAND.md); on this paper its edge needs more ink to hold the shape */
+html[data-look="score"] .hub .c-mark-ahead .c-mark-edge { stroke: var(--color-chrome); opacity: 0.6; }
 
 /* ---- the card: a crisp sheet lying on the score -------------------------------------------------------------- */
 html[data-look="score"] .hub-card {
@@ -108,7 +114,7 @@ html[data-look="score"] .hub-inbox-head { background: var(--color-surface-subtle
 
 /* ---- the provider window (staff picker, vendor email step) --------------------------------------------------- */
 html[data-look="score"] dialog.hub-provider { background: var(--score-sheet); border-color: var(--score-sheet-edge); }
-html[data-look="score"] dialog.hub-provider::backdrop { background: rgb(var(--p-shadow-rgb) / 0.30); }
+html[data-look="score"] dialog.hub-provider::backdrop { background: var(--score-scrim); backdrop-filter: saturate(0.55); }
 html[data-look="score"] .hub-provider-title { font-family: var(--font-display); color: var(--color-text-display); }
 html[data-look="score"] .hub-picker-group-title { background: var(--score-sheet); }
 html[data-look="score"] .hub-provider-form > .hub-account,
