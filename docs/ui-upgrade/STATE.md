@@ -4,11 +4,10 @@ On resume: read this file, then `git log --oneline -15` on `ui/overnight` and ea
 and `git status` in each worktree. Never redo merged work.
 
 ## Now
-- **Tier**: 1, step 3 (three landing looks running in parallel). Foundation + brand merged and gated green (7efbd81).
+- **Tier**: 1, step 4. Looks merged + gated green; blind review done (A > C > B); DEFAULT = a (DIRECTION.md). Refinement round 1 running in the three look workers (same agent ids, same branches).
 - Done on ui/overnight meanwhile: hub look loader + stubs (0004460), look briefs (briefs/looks.md, look-a/b/c.md).
-- **Next step**: when the three looks report: check diffs and shots, gate each with its look as DEFAULT, merge all three,
-  spawn one fresh reviewer (only screenshots + goal + rubric), apply cheap fixes, set DEFAULT, write the decision in
-  DIRECTION.md. Then Tier 2 (briefs ready: shell.md, workspace.md, direct.md).
+- **Next step**: merge refinement round 1 of each look, gate, re-shoot hub looks into shots/after/looks/. Then Tier 2
+  (briefs ready: shell.md, workspace.md, direct.md; worktrees wt-shell, wt-workspace, wt-direct; smoke 8820/8822/8824).
 
 ## Environment (cloud container, rebuilt on restart)
 - Setup: `pip install -r requirements.txt`; `npm install --no-save --no-audit --no-fund playwright@1.63.0 axe-core`
@@ -48,6 +47,7 @@ and `git status` in each worktree. Never redo merged work.
 ## Gate results after merges
 | Merge | Smoke | JS | Py | git | Shots |
 |---|---|---|---|---|---|
+| three looks merged (c8fb3fc), DEFAULT a | 24/24, axe clean (B and C as DEFAULT: hub + sweep + axe 8/8 each) | 85/85 | only the 4 tkinter errors | clean | workers' shots; blind review in looks/REVIEW.md |
 | foundation + brand (7efbd81) | 24/24, axe clean | 85/85 | 396 run, only the 4 tkinter errors | clean | shots/after/tier1, no console errors; looked at hub, inbox-ticket, styleguide, ahead, direct@375 |
 
 Fresh-eyes critique for the foundation is folded into the Tier 2 critiques: its visible change on working screens is deliberately subtle (warm paper neutrals, softer badges); Tier 2 applies it.
