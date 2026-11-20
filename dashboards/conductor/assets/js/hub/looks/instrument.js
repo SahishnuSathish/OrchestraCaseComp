@@ -19,7 +19,8 @@ export const TUNE = {
   parallax: 5,          // px the dial drifts against the pointer
   entranceMs: 660,      // the hand draws the dial in with one turn
   handshakeTempo: 4,    // accelerando: the hand runs this much faster during the hand-off to /app
-  narrowAlpha: 0.62,    // line strength on the stacked layout, where text scrolls over the art
+  narrowAlpha: 0.7,     // line strength on the stacked layout, where text scrolls over the art...
+  narrowCap: 0.2,       // ...and no line stronger than this there: muted text keeps >= 4.9:1 over any line
 };
 
 const TAU = Math.PI * 2;
@@ -48,7 +49,9 @@ function geometry(W, H, handshake) {
   if (wide) {
     const left = Math.max(420, (W * 5) / 12); // hub.css: minmax(420px, 5fr) | 7fr
     const col = W - left;
-    return { cx: left + col / 2, cy: H / 2, R: clamp(Math.min(col / 2 - 40, H / 2 - 36), 240, 440), wide };
+    const cx = left + col / 2;
+    const textRight = left - clamp(W * 0.05, 32, 72); // the brand column's padding: the hand never reaches its text
+    return { cx, cy: H / 2, R: clamp(Math.min(cx - textRight - 48, H / 2 - 40, col / 2 - 24), 240, 440), wide };
   }
   return { cx: W * 0.96, cy: 18, R: clamp(W * 0.62, 190, 400), wide };
 }
@@ -93,6 +96,7 @@ export function mount(artEl, { reduced = false } = {}) {
     const { W, H, dpr } = S;
     const g = S.geom;
     const k = g.wide ? 1 : TUNE.narrowAlpha;
+    const A = (a) => (g.wide ? a : Math.min(a * k, TUNE.narrowCap)); // a line's alpha on this layout
     const still = reduced || !g.wide;
     const reveal = reduced ? 1 : easeOutQuart(clamp((now - S.born) / TUNE.entranceMs, 0, 1));
     // the entrance: the hand makes one fast turn (the downbeat) and draws the dial in behind it. At rest under
@@ -118,7 +122,7 @@ export function mount(artEl, { reduced = false } = {}) {
     ctx.lineWidth = 1;
 
     const ring = (r, a) => {
-      ctx.strokeStyle = `rgb(${col.line} / ${a * k})`;
+      ctx.strokeStyle = `rgb(${col.line} / ${A(a)})`;
       ctx.beginPath(); ctx.arc(cx, cy, r, TOP, TOP + sweep); ctx.stroke();
     };
     // the hall: three faint outer rings, so the stage has depth beyond the dial
@@ -126,7 +130,7 @@ export function mount(artEl, { reduced = false } = {}) {
     // the inner track: a ring and 64 short ticks, mostly behind the card
     const rIn = R * 0.8;
     ring(rIn, 0.09);
-    ctx.strokeStyle = `rgb(${col.line} / ${0.14 * k})`;
+    ctx.strokeStyle = `rgb(${col.line} / ${A(0.14)})`;
     ctx.beginPath();
     for (let i = 0; i < 64; i += 1) {
       const f = i / 64; if (f > reveal) break;
@@ -135,7 +139,7 @@ export function mount(artEl, { reduced = false } = {}) {
     }
     ctx.stroke();
     // the bezel: the staff rule bent into a circle
-    ctx.strokeStyle = `rgb(${col.line} / ${0.2 * k})`;
+    ctx.strokeStyle = `rgb(${col.line} / ${A(0.2)})`;
     ctx.beginPath();
     for (let j = -2; j <= 2; j += 1) {
       const r = R + j * p;
@@ -148,7 +152,7 @@ export function mount(artEl, { reduced = false } = {}) {
     const N = TUNE.ticks;
     const lit = []; // ticks the loupe or the hand's trail brightens, drawn again on top
     for (const [every, r0, r1, a0] of [[1, R - 2 * p, R + 2 * p, 0.15], [4, R - 2 * p, R + 2 * p + 8, 0.3], [16, R - 2 * p - 3, R + 2 * p + 14, 0.42]]) {
-      ctx.strokeStyle = `rgb(${col.line} / ${a0 * k})`;
+      ctx.strokeStyle = `rgb(${col.line} / ${A(a0)})`;
       ctx.beginPath();
       for (let i = 0; i < N; i += 1) {
         const f = i / N; if (f > reveal) break;
