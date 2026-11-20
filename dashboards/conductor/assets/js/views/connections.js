@@ -387,6 +387,23 @@ export function mount(root, { route, session }) {
     const browseBtn = button({ label: 'Browse…', icon: 'folder' });
     const checkBox = h('div', { class: 'cx-check', 'aria-live': 'polite' });
     const importBtn = button({ label: 'Import and process', variant: 'primary', icon: 'download', disabled: true });
+    const idsF = field({ label: 'Only these ticket numbers (optional)', attrs: { class: 'c-input mono', spellcheck: 'false', autocomplete: 'off', placeholder: 'e.g. 41741, 41758' },
+      help: 'For adding to the inbox. Leave it empty to add every email in the file.' });
+    const inboxBtn = button({ label: 'Add to the inbox as new mail', icon: 'inbox', disabled: true });
+    inboxBtn.addEventListener('click', async () => {
+      const p = cleanPath(pathF.control.value);
+      const ids = (idsF.control.value.match(/\d+/g) || []).map(Number);
+      setBusy(inboxBtn, true);
+      try {
+        const r = await inbox.adminInboxImport(p, ids);
+        const n = r.queued.length;
+        const skipped = (r.skipped || []).map((s) => `#${s.id} ${s.why}`).join('; ');
+        toast({ message: n ? `${lplural(n, 'email')} added. They arrive in the inbox one by one, first in line; Sync now brings the next one in.` : 'Nothing new to add.',
+          title: skipped ? `Skipped: ${skipped}` : undefined, tone: n ? 'settled' : 'waiting' });
+        say(live, n ? `${n} emails added to the inbox.` : 'Nothing new to add.');
+      } catch (e) { setFieldError(pathF, errText(e)); }
+      finally { if (alive) setBusy(inboxBtn, false); renderCheck(); }
+    });
     let check = null; // { ok, text, detail }
     let vseq = 0;
     let picking = 0;
@@ -414,12 +431,13 @@ export function mount(root, { route, session }) {
     }
     function renderCheck() {
       importBtn.disabled = !check?.ok;
+      inboxBtn.disabled = !check?.ok;
       if (!check) { fill(checkBox); return; }
       if (!check.ok) setFieldError(pathF, check.text);
       fill(checkBox, check.ok ? badge({ label: 'Ready to import', tone: 'settled', icon: 'check' }) : null, check.ok ? h('span', { class: 'cx-note' }, check.text) : null);
     }
     const validateSoon = debounce(validate, 400);
-    pathF.control.addEventListener('input', () => { check = null; importBtn.disabled = true; validateSoon(); });
+    pathF.control.addEventListener('input', () => { check = null; importBtn.disabled = true; inboxBtn.disabled = true; validateSoon(); });
     const setPath = (p) => { pathF.control.value = p; validate(); };
     browseBtn.addEventListener('click', async () => {
       if (picking) return;
@@ -447,12 +465,12 @@ export function mount(root, { route, session }) {
     const importables = h('div');
     fill(importSlot, h('section', { class: 'c-pane', 'aria-labelledby': 'cx-import-h' },
       h('header', { class: 'c-pane-head' }, h('div', { class: 'c-pane-titles' }, h('h2', { class: 'c-pane-title', id: 'cx-import-h' }, 'Import a mailbox export (tickets file)'),
-        h('p', { class: 'c-pane-sub' }, 'Conductor reads every email in the file and drafts replies, kept apart from the live inbox. Nothing is sent.'))),
+        h('p', { class: 'c-pane-sub' }, 'Process the file as a batch, kept apart from the live inbox, or add its emails to the inbox as new mail. Nothing is sent.'))),
       h('div', { class: 'c-pane-body cx-stack' },
         h('div', { class: 'cx-inline' }, pathF, h('div', { class: 'cx-btns' }, browseBtn)),
         h('p', { class: 'cx-note' }, 'Or ', h('button', { class: 'lv-linkbtn', type: 'button', onclick: () => openFolderPicker(cleanPath(pathF.control.value), setPath, { title: 'Choose the folder with the tickets file' }) }, 'use the built-in folder list'), '.'),
-        checkBox, importables),
-      h('footer', { class: 'c-pane-foot' }, h('span', { class: 'lv-spacer' }), importBtn)));
+        checkBox, idsF, importables),
+      h('footer', { class: 'c-pane-foot' }, h('span', { class: 'lv-spacer' }), inboxBtn, importBtn)));
 
     // ---- runs + export
     async function loadRuns(highlight) {

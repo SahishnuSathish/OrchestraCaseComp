@@ -186,6 +186,7 @@ def reset():
         db.delete_setting(RUN_KEY)
         db._exec("DELETE FROM inbox_state")
         db._exec("DELETE FROM inbox_users")
+        db.delete_setting(MAILBOX_QUEUE_KEY)
         try:  # workflow rows are keyed by ticket id only, so a rebuilt inbox must not inherit old states
             workflow.reset_states()
         except Exception as e:
@@ -199,9 +200,63 @@ def reset():
 
 
 def _pending_ids(run_id=None):
+    """Tickets still to arrive: a mailbox export added in Advanced comes first, then the held-back practice tickets."""
     run_id = run_id or inbox_run_id()
     have = {r["ticket_id"] for r in db._all("SELECT ticket_id FROM tickets WHERE run_id=?", (run_id,))}
-    return [t for t in held_back_ids() if t not in have]
+    queued = [int(item["ticket"]["id"]) for item in _mailbox_queue()]
+    return [t for t in queued if t not in have] + [t for t in held_back_ids() if t not in have and t not in queued]
+
+
+# ---------------------------------------------------------------------------- a mailbox export added to the inbox
+MAILBOX_QUEUE_KEY = "inbox.mailbox_queue"
+
+
+def _mailbox_queue():
+    try:
+        return json.loads(db.get_setting(MAILBOX_QUEUE_KEY) or "[]")
+    except ValueError:
+        return []
+
+
+def queue_mailbox_export(tickets, users, only_ids=None):
+    """Put tickets from a mailbox export (the tickets.json format) at the front of the arrival queue, so they arrive like
+    new mail: on the normal cadence, or now with Sync now. `users` (the file's users list) are added to the requester
+    overlay. Tickets already in the inbox are skipped. Returns {queued: [ids], skipped: [{id, why}]}."""
+    run_id = inbox_run_id()
+    wanted = {int(i) for i in only_ids} if only_ids else None
+    by_id = {int(u["id"]): u for u in users or [] if u.get("id") is not None}
+    queue = _mailbox_queue()
+    already = {int(item["ticket"]["id"]) for item in queue}
+    queued, skipped = [], []
+    for t in tickets:
+        tid = int(t["id"])
+        if wanted is not None and tid not in wanted:
+            continue
+        if db.get_ticket(run_id, tid) or tid in already:
+            skipped.append({"id": tid, "why": "already in the inbox" if db.get_ticket(run_id, tid) else "already queued"})
+            continue
+        ids = {t.get("requester_id")} | set(t.get("email_cc_ids") or []) | {c.get("author_id") for c in t.get("comments") or []}
+        queue.append({"ticket": t, "users": [by_id[i] for i in ids if i in by_id]})
+        queued.append(tid)
+    if wanted is not None:
+        missing = wanted - {int(t["id"]) for t in tickets}
+        skipped += [{"id": i, "why": "not in that file"} for i in sorted(missing)]
+    with _LOCK:
+        db.set_setting(MAILBOX_QUEUE_KEY, json.dumps(queue, ensure_ascii=True))
+    if queued:
+        connectors.log(f"Advanced: {len(queued)} email(s) from a mailbox export added to the inbox", "zendesk")
+    _publish_sync_status()
+    return {"queued": queued, "skipped": skipped}
+
+
+def _take_queued(tid):
+    """Remove one ticket from the mailbox queue and return its item, or None."""
+    with _LOCK:
+        queue = _mailbox_queue()
+        item = next((x for x in queue if int(x["ticket"]["id"]) == tid), None)
+        if item is not None:
+            db.set_setting(MAILBOX_QUEUE_KEY, json.dumps([x for x in queue if x is not item], ensure_ascii=True))
+        return item
 
 
 # ---------------------------------------------------------------------------- ingest
@@ -792,7 +847,21 @@ def arrive_next(reading_seconds=READING_SECONDS):
         ids = _pending_ids(run_id)
         if not ids:
             return []
-        tid = ingest(_get_store().backend.ticket(ids[0]), None, "zendesk", reading_seconds=reading_seconds)
+        item = _take_queued(ids[0])
+        if item is not None:   # from a mailbox export: its requesters join the overlay first
+            ticket, users = item["ticket"], item.get("users") or []
+            requester = next((u for u in users if u.get("id") == ticket.get("requester_id")), None)
+            store = _get_store()
+            for u in users:
+                if u is requester or int(u["id"]) in store.backend.users:
+                    continue
+                db._exec("INSERT OR REPLACE INTO inbox_users (id, name, email, role) VALUES (?,?,?,?)",
+                         (int(u["id"]), u.get("name"), u.get("email"), u.get("role") or "end-user"))
+                store.backend.users[int(u["id"])] = {"id": int(u["id"]), "name": u.get("name"), "email": u.get("email"),
+                                                     "role": u.get("role") or "end-user"}
+            tid = ingest(ticket, requester, "zendesk", reading_seconds=reading_seconds)
+        else:
+            tid = ingest(_get_store().backend.ticket(ids[0]), None, "zendesk", reading_seconds=reading_seconds)
     _publish_sync_status()
     return [tid]
 
@@ -969,6 +1038,33 @@ def api_detach(ticket_id: int, attachment_id: int):
 # ---------------------------------------------------------------------------- Advanced (CFO only)
 class ImportBody(BaseModel):
     path: str
+
+
+class InboxImportBody(BaseModel):
+    path: str
+    ticket_ids: list[int] = []   # empty: every ticket in the file
+
+
+@router.post("/api/admin/inbox-import", dependencies=cfo_only)
+def api_inbox_import(body: InboxImportBody):
+    """Add a mailbox export (tickets.json format) to the inbox as new mail. The tickets arrive one by one, first in line,
+    on the normal cadence or at once with Sync now. Records still come from data/."""
+    p = Path(runner.clean_path(body.path))
+    if p.is_dir():
+        p = p / "tickets.json"
+    if not p.is_file():
+        raise HTTPException(400, "That path is not a tickets file.")
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        tickets = data["tickets"] if isinstance(data, dict) else data
+        users = data.get("users", []) if isinstance(data, dict) else []
+        if not isinstance(tickets, list) or not all(isinstance(t, dict) and "id" in t for t in tickets):
+            raise ValueError
+    except (ValueError, KeyError, TypeError):
+        raise HTTPException(400, "That file is not in the tickets format.")
+    out = queue_mailbox_export(tickets, users, body.ticket_ids or None)
+    ensure_sync()
+    return out
 
 
 @router.post("/api/admin/reset", dependencies=cfo_only)

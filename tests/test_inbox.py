@@ -498,5 +498,42 @@ class ConnectionsAndAdvancedTests(InboxCase):
         self.assertEqual(self.c.post("/api/admin/import", json={"path": str(Path(_TMP.name) / "nope.json")}, headers=self.cfo).status_code, 400)
 
 
+class MailboxExportToInboxTests(InboxCase):
+    """Advanced: a mailbox export (tickets.json format) added to the inbox as new mail, first in line."""
+
+    def _file(self):
+        src = json.load(open(ROOT / "data" / "tickets.json", encoding="utf-8"))
+        t = json.loads(json.dumps(src["tickets"][0]))
+        t["id"], t["requester_id"] = 99001, 990001
+        for c in t["comments"]:
+            if c["author_id"] == src["tickets"][0]["requester_id"]:
+                c["author_id"] = 990001
+        req = next(u for u in src["users"] if u["id"] == src["tickets"][0]["requester_id"])
+        users = [dict(req, id=990001)] + [u for u in src["users"] if u["role"] == "agent"]
+        path = Path(_TMP.name) / "mailbox_export.json"
+        path.write_text(json.dumps({"tickets": [t], "users": users, "count": 1}), encoding="utf-8")
+        return path
+
+    def test_added_tickets_arrive_first_and_read_like_new_mail(self):
+        path = self._file()
+        self.assertEqual(self.c.post("/api/admin/inbox-import", json={"path": str(path)}, headers=self.h).status_code, 403)
+        r = self.c.post("/api/admin/inbox-import", json={"path": str(path), "ticket_ids": [99001, 5]}, headers=self.cfo)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["queued"], [99001])
+        self.assertEqual(r.json()["skipped"], [{"id": 5, "why": "not in that file"}])
+        self.assertEqual(self.c.post("/api/inbox/sync", headers=self.h).json()["arrived"], [99001])   # first in line
+        th = self.get("/api/inbox/threads/99001")
+        self.assertTrue(th["sender_verified"])               # the requester from the file's users resolves
+        self.assertEqual(th["outcome"], "draft_ready")
+        again = self.c.post("/api/admin/inbox-import", json={"path": str(path)}, headers=self.cfo).json()
+        self.assertEqual((again["queued"], again["skipped"][0]["why"]), ([], "already in the inbox"))
+        self.assertEqual(data_fingerprint(), self.fingerprint)
+
+    def test_a_file_that_is_not_tickets_is_refused(self):
+        bad = Path(_TMP.name) / "not_tickets.json"
+        bad.write_text(json.dumps({"hello": 1}), encoding="utf-8")
+        self.assertEqual(self.c.post("/api/admin/inbox-import", json={"path": str(bad)}, headers=self.cfo).status_code, 400)
+
+
 if __name__ == "__main__":
     unittest.main()
