@@ -5,6 +5,7 @@ and `git status` in each worktree. Never redo merged work.
 
 ## Now
 - **Tier**: 1 (foundation + brand running in parallel, disjoint files)
+- Done on ui/overnight meanwhile: hub look loader + stubs (0004460), look briefs (briefs/looks.md, look-a/b/c.md).
 - **Next step**: when both report, review diff + shots, run full gate on each, merge foundation then brand into
   `ui/overnight`, push. Then add the hub look loader + art hooks (orchestrator), then spawn looks A/B/C.
 
@@ -34,8 +35,8 @@ and `git status` in each worktree. Never redo merged work.
 ## Workers
 | Area | Agent id | Brief | Model | Status |
 |---|---|---|---|---|
-| foundation | (pending) | briefs/foundation.md | opus | starting |
-| brand | (pending) | briefs/brand.md | opus | starting |
+| foundation | a6b9b604bd430752d | briefs/foundation.md | opus | running (started ~09:50 UTC) |
+| brand | af18070f9a574b05e | briefs/brand.md | opus | running (started ~09:50 UTC) |
 
 ## Gate results after merges
 (none yet)
