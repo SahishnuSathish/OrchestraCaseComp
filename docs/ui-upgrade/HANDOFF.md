@@ -9,8 +9,8 @@ Branch **`ui/overnight`** (pushed). `main` is untouched. The run was **stopped a
 CONDUCTOR_STATE_DIR=$(mktemp -d) python3 dashboards/conductor/server.py --port 8790
 ```
 
-1. Open `http://127.0.0.1:8790/`: the new sign-in (look A "Score"): paper, one staff, a crescendo ribbon, serif headline.
-2. Try `/?look=b` (dark dial) and `/?look=c` (daylight). The choice sticks for the tab; `/?look=a` goes back.
+1. Open `http://127.0.0.1:8790/`: the new sign-in, look B "Instrument" (the owner's choice): a dark stage, a fine dial around the card, a brass hand.
+2. Try `/?look=a` (paper score) and `/?look=c` (daylight). The choice sticks for the tab; `/?look=b` goes back.
 3. Sign in with Microsoft → **Ulla Abernathy**: the handshake keeps the art behind it, then the inbox.
 4. The inbox and review screens: warm paper neutrals, softer badges and buttons with press feedback, new mark in the top bar.
 5. Sign in as **Elena Lockhart** → avatar menu → **Style guide** (`#/styleguide`): the whole new system as a living spec.
@@ -20,7 +20,7 @@ The gallery `docs/ui-upgrade/gallery/index.html` shows before/after and the thre
 
 ## 2. The three landing looks: see, choose, delete
 
-- See: `/?look=a` Score (default), `/?look=b` Instrument, `/?look=c` Daylight. Docs: `docs/ui-upgrade/looks/*.md`;
+- See: `/?look=a` Score, `/?look=b` Instrument (**default, the owner's choice**), `/?look=c` Daylight. Docs: `docs/ui-upgrade/looks/*.md`;
   blind review: `looks/REVIEW.md` (A 4.1 > C 3.5 > B 3.4); my reasoning: end of `DIRECTION.md`.
 - Choose: set `DEFAULT` in `dashboards/conductor/assets/js/hub/looks/index.js`.
 - Delete the losers: remove their entry from `LOOKS` in that file, then delete

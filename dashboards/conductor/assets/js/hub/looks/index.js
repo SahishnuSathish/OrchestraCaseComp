@@ -16,7 +16,7 @@ export const LOOKS = {
   b: 'instrument',
   c: 'daylight',
 };
-export const DEFAULT = 'a';
+export const DEFAULT = 'b';
 const KEY = 'conductor.hub.look';
 const LOAD_BUDGET = 600;
 
