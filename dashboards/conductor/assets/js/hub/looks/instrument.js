@@ -43,7 +43,8 @@ function readColors() {
  *  top-right corner, behind the header. Handshake: centred on the screen, around the hand-off card. */
 function geometry(W, H, handshake) {
   const wide = W > 960;
-  if (handshake) return { cx: W / 2, cy: H / 2, R: clamp(Math.min(W, H) / 2 - (wide ? 48 : 14), 150, 420), wide };
+  // (on a phone the card is nearly full width, so the dial grows past the sides and shows above and below it)
+  if (handshake) return { cx: W / 2, cy: H / 2, R: wide ? clamp(Math.min(W, H) / 2 - 48, 240, 420) : clamp(H * 0.34, 190, 320), wide };
   if (wide) {
     const left = Math.max(420, (W * 5) / 12); // hub.css: minmax(420px, 5fr) | 7fr
     const col = W - left;
@@ -146,7 +147,7 @@ export function mount(artEl, { reduced = false } = {}) {
     // tempo ticks: sixteenths cross the staff, beats reach past it, bars reach furthest
     const N = TUNE.ticks;
     const lit = []; // ticks the loupe or the hand's trail brightens, drawn again on top
-    for (const [every, r0, r1, a0] of [[1, R - 2 * p, R + 2 * p, 0.15], [4, R - 2 * p, R + 2 * p + 8, 0.3], [16, R - 2 * p - 4, R + 2 * p + 18, 0.5]]) {
+    for (const [every, r0, r1, a0] of [[1, R - 2 * p, R + 2 * p, 0.15], [4, R - 2 * p, R + 2 * p + 8, 0.3], [16, R - 2 * p - 3, R + 2 * p + 14, 0.42]]) {
       ctx.strokeStyle = `rgb(${col.line} / ${a0 * k})`;
       ctx.beginPath();
       for (let i = 0; i < N; i += 1) {
@@ -163,13 +164,13 @@ export function mount(artEl, { reduced = false } = {}) {
       ctx.stroke();
     }
     for (const [c, s, r0, r1, a0, trail, loupe] of lit) {
-      const r2 = r1 + loupe * 9;
+      const r2 = r1 + loupe * 9 + trail * 4; // the loupe lengthens a tick; a beat the hand just passed stands up a little
       if (loupe > 0.02) {
         ctx.strokeStyle = `rgb(${col.line} / ${Math.min(0.75, a0 + 0.4 * loupe)})`;
         ctx.beginPath(); ctx.moveTo(cx + c * r0, cy + s * r0); ctx.lineTo(cx + c * r2, cy + s * r2); ctx.stroke();
       }
       if (trail > 0.02) {
-        ctx.strokeStyle = `rgb(${col.brass} / ${(0.2 + 0.6 * (a0 / 0.5)) * trail})`;
+        ctx.strokeStyle = `rgb(${col.brass} / ${(0.35 + 0.55 * (a0 / 0.42)) * trail})`;
         ctx.beginPath(); ctx.moveTo(cx + c * r0, cy + s * r0); ctx.lineTo(cx + c * r2, cy + s * r2); ctx.stroke();
       }
     }
