@@ -1,23 +1,28 @@
 // Hub look C, "Daylight" (/?look=c). Presentation only: draws into the decorative art layer and nothing else.
 //
 // Morning light in the hall: five window shafts fall across the room, and the Conductor mark is drawn at the size of
-// the room in light. Its staff (five 1px lines, 4px apart: the signature staff rule) runs in from behind the sign-in
-// card, and one sweep leaves the lowest line and swells to the upper right, as the sweep does in the mark. A second,
-// fainter gesture dips under the card (the downbeat). Colours live in css/hub/looks/daylight.css.
+// the room. A five-line staff, opened by a bar line at the text margin, runs across the empty band between the headline
+// and the proof points and on behind the sign-in card; one sweep leaves its lowest line and swells as it rises through
+// the empty gutter to the card's top corner, as the sweep does in the mark. On the handshake the same staff and sweep
+// sit settled behind the centred card. Colours live in css/hub/looks/daylight.css.
 //
-// Cost: the art is drawn once per viewport size (SVG paths + five CSS-gradient beams) and then rests: no continuous
-// animation. On desktop a pointer parallax of a few px runs a rAF loop only while the layers are catching up with the
-// pointer (transform only). Stopped when the tab is hidden; still under reduced motion and on narrow screens.
+// Placement reads the layout (where the headline, the proof points and the card are) and never writes to it; on wide
+// screens the art layer scrolls with the page (daylight.css), so the motif stays in the space left for it and never
+// sits behind text. Cost: drawn once per size (SVG + five CSS-gradient beams), then at rest: no continuous animation.
+// On desktop a pointer parallax of a few px runs a rAF loop only while the layer catches up with the pointer
+// (transform only), and not while a dialog is open. Stopped when the tab is hidden; still under reduced motion and on
+// narrow screens.
 
 /** The knobs. docs/ui-upgrade/looks/daylight.md says what each one does. */
 export const KNOBS = {
-  staffAt: 0.6,          // the staff's height on the page (fraction of the viewport height)
-  swell: [1.5, 0.2],      // the sweep's width at its start (px) and at its swell (fraction of the viewport width)
-  parallax: 7,           // how far the gesture follows the pointer, in px (the beams stay put: the depth reads from that)
+  staffGap: 6,           // px between the staff's five 1px lines (the signature rule is 4; 6 reads at room scale)
+  swellMax: 50,          // the sweep's widest point in px (capped by the width of the gutter it rises through)
+  halo: 3.2,             // the soft daylight around the sweep, as a multiple of its width
+  parallax: 6,           // how far the gesture follows the pointer, in px (the beams stay put: the depth reads from that)
   beams: [               // the five window shafts: x (fraction of width), width (fraction of width), strength
     [0.02, 0.07, 0.9], [0.13, 0.05, 0.7], [0.24, 0.09, 1], [0.38, 0.05, 0.6], [0.5, 0.08, 0.75],
   ],
-  narrow: 960,           // at and below this width the layout stacks and the art is simpler and still
+  narrow: 960,           // at and below this width the layout stacks: the hub art is light only, and still
 };
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -29,9 +34,7 @@ function s(tag, attrs = {}, ...kids) {
 }
 function d(cls) { const el = document.createElement('div'); el.className = cls; return el; }
 const r1 = (n) => Math.round(n * 10) / 10;
-
-// the hub's left column at this width (mirrors the grid in daylight.css: minmax(440px, 6fr) minmax(480px, 5fr))
-const columnWidth = (w) => Math.max(440, Math.min((w * 6) / 11, w - 480));
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function bez([p0, p1, p2, p3], t) {
   const u = 1 - t;
@@ -46,7 +49,7 @@ function tangent([p0, p1, p2, p3], t) {
   return [x / l, y / l];
 }
 /** A tapered band along a cubic: w0 wide at the start, swelling to w1 (a crescendo), as one closed path. */
-function band(P, w0, w1, ease = 1.7, n = 56) {
+function band(P, w0, w1, ease = 1.6, n = 56) {
   const a = []; const b = [];
   for (let i = 0; i <= n; i += 1) {
     const t = i / n;
@@ -58,62 +61,76 @@ function band(P, w0, w1, ease = 1.7, n = 56) {
   }
   return `M${a.join('L')}L${b.reverse().join('L')}Z`;
 }
-const curve = (P) => `M${P[0].map(r1)}C${P.slice(1).map((p) => p.map(r1).join(' ')).join(',')}`;
 
-function geometry(w, h) {
-  if (w <= KNOBS.narrow) {
-    // stacked layout: only the soft band of the sweep, rising to the top right; no staff and no crisp line, because
-    // the stack scrolls and a printed line would cross the headline
-    const y = Math.min(h * 0.4, 330);
-    return {
-      main: [[-w * 0.08, y], [w * 0.55, y], [w * 0.86, y * 0.62], [w * 1.04, -h * 0.04]],
-      echo: null,
-      staff: null,
-      swell: Math.max(96, w * 0.36),
-    };
-  }
-  const L = columnWidth(w);
-  const right = w - L;
-  const cardW = Math.min(440, right - 48);
-  const cardL = L + (right - cardW) / 2;                // the sign-in card's left edge (hub.css centres it)
-  const top = Math.round(h * KNOBS.staffAt) + 0.5;      // half-pixel: 1px lines land on whole pixels
-  const low = top + 16;                                 // the sweep leaves the lowest line, as in the mark
-  const x0 = L - 40;
+/** Where the hub's text and card are, in page coordinates (null until the hub has rendered). */
+function measureHub() {
+  const value = document.querySelector('.hub-value');
+  const proof = document.querySelector('.hub-proof-list');
+  const card = document.querySelector('.hub-signin-inner');
+  if (!value || !proof || !card) return null;
+  const y = window.scrollY; const x = window.scrollX;
+  const v = value.getBoundingClientRect();
+  const range = document.createRange(); range.selectNodeContents(value);
+  const textRight = Math.max(...[...range.getClientRects()].map((r) => r.right), v.left);
+  const c = card.getBoundingClientRect();
   return {
-    // rises through the open gutter beside the card, passes its top-left corner and swells above it
-    main: [[x0, low], [cardL - 70, low], [cardL - 30, h * 0.24], [cardL + cardW * 0.78, -h * 0.1]],
-    // the downbeat: dips under the card and lifts away at the right edge
-    echo: [[x0, low], [cardL + 40, h * 1.02], [w - right * 0.04, h * 0.96], [w + 80, h * 0.52]],
-    staff: { x0: x0 - 80, x1: w, top },
-    swell: w * KNOBS.swell[1],
+    left: v.left + x, textRight: textRight + x, headBottom: v.bottom + y,
+    proofTop: proof.getBoundingClientRect().top + y, cardLeft: c.left + x, cardTop: c.top + y,
   };
 }
 
-/** The gesture as two SVGs: the soft bands (blurred once, never re-rastered while they move) and the crisp lines. */
-function scene(w, h) {
-  const g = geometry(w, h);
-  const svg = (cls, ...kids) => s('svg', { class: `dl-gesture ${cls}`, width: w, height: h, viewBox: `0 0 ${w} ${h}`, 'aria-hidden': 'true', focusable: 'false' }, ...kids);
-  const grad = (id, P, a, b, stops = [0, 1]) => s('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1: r1(P[0][0]), y1: r1(P[0][1]), x2: r1(P[1][0]), y2: r1(P[1][1]) },
-    s('stop', { offset: stops[0], class: a }), s('stop', { offset: stops[1], class: b }));
-  const ends = [g.main[0], g.main[3]];
+/** The motif beside the sign-in card (wide screens): staff in the empty band, sweep up the empty gutter. */
+function hubMotif(w, m) {
+  const gap = KNOBS.staffGap;
+  const top = Math.round(clamp((m.headBottom + m.proofTop) / 2 - gap * 2, m.headBottom + 28, m.proofTop - gap * 4 - 36)) + 0.5;
+  const low = top + gap * 4;
+  const rise = Math.max(m.textRight + 48, m.left + 220);        // the sweep only rises right of the headline's text
+  const room = m.cardLeft - rise;                                // the empty gutter it rises through
+  const swell = clamp(room * 0.3, 24, KNOBS.swellMax);
+  const end = [m.cardLeft - 24 - swell / 2, -40];   // runs off the top edge: no cut end
+  return {
+    staff: { x0: m.left, x1: w, top },
+    sweep: [[rise - 200, low], [rise + room * 0.3, low], [rise + room * 0.64, low * 0.5], end],
+    swell,
+  };
+}
 
-  const bands = svg('dl-bands',
-    s('defs', {},
-      grad('dl-band-grad', ends, 'dl-band-grad-a', 'dl-band-grad-b'),
-      s('filter', { id: 'dl-soft', x: '-20%', y: '-20%', width: '140%', height: '140%' }, s('feGaussianBlur', { stdDeviation: w <= KNOBS.narrow ? 12 : 16 }))),
-    s('g', { filter: 'url(#dl-soft)' },
-      g.echo ? s('path', { class: 'dl-band-echo', d: band(g.echo, 2, g.swell * 0.8, 1.5) }) : '',
-      s('path', { class: 'dl-band-main', d: band(g.main, KNOBS.swell[0] * 4, g.swell) })));
+/** The motif on the handshake: the same staff and sweep, settled, behind the centred card. */
+function handshakeMotif(w, h) {
+  const gap = KNOBS.staffGap;
+  const wide = w - Math.min(460, w - 32) > 240;                  // room on both sides of the card
+  const top = Math.round(wide ? h / 2 + 96 : Math.min(h - 64, h / 2 + 250)) + 0.5;
+  const low = top + gap * 4;
+  const swell = clamp(w * 0.05, 32, 76);
+  return {
+    staff: { x0: wide ? w * 0.06 : 16, x1: w, top },
+    sweep: [[w * 0.06 + 40, low], [w * 0.42, low], [w * 0.74, h * 0.36], [w * 0.9, -h * 0.06]],
+    swell,
+  };
+}
 
-  const lineDefs = s('defs', {}, grad('dl-core-grad', ends, 'dl-core-grad-a', 'dl-core-grad-b', [0.05, 0.78]));
-  const lines = svg('dl-lines', lineDefs);
-  if (g.staff) {
-    const { x0, x1, top } = g.staff;
-    lineDefs.append(grad('dl-staff-grad', [[x0, 0], [x0 + 120, 0]], 'dl-staff-grad-a', 'dl-staff-grad-b'));
-    lines.append(s('g', { class: 'dl-staff' }, ...[0, 4, 8, 12, 16].map((dy) => s('line', { x1: x0, x2: x1, y1: top + dy, y2: top + dy }))));
+/** One state of the art: a soft daylight halo (blurred once) and the crisp staff + sweep, as two SVGs. */
+function stateLayer(cls, id, w, h, motif, soft) {
+  const layer = d(`dl-state ${cls}`);
+  const svg = (k, ...kids) => s('svg', { class: `dl-gesture ${k}`, width: w, height: h, viewBox: `0 0 ${w} ${h}`, 'aria-hidden': 'true', focusable: 'false' }, ...kids);
+  const grad = (gid, P, a, b) => s('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse', x1: r1(P[0][0]), y1: r1(P[0][1]), x2: r1(P[1][0]), y2: r1(P[1][1]) },
+    s('stop', { offset: 0, class: a }), s('stop', { offset: 1, class: b }));
+  if (soft) {
+    layer.append(svg('dl-bands',
+      s('defs', {}, s('filter', { id: `${id}-soft`, x: '-30%', y: '-30%', width: '160%', height: '160%' }, s('feGaussianBlur', { stdDeviation: soft.blur }))),
+      s('path', { class: 'dl-halo', d: band(soft.path, 6, soft.width), filter: `url(#${id}-soft)` })));
   }
-  if (g.staff) lines.append(s('path', { class: 'dl-core', d: curve(g.main), pathLength: 1 }));   // crisp line: wide screens only
-  return [bands, lines];
+  if (motif) {
+    const { staff, sweep, swell } = motif;
+    const lines = svg('dl-lines',
+      s('defs', {}, grad(`${id}-sweep`, [sweep[0], sweep[3]], 'dl-sweep-a', 'dl-sweep-b')),
+      s('g', { class: 'dl-staff' },
+        ...[0, 1, 2, 3, 4].map((i) => s('line', { x1: r1(staff.x0), x2: staff.x1, y1: staff.top + i * KNOBS.staffGap, y2: staff.top + i * KNOBS.staffGap })),
+        s('line', { class: 'dl-bar', x1: Math.round(staff.x0) + 0.5, x2: Math.round(staff.x0) + 0.5, y1: staff.top, y2: staff.top + KNOBS.staffGap * 4 })),
+      s('path', { class: 'dl-sweep', d: band(sweep, 1.5, swell), fill: `url(#${id}-sweep)` }));
+    layer.append(lines);
+  }
+  return layer;
 }
 
 export function mount(artEl, { reduced = false } = {}) {
@@ -133,28 +150,44 @@ export function mount(artEl, { reduced = false } = {}) {
     beams.append(b);
   }
   const gestureDepth = d('dl-depth');
-  const lift = d('dl-lift');
-  gestureDepth.append(lift);
   root.append(air, beams, gestureDepth);
 
-  let size = '';
+  let key = '';
+  /** Draw both states for this size; returns false while the hub has not rendered yet (wide screens need its layout). */
   const draw = () => {
-    const w = Math.round(window.innerWidth); const h = Math.round(window.innerHeight);
-    if (`${w}x${h}` === size) return;
-    size = `${w}x${h}`;
-    lift.replaceChildren(...scene(w, h));
+    const w = Math.round(window.innerWidth); const vh = Math.round(window.innerHeight);
+    const narrow = w <= KNOBS.narrow;
+    const m = narrow ? null : measureHub();
+    if (!narrow && !m && !document.querySelector('.hub-handshake')) return false;
+    const h = Math.max(vh, Math.round(artEl.getBoundingClientRect().height) || 0);
+    const k = `${w}x${h}x${vh}:${m ? [m.textRight, m.headBottom, m.proofTop, m.cardLeft].map(Math.round).join(',') : '-'}`;
+    if (k === key) return true;
+    key = k;
+    let hub;
+    if (m) {
+      const motif = hubMotif(w, m);
+      hub = stateLayer('dl-at-hub', 'dlh', w, h, motif, { path: motif.sweep, width: motif.swell * KNOBS.halo, blur: 18 });
+    } else {
+      // stacked layout: light only, a soft band rising to the top right; a printed staff would sit behind the text
+      const y = Math.min(vh * 0.4, 330);
+      hub = stateLayer('dl-at-hub', 'dlh', w, vh, null, { path: [[-w * 0.08, y], [w * 0.55, y], [w * 0.86, y * 0.62], [w * 1.04, -vh * 0.04]], width: Math.max(96, w * 0.36), blur: 12 });
+    }
+    const shake = handshakeMotif(w, vh);
+    const hand = stateLayer('dl-at-handshake', 'dls', w, vh, shake, { path: shake.sweep, width: shake.swell * KNOBS.halo, blur: 20 });
+    gestureDepth.replaceChildren(hub, hand);
+    return true;
   };
 
   const still = () => reduced || reducedQ.matches || narrowQ.matches;
 
-  // ---- pointer parallax (desktop only): a short rAF loop that stops once the layers have caught up
+  // ---- pointer parallax (desktop only): a short rAF loop that stops once the layer has caught up
   const target = [0, 0]; const pos = [0, 0];
   let raf = 0;
   const apply = () => {
     const k = KNOBS.parallax;
     gestureDepth.style.transform = `translate3d(${r1(pos[0] * k)}px, ${r1(pos[1] * k)}px, 0)`;
   };
-  /** One frame of the parallax: ease the layers toward the pointer. Returns true while still moving. */
+  /** One frame of the parallax: ease the layer toward the pointer. Returns true while still moving. */
   const tick = () => {
     pos[0] += (target[0] - pos[0]) * 0.12;
     pos[1] += (target[1] - pos[1]) * 0.12;
@@ -163,7 +196,7 @@ export function mount(artEl, { reduced = false } = {}) {
   };
   const loop = () => { raf = tick() ? requestAnimationFrame(loop) : 0; };
   const onPointer = (e) => {
-    if (still() || !fineQ.matches || document.hidden) return;
+    if (still() || !fineQ.matches || document.hidden || document.querySelector('dialog[open]')) return;
     target[0] = (e.clientX / window.innerWidth) * 2 - 1;
     target[1] = (e.clientY / window.innerHeight) * 2 - 1;
     if (!raf) raf = requestAnimationFrame(loop);
@@ -183,9 +216,14 @@ export function mount(artEl, { reduced = false } = {}) {
   };
   const onMotionChange = () => { if (still()) settle(); };
 
-  draw();
-  if (!(reduced || reducedQ.matches)) artEl.dataset.enter = '';   // the light comes up once (css: dl-fade, dl-swell, dl-draw)
   artEl.append(root);
+  // The hub may render a moment after this module mounts: wait for it (a few frames at most), then again once the
+  // fonts have settled the headline's line breaks.
+  let tries = 0;
+  const first = () => { if (!draw() && tries++ < 120) requestAnimationFrame(first); };
+  first();
+  document.fonts?.ready?.then(() => requestAnimationFrame(() => draw()));
+  if (!(reduced || reducedQ.matches)) artEl.dataset.enter = '';   // the light comes up once (css: dl-fade, dl-swell)
 
   window.addEventListener('resize', onResize, { passive: true });
   window.addEventListener('pointermove', onPointer, { passive: true });
