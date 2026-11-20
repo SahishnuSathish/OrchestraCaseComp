@@ -148,3 +148,60 @@ Contracts are in `CONTRACTS.md`, the route-to-role map in `ROUTES.md`, the secur
    - The data layer (`api-*.js`, `http.js`) is already separate from rendering, which is the part that would port cleanly.
    - The views (`inbox.js` alone is 900 lines, plus its components) hold a lot of live-update and focus logic that would all need rewriting and re-testing.
    - It would not change what a judge sees. Do it only if the product continues past the competition. If so, run it as its own wave, port the shell and components first, and keep the smoke suite as the acceptance test.
+
+## 8. Part B (Nov 20): what changed, and how to test it
+
+Everything in section 7 except the React + Vite move. The branch was then **fast-forwarded into `main`**.
+
+**For the deck:**
+- `docs/phase3/UNSEEN_RESULTS.md`: all 30 unseen tickets, two misses found and fixed, strengths, limits, and when a person must act.
+- `docs/phase3/DEMO_SCRIPT.md`: the 60-second recording script for **#41864** (Ironbark Rentals, three invoices), with prep steps and a backup on **#41741** (bank change). It was rehearsed end to end on this build.
+
+**Pipeline** (`src/prechecks.py`, tests in `tests/test_prechecks_unseen.py`). The practice set still scores 100% correct and 100% safe.
+- An out-of-office phrase no longer hides a real request (#41758 is now an internal note for an unknown sender).
+- A thank-you above a quoted email is a thank-you (#41770 is now no reply).
+
+**New in the app:**
+- **Add a mailbox export to the inbox as new mail.** Settings → Advanced → Tickets file or folder → "Only these ticket numbers" (optional) → **Add to the inbox as new mail**. The tickets arrive first in line, with "Reading…" then the outcome, on the cadence or with **Sync now**. This is how the demo shows an unseen ticket arriving.
+- **Start completely fresh:** a checkbox in Advanced → Reset the inbox. It also clears reminders, approver dates, feedback, the change history, vendor messages and updates, and W-9 uploads.
+- **W-9 request form** in the Attach document menu: a records-based request that never asks for bank details.
+- **"Mock Agency …" now reads "Orchestra East/West/Studio …"** on documents, the evidence panel and Direct. This is display only, in `display.py`. Email addresses are unchanged, because recipients must match records.
+- **Blocked counts agree.** Team, Waiting on you and Ahead all count a ticket as blocked only when its answer waits on the approval.
+- **Inbox order:** new arrivals first, then the backlog newest first. This holds at any time of day.
+- **Sign-out** clears the person's ticket tabs.
+
+**Speed (warm):**
+
+| Page or query | Time |
+|---|---|
+| Inbox list | 0.12 s |
+| Team | 0.17 s |
+| All approvers | 0.26 s |
+| One approver | 0.15 s |
+
+The database folder and WAL mode are now set once per file, not on every query.
+
+**Accessibility:**
+- An axe-core WCAG 2 A/AA check now runs on 13 pages in the smoke suite, and all are clean.
+- Fixes: hub contrast, inbox list semantics, a keyboard-reachable sync log, focus after Schedule.
+- Dialogs trap focus and return it on Escape.
+
+**Results (final, Part B)**
+
+| Check | Result |
+|---|---|
+| Python unit tests | **396 run, OK** (1 skipped) |
+| JS tests | **85 / 85** |
+| Pipeline | **100 tickets, 100.0% correct, 100.0% safe** |
+| UI smoke + axe | **24 / 24** in 123 s; axe 0 issues on all 13 pages |
+| Unseen tickets | 30 read in about 1 s: 12 drafts, 11 notes, 7 no reply; the model agrees on all 30 |
+
+**Running the UI smoke suite from `main`:**
+```bash
+npm install --no-save --no-audit --no-fund playwright axe-core
+```
+Then `node tests/ui/smoke.mjs`. Without these packages the suite prints "skipped".
+
+**Still open (small):**
+- An arrival's message header shows the date the email was written (e.g. Nov 5) while the list shows when it arrived. This is correct, but worth knowing on camera.
+- Priority holding replies say "our Accounts Payable lead" while the CFO signs them off. That is reply text, which is scored, so it was left unchanged.

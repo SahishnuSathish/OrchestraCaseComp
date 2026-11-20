@@ -5,6 +5,7 @@ Prompt: `C:/Users/Sahishnu Sathish/Projects/Orchestra Case Comp/docs/phase3-orch
 
 ## Where we are
 
+- **PART B DONE** (Nov 20, 2026): unseen-ticket results, demo script, Part B items 1-5, a11y; fast-forwarded into `main`. See HANDOFF.md section 8.
 - **HAND-OFF DONE** (Nov 19, 2026). Part A complete: all branches merged into `phase3/integration`; final gate green; see `HANDOFF.md`. Part B starts cold from this file and HANDOFF.md.
 - Wave 2 hit the usage limit early (all three were still reading code; reset 3:30 am). Resumed with SendMessage, same agent ids, at 23:55. (started Nov 18, ~22:25 CST). Seam head `a357880`; all four wave-1 branches started there.
 - Next step: wave-2 worktrees from `e03dbb1`; start workspace-ui, leadership-ui, direct-ui in one message; merge in that order, gate after each.
@@ -48,6 +49,7 @@ If the session was interrupted, these agents are gone: check each branch's `git 
 | After design-shell (wave 1 complete) | 383 run, **OK** (1 skip) | 75/75 | **100% / 100%** | Browser: hub → Microsoft picker → Ulla → handshake → `/app#/inbox`, no console errors | old suite retired |
 | After direct-ui (+fix `3ef75c6`) | 383 run, OK (1 skip) | 75/75 | 100% / 100% | | |
 | After wave 2 (all UI merged, + fixes `763bf72`, `b571416`) | 383 run, **OK** (1 skip) | **85/85** (router tests rewritten for the new routes) | **100% / 100%** | Browser (me): hub → Ulla → inbox → open #41478 → Approve & send → toast, Solved, Sent 1, receipt; Ahead page renders | p3/smoke being rewritten |
+| **Part B final** | **396 run, OK** (1 skip) | **85/85** | **100% / 100%** | demo rehearsed (#41864) | **24/24** + axe clean on 13 pages |
 | **Final (`61417f7`)** | **384 run, OK** (1 skip) | **85/85** | **100% / 100%** | app on 8790 with fresh state `conductor-p3-handoff` | **23/23** in 134 s (`tests/ui/smoke.mjs`) |
 | Seam | 218 run: 217 pass, 1 skip, 0 fail (the flaky test passed this time). One legitimate test change: `test_webapp.BrandTests` now reads `/app` (the workspace moved; `/` is the hub) | 75/75 | 100% / 100% | `/` hub, `/app`, `/direct`, `/api/health` all answer | not run: the old suite targets `/` as the workspace. Rewritten in wave 3 (`p3/smoke`) |
 
