@@ -10,7 +10,7 @@
 }
 /* one green panel behind the three left areas, so no seams show between them */
 .hub::before { content: ""; grid-column: 1; grid-row: 1 / -1; background: var(--color-chrome); }
-.hub-brand, .hub-proof, .hub-family { position: relative; color: var(--color-chrome-text); padding-inline: clamp(32px, 5vw, 72px); }
+.hub-brand, .hub-proof, .hub-family { position: relative; background: var(--color-chrome); color: var(--color-chrome-text); padding-inline: clamp(32px, 5vw, 72px); }
 .hub-brand :focus-visible, .hub-proof :focus-visible, .hub-family :focus-visible { outline-color: var(--color-focus-on-dark); }
 
 .hub-brand { grid-area: brand; display: flex; flex-direction: column; padding-top: 40px; }
