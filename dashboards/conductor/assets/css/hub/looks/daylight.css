@@ -1,1 +1,241 @@
-/* Hub look "daylight" (stub, filled by the ui/look-daylight worker). Every rule is scoped to html[data-look="daylight"]. */
+/* Hub look C, "Daylight". Every rule is scoped to html[data-look="daylight"].
+
+   THE IDEA. Morning light in the hall before the first rehearsal: tall windows throw five soft shafts of light across
+   the room, and the Conductor mark is drawn at the size of the room, in light. Its staff runs in from behind the
+   sign-in card and its sweep leaves the lowest line and swells to the upper right, a crescendo you can stand in.
+   Friendly and bright, but every shape is structure (beams, staff, one gesture), never a blob.
+
+   WHAT LIVES WHERE. js/hub/looks/daylight.js draws the art into .hub-art (the air, the beams, the staff and the sweep)
+   and handles the pointer parallax. This file colours the art, re-places the brand column on light paper, and gives
+   the card, the provider window and the handshake their rounded, sunlit treatment.
+
+   COLOUR. The art washes are mint, sky and peach, which are also status fills; here they are only used as very large,
+   very low-chroma air (no edges, no small shapes), and nothing inside the card is tinted. The hex values below are art
+   primitives for this file only (tokens.css rule: hex is allowed inside a look's own art file, commented).
+
+   CONTRAST. The darkest point of the art behind any text is the air itself; the beams and the bands only lighten.
+   Ratios measured against the darkest air are in docs/ui-upgrade/looks/daylight.md. */
+
+/* ---- proposed tokens (scoped to this look) ------------------------------------------------------------------ */
+html[data-look="daylight"] {
+  /* air: the room's light, top to floor */
+  --dl-air-top: #dbe8e6;        /* art: sky-mint morning air at the windows (wash-sky, a touch greener) */
+  --dl-air-mid: #e8eee6;        /* art: the hall's middle air (between wash-mint and paper-100) */
+  --dl-air-low: #f2ebdf;        /* art: warm floor light (wash-peach towards brass-100) */
+  --dl-air-warm: #f8efe0;       /* art: the warmer air the handshake brings up (the day begins) */
+  /* light */
+  --dl-beam: rgb(255 250 238 / 0.72);   /* art: a window shaft, warm white */
+  --dl-band-cool: #f7fcf2;      /* art: the sweep's thin end, a mint-white light */
+  --dl-band-warm: #fff5df;      /* art: the sweep's swell, a sunlit brass-white */
+  --dl-echo: #eef6f3;           /* art: the lower gesture, a sky-white light */
+  /* ink in the art: Orchestra green at low strength, so the staff and the line read as printed, not as UI */
+  --dl-ink: 34 51 7;            /* art: #223307 as rgb channels */
+  --dl-staff-alpha: 0.2;
+  --dl-core-alpha: 0.34;
+  /* knobs (see docs/ui-upgrade/looks/daylight.md) */
+  --dl-drift: -2.4vw;           /* how far the beams drift with the sun over --dl-drift-time */
+  --dl-drift-time: 48s;
+  --dl-enter: 620ms;            /* the light coming up on first load (the whole entrance stays under 700 ms) */
+  --dl-card-radius: 20px;
+  --dl-control-radius: 12px;
+  --dl-card-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 1px 2px rgb(var(--p-shadow-rgb) / 0.05),
+    6px 18px 40px -12px rgb(var(--p-shadow-rgb) / 0.16),
+    10px 36px 72px -24px rgb(var(--p-shadow-rgb) / 0.12);   /* falls down and to the right: the light is upper left */
+  --dl-hairline: rgb(var(--p-shadow-rgb) / 0.09);
+}
+
+/* ---- the page and the art --------------------------------------------------------------------------------- */
+html[data-look="daylight"] body.c-hub-page { background: var(--dl-air-mid); }
+
+html[data-look="daylight"] .dl-scene { position: absolute; inset: 0; }
+html[data-look="daylight"] .dl-air {
+  position: absolute; inset: 0;
+  background: linear-gradient(172deg, var(--dl-air-top) 0%, var(--dl-air-mid) 46%, var(--dl-air-low) 100%);
+}
+/* the warmer air of the handshake waits on top at 0, so the change is an opacity fade only */
+html[data-look="daylight"] .dl-air::after {
+  content: ""; position: absolute; inset: 0; opacity: 0;
+  background: linear-gradient(172deg, var(--dl-air-mid) 0%, var(--dl-air-warm) 70%);
+  transition: opacity 900ms var(--ease-out);
+}
+html[data-look="daylight"] .dl-depth,
+html[data-look="daylight"] .dl-lift { position: absolute; inset: 0; will-change: transform; }
+
+/* five window shafts: soft across their width, fading along their length; a slow drift as the sun moves */
+html[data-look="daylight"] .dl-beams {
+  position: absolute; inset: 0; opacity: 0.82;
+  transition: opacity 900ms var(--ease-out);
+  animation: dl-drift var(--dl-drift-time) ease-in-out infinite alternate;
+}
+html[data-look="daylight"] .dl-beam {
+  position: absolute; top: -30%; height: 150%; left: var(--x); width: var(--w); opacity: var(--o, 1);
+  background: linear-gradient(90deg, transparent, var(--dl-beam) 28%, var(--dl-beam) 72%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent 6%, #000 30%, #000 52%, transparent 86%);   /* art: mask, black = shown */
+  mask-image: linear-gradient(180deg, transparent 6%, #000 30%, #000 52%, transparent 86%);
+  transform: rotate(-24deg); transform-origin: 50% 0;
+}
+@keyframes dl-drift { to { transform: translate3d(var(--dl-drift), 0, 0); } }
+html[data-look="daylight"] .hub-art[data-paused] .dl-beams { animation-play-state: paused; }
+/* still (narrow screens, reduced motion): no drift; on narrow screens the light still comes up once */
+html[data-look="daylight"] .hub-art[data-still] .dl-beams { animation: none; }
+html[data-look="daylight"] .hub-art[data-still][data-enter] .dl-beams { animation: dl-fade var(--dl-enter) var(--ease-out) both; }
+
+/* the mark at the size of the room */
+html[data-look="daylight"] .dl-gesture { position: absolute; inset: 0; overflow: visible; }
+html[data-look="daylight"] .dl-bands { will-change: transform, opacity; }
+html[data-look="daylight"] .dl-band-main { fill: url(#dl-band-grad); }
+html[data-look="daylight"] .dl-band-echo { fill: var(--dl-echo); opacity: 0.9; }
+html[data-look="daylight"] .dl-band-grad-a { stop-color: var(--dl-band-cool); }
+html[data-look="daylight"] .dl-band-grad-b { stop-color: var(--dl-band-warm); }
+html[data-look="daylight"] .dl-staff line { stroke: url(#dl-staff-grad); stroke-width: 1; shape-rendering: crispEdges; }
+html[data-look="daylight"] .dl-staff-grad-a { stop-color: rgb(var(--dl-ink)); stop-opacity: 0; }
+html[data-look="daylight"] .dl-staff-grad-b { stop-color: rgb(var(--dl-ink)); stop-opacity: var(--dl-staff-alpha); }
+html[data-look="daylight"] .dl-core { fill: none; stroke: url(#dl-core-grad); stroke-width: 1.5; stroke-linecap: round; }
+html[data-look="daylight"] .dl-core-grad-a { stop-color: rgb(var(--dl-ink)); stop-opacity: var(--dl-core-alpha); }
+html[data-look="daylight"] .dl-core-grad-b { stop-color: rgb(var(--dl-ink)); stop-opacity: 0; }
+
+/* ---- entrance: the light comes up (under 700 ms), then holds ---------------------------------------------- */
+html[data-look="daylight"] .hub-art[data-enter] .dl-beams {
+  animation: dl-fade var(--dl-enter) var(--ease-out) both, dl-drift var(--dl-drift-time) ease-in-out var(--dl-enter) infinite alternate;
+}
+html[data-look="daylight"] .hub-art[data-enter] .dl-bands { animation: dl-swell var(--dl-enter) var(--ease-emphasized) 40ms both; }
+html[data-look="daylight"] .hub-art[data-enter] .dl-staff { animation: dl-fade 360ms var(--ease-out) both; }
+html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: 1; animation: dl-draw var(--dl-enter) var(--ease-emphasized) 60ms both; }
+@keyframes dl-fade { from { opacity: 0; } }
+@keyframes dl-swell { from { opacity: 0; transform: translate3d(-16px, 20px, 0); } }
+@keyframes dl-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+html[data-look="daylight"] .hub-brand,
+html[data-look="daylight"] .hub-proof,
+html[data-look="daylight"] .hub-family { animation: dl-fade 420ms var(--ease-out) 80ms both; }
+html[data-look="daylight"] .hub-signin-inner { animation: dl-rise 480ms var(--ease-emphasized) 120ms both; }
+@keyframes dl-rise { from { opacity: 0; transform: translate3d(0, 12px, 0); } }
+
+/* the handshake: the day begins. The air warms, the beams come up to full, the sweep settles a little higher */
+html[data-look="daylight"] .dl-lift { transition: transform 1200ms var(--ease-emphasized); }
+html[data-look="daylight"]:has(.hub-handshake) .dl-air::after { opacity: 1; }
+html[data-look="daylight"]:has(.hub-handshake) .dl-beams { opacity: 1; }
+html[data-look="daylight"]:has(.hub-handshake) .dl-lift { transform: translate3d(0, -14px, 0); }
+
+/* ---- the brand column, on light ----------------------------------------------------------------------------- */
+html[data-look="daylight"] .hub::before { display: none; }
+html[data-look="daylight"] .hub-brand,
+html[data-look="daylight"] .hub-proof,
+html[data-look="daylight"] .hub-family { background: transparent; color: var(--color-text); padding-inline: clamp(32px, 5.5vw, 88px); }
+html[data-look="daylight"] .hub-brand :focus-visible,
+html[data-look="daylight"] .hub-proof :focus-visible,
+html[data-look="daylight"] .hub-family :focus-visible { outline-color: var(--color-focus); }
+
+/* the lockup and the family marks take their paper variants (BRAND.md) */
+html[data-look="daylight"] .hub-brand .c-lockup { color: var(--color-text-display); }
+html[data-look="daylight"] .hub-brand .c-lockup .c-lockup-rule { opacity: 0.38; }
+html[data-look="daylight"] .hub .c-mark-conductor { --mark-bg: var(--color-chrome); --mark-ink: var(--color-chrome-highlight); }
+html[data-look="daylight"] .hub .c-mark-direct { --mark-bg: var(--color-direct); --mark-ink: var(--color-direct-highlight); }
+html[data-look="daylight"] .hub .c-mark-ahead { --mark-bg: var(--color-ahead); --mark-ink: var(--color-ahead-ink); }
+
+html[data-look="daylight"] .hub-brand { padding-top: 40px; }
+html[data-look="daylight"] .hub-value {
+  margin-top: clamp(56px, 15vh, 168px); max-width: 16ch;
+  font-family: var(--font-display); font-optical-sizing: auto; font-stretch: 96%;
+  font-size: clamp(40px, 3.7vw, 54px); font-weight: var(--fw-medium); line-height: var(--lh-display);
+  letter-spacing: var(--ls-hero); color: var(--color-text-display); text-wrap: balance;
+}
+
+/* the three proof points read as three beats of one bar: side by side, a fine bar line between them */
+html[data-look="daylight"] .hub-proof { padding-top: 48px; }
+html[data-look="daylight"] .hub-proof-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 0; max-width: 640px; }
+html[data-look="daylight"] .hub-proof-list li {
+  max-width: none; padding: 2px 20px 4px; border: 0; border-left: 1px solid rgb(var(--p-shadow-rgb) / 0.18);
+  font-size: var(--fs-body-lg); line-height: var(--lh-snug); color: var(--color-text-secondary); text-wrap: pretty;
+}
+html[data-look="daylight"] .hub-proof-list li:first-child { padding-left: 0; border-left: 0; }
+html[data-look="daylight"] .hub-proof-source { padding-top: 16px; color: var(--color-text-muted); }
+
+html[data-look="daylight"] .hub-family { padding-top: 32px; padding-bottom: 40px; }
+html[data-look="daylight"] .hub-family ul { gap: 8px; padding-top: 20px; border-top: 1px solid var(--dl-hairline); max-width: 640px; }
+html[data-look="daylight"] .hub-family-text strong { color: var(--color-text); }
+html[data-look="daylight"] .hub-family-text span { color: var(--color-text-secondary); }
+
+@media (min-width: 961px) {
+  html[data-look="daylight"] .hub { grid-template-columns: minmax(440px, 6fr) minmax(480px, 5fr); }
+}
+
+/* ---- the card: the one bright thing in the room --------------------------------------------------------------- */
+html[data-look="daylight"] .hub-card {
+  position: relative; background: var(--color-surface-raised); border: 1px solid rgb(var(--p-shadow-rgb) / 0.07);
+  border-radius: var(--dl-card-radius); box-shadow: var(--dl-card-shadow); padding: 40px 40px 32px;
+}
+html[data-look="daylight"] .hub-card-title { font-size: 34px; font-weight: var(--fw-semibold); letter-spacing: var(--ls-display); color: var(--color-text-display); }
+html[data-look="daylight"] .hub-card-lede { margin-top: 8px; }
+html[data-look="daylight"] .hub-choice { margin-top: 28px; padding-top: 24px; border-top-color: var(--dl-hairline); }
+html[data-look="daylight"] .hub-choice-head h3 { font-family: var(--font-display); font-optical-sizing: auto; font-size: var(--fs-lead); color: var(--color-text-display); }
+html[data-look="daylight"] .hub-choice-head p { margin-top: 4px; }
+html[data-look="daylight"] .hub-signin-inner .c-btn,
+html[data-look="daylight"] .hub-signin-inner .c-input,
+html[data-look="daylight"] .hub-handshake .c-btn { border-radius: var(--dl-control-radius); }
+html[data-look="daylight"] .hub-signin-inner .c-btn-sm,
+html[data-look="daylight"] .hub-handshake .c-btn-sm { border-radius: var(--radius-md); }
+html[data-look="daylight"] .hub-help { padding-top: 20px; border-top: 1px solid var(--dl-hairline); }
+
+/* the code panel and the simulated mailbox */
+html[data-look="daylight"] .hub-card .c-notice { border-radius: var(--dl-control-radius); }
+html[data-look="daylight"] .hub-inbox {
+  overflow: hidden; border: 1px solid rgb(var(--p-shadow-rgb) / 0.07); border-top: 3px solid var(--color-direct);
+  border-radius: 16px; background: var(--color-surface-raised); box-shadow: var(--dl-card-shadow);
+}
+html[data-look="daylight"] .hub-inbox-head { background: var(--color-surface); border-bottom-color: var(--dl-hairline); }
+
+/* ---- the provider window ---------------------------------------------------------------------------------------- */
+html[data-look="daylight"] dialog.hub-provider {
+  --modal-radius: var(--dl-card-radius); --modal-bg: var(--color-surface-raised);
+  --modal-shadow: 0 2px 4px rgb(var(--p-shadow-rgb) / 0.05), 10px 32px 80px -16px rgb(var(--p-shadow-rgb) / 0.26);
+}
+html[data-look="daylight"] dialog.hub-provider::backdrop { background: rgb(var(--p-shadow-rgb) / 0.22); }
+html[data-look="daylight"] .hub-provider-title { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: var(--ls-heading); color: var(--color-text-display); }
+html[data-look="daylight"] dialog.hub-provider .c-btn:not(.c-btn-sm),
+html[data-look="daylight"] dialog.hub-provider .c-input { border-radius: var(--dl-control-radius); }
+html[data-look="daylight"] .hub-picker-list { border-color: var(--dl-hairline); }
+html[data-look="daylight"] .hub-account { border-bottom-color: var(--dl-hairline); }
+html[data-look="daylight"] .hub-picker-group-title { background: var(--color-surface-raised); }
+html[data-look="daylight"] .hub-provider-form > .hub-account,
+html[data-look="daylight"] .hub-last-row { border-radius: var(--dl-control-radius); overflow: hidden; }
+
+/* ---- the handshake: the card holds, the room brightens behind it ------------------------------------------------ */
+html[data-look="daylight"] .hub-handshake { background: transparent; }
+html[data-look="daylight"] .hub-handshake-card {
+  border: 1px solid rgb(var(--p-shadow-rgb) / 0.07); border-radius: var(--dl-card-radius);
+  background: var(--color-surface-raised); box-shadow: var(--dl-card-shadow);
+  animation: dl-rise 420ms var(--ease-emphasized) both;
+}
+html[data-look="daylight"] .hub-handshake-who { border-color: var(--dl-hairline); }
+html[data-look="daylight"] .hub-handshake-who strong { color: var(--color-text-display); }
+
+/* ---- narrow: the brand sits on the light, the art is simpler and still -------------------------------------------- */
+@media (max-width: 960px) {
+  html[data-look="daylight"] .hub-brand,
+  html[data-look="daylight"] .hub-proof,
+  html[data-look="daylight"] .hub-family { background: transparent; padding-inline: var(--s-5); }
+  html[data-look="daylight"] .hub-brand { padding-top: 24px; padding-bottom: 28px; }
+  html[data-look="daylight"] .hub-value { margin-top: 40px; max-width: 16ch; font-size: clamp(32px, 8.6vw, 44px); letter-spacing: var(--ls-display); }
+  html[data-look="daylight"] .hub-signin { padding: 0 var(--s-4) var(--s-4); }
+  html[data-look="daylight"] .hub-proof { margin-top: var(--s-4); padding-top: 24px; }
+  html[data-look="daylight"] .hub-proof-list { display: block; }
+  html[data-look="daylight"] .hub-proof-list li { padding: 12px 0; border-left: 0; border-bottom: 1px solid var(--dl-hairline); font-size: var(--fs-md); }
+  html[data-look="daylight"] .hub-proof-list li:first-child { border-top: 1px solid var(--dl-hairline); }
+}
+@media (max-width: 520px) {
+  html[data-look="daylight"] .hub-card { padding: 28px 20px 24px; border-radius: 16px; }
+  html[data-look="daylight"] .hub-card-title { font-size: var(--fs-display-sm); }
+  html[data-look="daylight"] dialog.hub-provider { --modal-radius: 0; }
+  html[data-look="daylight"] .hub-handshake-card { padding: 20px; border-radius: 16px; }
+}
+
+/* ---- reduced motion: the room at full morning, still --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html[data-look="daylight"] .dl-beams,
+  html[data-look="daylight"] .hub-art[data-enter] .dl-beams { animation: none; }
+  html[data-look="daylight"] .hub-art[data-enter] .dl-core { stroke-dasharray: none; animation: none; }
+  html[data-look="daylight"] .dl-lift { transition: none; }
+}
