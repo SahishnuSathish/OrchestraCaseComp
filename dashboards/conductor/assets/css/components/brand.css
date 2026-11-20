@@ -13,7 +13,7 @@
 .c-mark .c-mark-bg { fill: var(--mark-bg); }
 .c-mark .c-mark-staff { fill: var(--mark-ink); opacity: var(--mark-staff); }
 .c-mark .c-mark-sweep { fill: var(--mark-ink); }
-.c-mark .c-mark-edge { stroke: var(--mark-ink); stroke-width: 1; opacity: 0.16; }
+.c-mark .c-mark-edge { stroke: var(--mark-ink); stroke-width: 1; opacity: 0.3; }
 
 /* On paper the field takes the chrome colour and the ink the highlight, so the mark keeps its weight on white.
    Ahead keeps its mint field everywhere (it is the notice, not the place); its edge carries it on paper. */
