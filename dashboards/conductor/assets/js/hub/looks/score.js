@@ -1,7 +1,7 @@
 // Hub look A, "Score". Presentation only: this module draws inside the decorative art layer and nothing else.
 //
-// The idea: the sign-in page is a printed score. Faint staves run across warm paper, bar lines fall on the layout's
-// own column edges (the page is set on the score), and one line leaves a staff line at the left, quietly, then swells
+// The idea: the sign-in page is a printed score. One full staff runs across warm paper (fading out around the copy),
+// and one line leaves its middle line at the left, quietly, then swells
 // like a crescendo into a ribbon of fine engraved strokes that opens toward the sign-in card and runs under it. It is
 // the Conductor mark (three staff lines and one sweep that leaves the lowest of them and swells) drawn at page scale.
 //
@@ -16,7 +16,6 @@
 // Knobs (also in docs/ui-upgrade/looks/score.md):
 const KNOBS = {
   staffGap: 8,        // px between the five lines of a staff
-  systemPitch: 128,   // px from one staff (system) to the next
   strokes: 15,        // engraved lines in the ribbon
   swellMax: 0.09,     // the ribbon's half-height at the right edge, as a share of the page width (desktop)
   rise: 0.2,          // how far the ribbon climbs from the left to the right edge, as a share of the viewport height
@@ -126,27 +125,14 @@ function ribbonPaths(m) {
   return out;
 }
 
-/** Staves across the page. Bar lines fall on the layout's own edges, so the page reads as set on the score. */
-function staffPath(m, H) {
-  const { W, y0, card, textX, mode } = m;
+/** The staff: one full five-line staff across the page, placed so the ribbon leaves exactly its middle line. */
+function staffPath(m) {
+  const { W, y0 } = m;
   const gap = KNOBS.staffGap;
-  const pitch = KNOBS.systemPitch;
-  // one staff is placed so the ribbon starts exactly on its middle line
-  const anchorTop = y0 - 2 * gap;
-  const first = anchorTop - Math.ceil(anchorTop / pitch) * pitch;
-  const tops = [];
+  const top = Math.round(y0 - 2 * gap);
   let lines = '';
-  for (let top = first; top < H + pitch; top += pitch) {
-    const t = Math.round(top);
-    tops.push(t);
-    for (let k = 0; k < 5; k += 1) lines += `M0 ${t + k * gap + 0.5}H${W}`;
-  }
-  const xs = new Set();
-  if (mode === 'split' && textX) xs.add(Math.round(textX) + 0.5);
-  if (card) { xs.add(Math.round(card.left) + 0.5); xs.add(Math.round(card.right) - 0.5); }
-  let bars = '';
-  for (const t of tops) for (const x of xs) bars += `M${x} ${t + 0.5}V${t + 4 * gap + 0.5}`;
-  return { lines, bars };
+  for (let k = 0; k < 5; k += 1) lines += `M0 ${top + k * gap + 0.5}H${W}`;
+  return lines;
 }
 
 export function mount(art, { reduced = false } = {}) {
@@ -160,7 +146,7 @@ export function mount(art, { reduced = false } = {}) {
   art.append(staffSvg, ribbonBox);
 
   let lastKey = '';
-  const keyOf = (m) => `${m.mode}|${m.W}|${Math.max(m.H, m.vh)}|${Math.round(m.y0)}|${Math.round(m.card?.left || 0)}`;
+  const keyOf = (m) => [m.mode, m.W, Math.max(m.H, m.vh), m.y0, m.card?.left, m.card?.top, m.card?.height].map((v) => Math.round(v || 0) || v).join('|');
 
   function draw({ animate }) {
     const m = measure();
@@ -171,8 +157,7 @@ export function mount(art, { reduced = false } = {}) {
     for (const s of [staffSvg, ribbonSvg]) {
       s.setAttribute('width', W); s.setAttribute('height', H); s.setAttribute('viewBox', `0 0 ${W} ${H}`);
     }
-    const st = staffPath(m, H);
-    // the staves step aside for the copy: a soft-edged mask, computed once per layout (static, no per-frame cost)
+    // the staff steps aside for the copy: a soft-edged mask, computed once per layout (static, no per-frame cost)
     const pad = 18;
     const mask = el('mask', { id: 'score-clear', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: W, height: H },
       el('rect', { x: 0, y: 0, width: W, height: H, fill: 'white' }),
@@ -181,7 +166,7 @@ export function mount(art, { reduced = false } = {}) {
       }))));
     const soft = el('filter', { id: 'score-soft', x: '-10%', y: '-10%', width: '120%', height: '120%' }, el('feGaussianBlur', { stdDeviation: 10 }));
     staffSvg.replaceChildren(el('defs', {}, soft, mask), el('g', { mask: 'url(#score-clear)' },
-      el('path', { class: 'score-staff-lines', d: st.lines }), el('path', { class: 'score-staff-bars', d: st.bars })));
+      el('path', { class: 'score-staff-lines', d: staffPath(m) })));
     // the ribbon fades in from nothing at the left edge (it enters quietly) and reaches full ink before the card
     const fadeEnd = r1(m.mode === 'split' ? Math.max(m.colX, W * 0.38) : W * 0.55);
     const grad = (id, cls, stops) => el('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1: 0, y1: 0, x2: fadeEnd, y2: 0 },
@@ -213,27 +198,16 @@ export function mount(art, { reduced = false } = {}) {
     if (animate && !reduced) {
       void ribbonSvg.getBoundingClientRect();
       art.classList.add('is-drawing');
+    } else if (!reduced && lastKey) {
+      // a re-fit (resize, the card growing): the new ribbon fades in over the old place instead of jumping
+      ribbonSvg.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
     }
     art.classList.add('is-ready');
     lastKey = keyOf(m);
     return true;
   }
 
-  // Draw once the hub (or the handshake) is on the page, and again when the handshake replaces the card.
-  const root = document.getElementById('hub-root');
-  const fontsReady = Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => { setTimeout(r, 300); })]);
-  let scene = null;
-  const sync = () => {
-    const now = document.querySelector('.hub-handshake') ? 'handshake' : (document.querySelector('.hub-card') ? 'hub' : null);
-    if (!now || now === scene) return;
-    scene = now;
-    fontsReady.then(() => requestAnimationFrame(() => draw({ animate: true })));
-  };
-  const mo = new MutationObserver(sync);
-  if (root) mo.observe(root, { childList: true, subtree: true });
-  sync();
-
-  // Resizes (and the page growing when the code panel or the simulated inbox opens) redraw without animation.
+  // Resizes, the page growing and the card growing redraw without the draw-in (debounced).
   let timer = 0;
   const onResize = () => {
     clearTimeout(timer);
@@ -246,6 +220,22 @@ export function mount(art, { reduced = false } = {}) {
   addEventListener('resize', onResize);
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(onResize) : null;
   ro?.observe(document.body);
+
+  // Draw once the hub (or the handshake) is on the page, and again when the handshake replaces the card.
+  const root = document.getElementById('hub-root');
+  const fontsReady = Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => { setTimeout(r, 300); })]);
+  let scene = null;
+  const sync = () => {
+    const now = document.querySelector('.hub-handshake') ? 'handshake' : (document.querySelector('.hub-card') ? 'hub' : null);
+    const slot = document.querySelector('.hub-signin-inner');
+    if (slot) ro?.observe(slot);                    // the card grows (code panel, simulated inbox): re-fit the ribbon
+    if (!now || now === scene) return;
+    scene = now;
+    fontsReady.then(() => requestAnimationFrame(() => draw({ animate: true })));
+  };
+  const mo = new MutationObserver(sync);
+  if (root) mo.observe(root, { childList: true, subtree: true });
+  sync();
 
   const onVis = () => art.classList.toggle('is-paused', document.hidden);
   document.addEventListener('visibilitychange', onVis);

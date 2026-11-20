@@ -1,25 +1,24 @@
 # Look A: Score
 
-**The idea in one sentence.** The sign-in page is a printed score on warm paper: faint staves run across it, and one
-line leaves a staff line at the left, quietly, then swells like a crescendo into a ribbon of fine engraved strokes that
+**The idea in one sentence.** The sign-in page is a printed score on warm paper: one full staff runs across it, and one
+line leaves its middle line at the left, quietly, then swells like a crescendo into a ribbon of fine engraved strokes that
 opens toward the sign-in card and runs under it, a crisp white sheet lying on the score.
 
 Files: `dashboards/conductor/assets/css/hub/looks/score.css`, `dashboards/conductor/assets/js/hub/looks/score.js`.
 Screenshots: `docs/ui-upgrade/shots/looks/score/` (hub, picker, vendor, code, handshake at 375 and 1440; `hub@1920.jpg`;
-`hub-reduced@1440.jpg`).
+`hub-reduced@1440.jpg`; `hub-code-inbox@1440.jpg` shows the ribbon re-fitted after the card grew).
 
 ## Why it could only be Conductor
 
 - The ribbon is the **Conductor mark drawn at page scale**: the mark is three staff lines and one sweep that leaves the
   lowest of them and swells as it rises. Here the line starts on a real staff line (the middle line of the staff that
   sits in the band under the headline), swells and climbs to the upper right. It is the brand's own construction.
-- **The layout is set on the score.** Bar lines fall on the layout's own edges: the text column's left edge and both
-  edges of the sign-in card. Staves step aside (a soft clearing) wherever there is copy, the way a printed page leaves
-  room for text, so no line runs through words.
+- **One deliberate staff**, in the band between the headline and the proof points, and the line leaves exactly its
+  middle line. A soft mask fades it out around every text block, so no line runs behind words.
 - A **crescendo**, not a decoration: quiet at the left (one hairline fading in from nothing), loud where the person acts.
   The page reads from the promise to the card.
 - On the **handshake**, the line draws again, now toward the centred card, so the hand-off to /app keeps the same paper,
-  the same staves and the same gesture. The card is the only thing that changes.
+  the same staff and the same gesture. The card is the only thing that changes.
 
 Everything else is quiet: the Instrument Serif headline is the one editorial moment, proof points and the family sit on
 hairlines in the normal ink ramp, the card uses only existing component tokens.
@@ -32,20 +31,23 @@ hairlines in the normal ink ramp, the card uses only existing component tokens.
 | Ribbon climb | `KNOBS.rise` | `0.2` | how far the line climbs from left to right, as a share of the viewport height |
 | Strokes | `KNOBS.strokes` | `15` | engraved lines in the ribbon (fewer is quieter) |
 | Waveform | `KNOBS.wave` | `0.16` | ripple amplitude, as a share of the ribbon's half-height |
-| Staves | `KNOBS.staffGap`, `KNOBS.systemPitch`; `--score-staff`, `--score-bar` in `score.css` | `8`, `128`; 8.5% and 16% ink | line spacing, system spacing and strength of the score |
+| Staff | `KNOBS.staffGap`; `--score-staff` in `score.css` | `8`; 13% ink | line spacing and strength of the one staff |
+| Dialog scrim | `--score-scrim` in `score.css` | 58% green ink, `saturate(0.55)` | how far the page recedes behind the provider window |
 | Breathing | `@keyframes score-breathe` in `score.css` | `scaleY(1.045)`, 9 s, alternate | set the `to` scale to 1 to turn it off |
 | Paper and sheet | `--score-paper`, `--score-sheet-shadow` | paper-50 mixed with 26% brass wash (about `#f5f4eb`) | warmth of the page, lift of the card |
 
 ## Motion
 
-- First load (under 700 ms): staves fade in (360 ms), the ribbon draws itself from the left with stroke-dashoffset
+- First load (under 700 ms): the staff fades in (360 ms), the ribbon draws itself from the left with stroke-dashoffset
   (560 ms, `--ease-emphasized`, outer strokes up to 80 ms behind the centre), the card settles 10 px with a fade
   (480 ms from 60 ms), the brand column fades without moving.
 - Ambient: the ribbon breathes (scaleY 1 to 1.045 over 9 s) on its own compositor layer; no JS runs per frame.
   Paused on `visibilitychange` (class `is-paused`).
 - Handshake: the ribbon is rebuilt toward the centred card and draws again; the card settles.
+- The card growing (code panel, simulated inbox) or a resize: a ResizeObserver on the card slot and the body re-fits the
+  ribbon (debounced 140 ms) and fades the new one in over 240 ms.
 - Reduced motion: the composition is drawn complete, nothing moves (class `is-still` plus a media query); the static
-  page is the designed state (`hub-reduced@1440.jpg`).
+  page is the designed state (`hub-reduced@1440.jpg`; `hub-code-inbox@1440.jpg` shows the ribbon re-fitted after the card grew).
 
 ## Measured frame cost
 
@@ -65,7 +67,7 @@ The breathing figure is mostly the sampling loop itself; layout per frame is 0. 
 Paper is `rgb(245 244 235)`. Measured on it: headline 12.3:1, proof points 14.9:1, family taglines 7.3:1, the proof
 source (muted, 12 px) 5.5:1, the lockup 12.3:1. Text never sits on the ribbon (it is fitted to the empty band between
 the headline and the proof list) and the staves are masked away around every text block, so the worst spot behind
-text is the paper itself. Card text sits on white. axe is clean (smoke 11).
+text is the paper itself. Family footer (12 px): names 7.3:1, taglines 5.5:1. Card text sits on white. axe is clean (smoke 11).
 
 ## Decisions
 
@@ -76,16 +78,17 @@ text is the paper itself. Card text sits on white. axe is clean (smoke 11).
   `.hub-signin-inner > .hub-card`, `.hub-handshake-card`. A MutationObserver on `#hub-root` notices the handshake.
 - A slight fold and a waveform keep the bundle reading as a ribbon; a stronger twist (tried first) pinched the ribbon to
   nothing beyond the card, so it was cut.
-- Bar lines only on real edges; a bar at the brand column's edge was tried and read as random, so it was dropped.
+- Round 1 review: bar-line ticks on the layout edges were removed (they read as leftover guides and boxed the
+  handshake card); the repeating staves became one staff; the provider scrim is darker (58% ink, desaturated); the
+  product family is a quiet one-line-per-product footer (12 px, 16 px marks); the Ahead mark gets a darker edge on paper.
 - One brass stroke in the ribbon, olive-gold, thin; nothing brass touches the card or any chip.
 - Picker rows keep square ends (rounding them bent the hairline separators).
 
 ## Known limits
 
-- The ribbon's position is computed from the layout at load; if the card changes height (code panel, simulated inbox)
-  the ribbon stays where it was. Only the staves extend with the page.
 - On very short desktop windows (under about 700 px tall) the band between the headline and the proof list is narrow, so
   the ribbon stays a hairline across the text column and opens only past it.
+- The scrim's desaturation uses `backdrop-filter` on the static `::backdrop`; browsers without it get the darker scrim only.
 - At 375 the ribbon lives in a band under the headline and tucks under the card's top edge; it scrolls away with the
   page, by design.
 - No markup hooks were needed.
