@@ -14,13 +14,16 @@ CFO_NAME = "Elena Lockhart"
 
 
 def pick_bills(find, refs, company):
-    """The bills a thread is about. `find(ref)` returns the bills with that invoice number. An ambiguous number (the same
-    number on two vendors) is kept only for the thread's own company; with no company it is dropped. Distinct by internalId."""
+    """The bills a thread is about. `find(ref)` returns the bills with that invoice number. When the thread's company is
+    known only that company's bills count (a vendor asking about someone else's invoice shows no amount); with no company a
+    single match is kept and an ambiguous number (the same number on two vendors) is dropped. Distinct by internalId."""
     out, seen = [], set()
     for ref in refs:
         found = list(find(ref) or [])
-        if len(found) > 1:
-            found = [b for b in found if company and b.get("entityName") == company]
+        if company:
+            found = [b for b in found if b.get("entityName") == company]
+        elif len(found) > 1:
+            found = []
         for b in found:
             if b["internalId"] not in seen:
                 seen.add(b["internalId"])

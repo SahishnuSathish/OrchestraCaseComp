@@ -57,7 +57,13 @@ class PickBillsCase(unittest.TestCase):
         self.assertEqual(sortfacts.pick_bills(find, ["INV-1"], "B"), [b])
         self.assertEqual(sortfacts.pick_bills(find, ["INV-1"], None), [])
         only = {"internalId": "3", "entityName": "C"}
-        self.assertEqual(sortfacts.pick_bills(lambda ref: [only], ["INV-2"], "Z"), [only])
+        self.assertEqual(sortfacts.pick_bills(lambda ref: [only], ["INV-2"], "C"), [only])
+        self.assertEqual(sortfacts.pick_bills(lambda ref: [only], ["INV-2"], None), [only])  # no company known: nothing to compare
+
+    def test_pick_bills_drops_another_vendors_single_match(self):
+        # a vendor asking about someone else's invoice must not show that invoice's amount or due date
+        other = {"internalId": "9", "entityName": "Other Vendor"}
+        self.assertEqual(sortfacts.pick_bills(lambda ref: [other], ["INV-9"], "Asker Ltd"), [])
 
     def test_pick_bills_does_not_double_count(self):
         a = {"internalId": "1", "entityName": "A"}

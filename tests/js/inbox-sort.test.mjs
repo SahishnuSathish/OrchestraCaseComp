@@ -44,6 +44,12 @@ describe('sortRows', () => {
     assert.deepEqual(ids(sortRows(rows, 'waiting')), [2, 1, 4, 3]);
   });
 
+  it('waiting puts an unparseable date last among the unanswered and treats forwarded as answered', () => {
+    const rows = [row(1, { received_at: 'bad' }), row(2, { received_at: '2026-11-13T05:00:00Z' }), row(3, { received_at: null }),
+      row(4, { destination: 'forwarded', received_at: '2026-11-13T01:00:00Z' }), row(5, { received_at: '2026-11-13T09:00:00Z' })];
+    assert.deepEqual(ids(sortRows(rows, 'waiting')), [2, 5, 3, 1, 4]);
+  });
+
   it('goes_to follows the destination order and groups approvers by name', () => {
     const rows = [row(1, { destination: 'closed' }), row(2, { destination: 'vendor' }), row(3, { destination: 'approver', destination_name: 'zed@x.example' }),
       row(4, { destination: 'cfo' }), row(5, { destination: 'approver', destination_name: 'amy@x.example' }), row(6, { destination: 'desk' })];

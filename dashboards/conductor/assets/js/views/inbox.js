@@ -182,6 +182,7 @@ export function mount(root, { route, session }) {
     const title = S.q ? `Results for “${S.q}”` : (QUEUE_LABELS[S.queue] || 'Inbox');
     const n = S.q ? S.rows.length : (queueCount(S.queue) ?? S.rows.length);
     const canSelect = ['needs_reply', 'returned'].includes(S.queue) && !S.q;
+    const hadSortFocus = document.activeElement === sortBtn;
     fill(listHead,
       h('div', { class: 'ws-list-titles' },
         S.queues.length ? wsQueuePicker({ queues: S.queues, selected: S.queue, onSelect: selectQueue }) : null,
@@ -194,6 +195,8 @@ export function mount(root, { route, session }) {
       }) : null,
       // Its own row under the title: the column is too narrow to share a line with the title and Select.
       (sortBtn.querySelector('.c-btn-label').textContent = `Sort: ${sortLabel()}`, h('div', { class: 'ws-sort-row' }, sortBtn)));
+    // Repainting the header moves the button, which would drop keyboard focus (choosing a sort returns focus to it).
+    if (hadSortFocus) sortBtn.focus({ preventScroll: true });
   }
   function paintList() {
     paintListHead();

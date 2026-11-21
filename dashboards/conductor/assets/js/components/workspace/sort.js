@@ -31,6 +31,15 @@ export function normalizeSort(id) {
 
 const when = (r) => { const t = Date.parse(r.received_at || ''); return Number.isNaN(t) ? null : t; };
 const newestFirst = (a, b) => (when(b) ?? -Infinity) - (when(a) ?? -Infinity) || b.ticket_id - a.ticket_id;
+// Oldest first; a missing or unparseable time goes last.
+const oldestFirst = (a, b) => {
+  const x = when(a);
+  const y = when(b);
+  if (x === null || y === null) return x === y ? newestFirst(a, b) : (x === null ? 1 : -1);
+  return x - y || a.ticket_id - b.ticket_id;
+};
+// Threads with nothing left waiting on a reply: closed, or forwarded to HR or AR.
+const ANSWERED = new Set(['closed', 'forwarded']);
 // Rows with no value for a key go last, whichever way the rest is ordered.
 const byValue = (key, dir) => (a, b) => {
   const x = a[key] ?? null;
@@ -44,23 +53,17 @@ const destIndex = (r) => { const i = DESTINATIONS.findIndex((d) => d.id === r.de
 export function sortRows(rows, sortId, { arrived = [] } = {}) {
   const out = [...rows];
   switch (normalizeSort(sortId)) {
-    case 'oldest':
-      return out.sort((a, b) => {
-        const x = when(a);
-        const y = when(b);
-        if (x === null || y === null) return x === y ? newestFirst(a, b) : (x === null ? 1 : -1);
-        return x - y || a.ticket_id - b.ticket_id;
-      });
+    case 'oldest': return out.sort(oldestFirst);
     case 'amount_desc': return out.sort(byValue('amount', -1));
     case 'amount_asc': return out.sort(byValue('amount', 1));
     case 'urgency': return out.sort((a, b) => (a.urgency ?? 4) - (b.urgency ?? 4) || newestFirst(a, b));
     case 'due': return out.sort(byValue('due_date', 1));
     case 'waiting':
       return out.sort((a, b) => {
-        const closedA = a.destination === 'closed';
-        const closedB = b.destination === 'closed';
-        if (closedA !== closedB) return closedA ? 1 : -1;
-        return closedA ? newestFirst(a, b) : -newestFirst(a, b);
+        const doneA = ANSWERED.has(a.destination);
+        const doneB = ANSWERED.has(b.destination);
+        if (doneA !== doneB) return doneA ? 1 : -1;
+        return doneA ? newestFirst(a, b) : oldestFirst(a, b);
       });
     case 'goes_to':
       return out.sort((a, b) => destIndex(a) - destIndex(b)
