@@ -32,6 +32,7 @@ import mailer
 import reply_checks
 import runner
 import scheduler
+import sortfacts
 import workflow
 
 router = APIRouter()
@@ -379,11 +380,14 @@ def _derive(tid, bundle, ctx, row):
     text = (res.get("text") or "").lower()
     refs_m = _REF_RX.search(_stage(bundle, "extract_regex"))
     body = re.sub(r"\s+", " ", (ctx.get("body") or "")).strip()
+    refs = re.findall(r"'([^']+)'", refs_m.group(1)) if refs_m else []
+    backend = _get_store().backend
+    invoice = sortfacts.invoice_facts(sortfacts.pick_bills(lambda ref: backend.query("vendorBill", tranId=ref), refs, row.get("vendor")))
     return {
         "tid": tid, "ctx": ctx, "row": row, "bundle": bundle, "output_type": ot, "outcome": _outcome_of(ot),
         "rule": rule, "why": why, "act_by": dec.get("act_by"), "flags": flags, "priority": bool(res.get("priority")),
         "sender_verified": "authorized=True" in _stage(bundle, "sender"),
-        "refs": re.findall(r"'([^']+)'", refs_m.group(1)) if refs_m else [],
+        "refs": refs, "invoice": invoice,
         "ask_vendor": ot == "draft_reply" and (rule == "not_on_file" or "pdf copy" in text),
         "waiting_approver": ot == "internal_action_note" and bool(dec.get("act_by")) and str(rule or "").startswith("pending"),
         "snippet": body[:160] + ("..." if len(body) > 160 else ""),
@@ -409,6 +413,17 @@ def _meta(run_id):
 
 def _inbox_state():
     return {r["ticket_id"]: r for r in db._all("SELECT * FROM inbox_state")}
+
+
+def _forwarded():
+    """{ticket_id: who it was forwarded to} from the audit log (HR or the AR queue), for the "Goes to" sort."""
+    out = {}
+    for r in db._all("SELECT ticket_id, detail FROM audit_log WHERE action='forward' ORDER BY id"):
+        try:
+            out[r["ticket_id"]] = ((json.loads(r["detail"] or "{}").get("to") or {}).get("name")) or "Forwarded"
+        except ValueError:
+            out[r["ticket_id"]] = "Forwarded"
+    return out
 
 
 def _scheduled(run_id):
@@ -469,6 +484,8 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
     reviews = db.review_states(run_id)
     sched = _scheduled(run_id)
     states = _inbox_state()
+    forwarded = _forwarded()
+    today = appclock.today()
     groups = _groups(run_id) if with_groups else {}
     try:  # one batch read instead of several queries per thread (a list of 100 threads took over 2 s)
         wfs = workflow.get_states([only] if only is not None else list(metas))
@@ -483,6 +500,14 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
         st = states.get(tid) or {}
         ctx = m["ctx"]
         gid, gsize = groups.get(tid, (None, 1))
+        wf_state = wf.get("state") or "open"
+        finished = rv in ("sent", "acknowledged", "closed") or wf_state in ("sent", "decided", "closed") or m["output_type"] == "no_draft"
+        inv = m["invoice"]
+        urgency = sortfacts.urgency_tier(flags=m["flags"], intent=m["row"].get("intent"), category=wf.get("category"), wf_state=wf_state,
+                                         priority=m["priority"], finished=finished, due_date=inv["due_date"], today=today)
+        dest, dest_name = sortfacts.destination_of(finished=finished, forwarded=forwarded.get(tid), wf_state=wf_state, priority=m["priority"],
+                                                   waiting_approver=m["waiting_approver"], act_by=m["act_by"], rule=m["rule"],
+                                                   output_type=m["output_type"])
         row = {
             "ticket_id": tid, "from_name": ctx.get("sender_name"), "from_email": ctx.get("sender_email"), "company": m["company"],
             "subject": ctx.get("subject"), "snippet": m["snippet"],
@@ -493,6 +518,9 @@ def _rows(run_id, viewer=None, only=None, with_groups=True):
             "sender_verified": m["sender_verified"], "assignee": wf.get("assignee"), "workflow_state": wf.get("state") or "open",
             "category": wf.get("category"),   # sign-off category (priority, fraud, returned, early_or_late_fee) or None
             "review_state": rv, "group_id": gid, "group_size": gsize, "reading": tid in _READING,
+            # what the list is sorted by (sortfacts.py): invoice total and earliest unpaid due date, urgency tier 1 to 5, where it goes next
+            "amount": inv["amount"], "currency": inv["currency"], "due_date": inv["due_date"], "urgency": urgency,
+            "destination": dest, "destination_name": dest_name,
         }
         out.append((row, _queues_for(m, rv, wf, tid in sched, viewer)))
     return out

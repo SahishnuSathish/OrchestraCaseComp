@@ -1,7 +1,32 @@
 // Inbox left and middle panes: the queue list, one message row per thread, and the "While you were away" card.
 import { h, icon, fmtInt } from '../../lib.js';
 import { badge, riskBadges, contactBadge, chip, avatar } from '../badges.js';
-import { maskSensitive, listTime, isPriority } from './format.js';
+import { maskSensitive, listTime, isPriority, appNow, personName } from './format.js';
+import { DESTINATIONS } from './sort.js';
+
+const URGENCY_CHIP = { 1: { label: 'Critical', tone: 'risk', icon: 'circle-alert' }, 2: { label: 'Time-sensitive', tone: 'waiting', icon: 'clock' }, 3: { label: 'Needs a decision', tone: 'waiting', icon: 'escalations' } };
+const money = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// "Nov 19" from a YYYY-MM-DD date, read as a calendar date so no time zone can move it a day.
+const shortDate = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const isOverdue = (d) => { const t = new Date(`${d}T23:59:59`).getTime(); return !Number.isNaN(t) && t < appNow(); };
+
+/** The chips a row adds for sorting: urgency (tiers 1 to 3), the due date, and where it goes when that is not the ordinary reply or Closed. */
+function sortChips(r) {
+  const out = [];
+  const u = URGENCY_CHIP[r.urgency];
+  if (u) out.push(badge({ label: u.label, tone: u.tone, icon: u.icon }));
+  if (r.due_date) {
+    const late = isOverdue(r.due_date);
+    out.push(badge({ label: `${late ? 'Overdue' : 'Due'} ${shortDate(r.due_date)}`, tone: late ? 'risk' : 'neutral', icon: 'calendar', title: 'Earliest unpaid invoice due date' }));
+  }
+  if (r.destination && !['vendor', 'closed'].includes(r.destination)) {
+    const d = DESTINATIONS.find((x) => x.id === r.destination);
+    const label = r.destination === 'approver' ? `Approver: ${personName(r.destination_name) || 'unknown'}`
+      : r.destination === 'forwarded' && r.destination_name ? `Forwarded to ${r.destination_name}` : (d?.label || r.destination);
+    out.push(chip({ label, icon: 'arrow-right', title: 'Where this goes next' }));
+  }
+  return out;
+}
 
 export const QUEUE_ICONS = {
   needs_reply: 'reply', needs_action: 'circle-alert', escalated: 'escalations', returned: 'arrow-left', waiting_approver: 'approver',
@@ -54,6 +79,7 @@ export function wsMessageRow(r, { selected = false, opened = false, selectMode =
     : rowStatus(r, queue);
   const chips = [
     status,
+    ...(r.reading ? [] : sortChips(r)),
     ...riskBadges(r.flags || []),
     r.reading || r.sender_verified ? null : contactBadge(false),
     direct ? h('span', { class: 'ws-source is-direct', title: 'Arrived through Conductor: Direct' }, icon('building'), 'Conductor: Direct') : null,
@@ -62,7 +88,7 @@ export function wsMessageRow(r, { selected = false, opened = false, selectMode =
   const el = h('li', {
     role: 'none',
     class: ['ws-row', selected && 'is-selected', unread && 'is-unread', r.reading && 'is-reading', isNew && 'is-new', checked && 'is-checked'].filter(Boolean).join(' '),
-    dataset: { id: r.ticket_id },
+    dataset: { id: r.ticket_id, ...(!r.reading && r.urgency >= 1 && r.urgency <= 3 ? { urgency: r.urgency } : {}) },
   },
   selectMode ? h('label', { class: 'ws-row-check' },
     h('input', { type: 'checkbox', class: 'c-check-input', checked: checked || null, 'aria-label': `Select #${r.ticket_id}`, onchange: (e) => onCheck?.(r, e.target.checked) }),
@@ -76,7 +102,8 @@ export function wsMessageRow(r, { selected = false, opened = false, selectMode =
     h('span', { class: 'ws-row-line' },
       h('span', { class: 'ws-row-from' }, r.from_name || r.from_email || 'Unknown sender'),
       r.company && r.company !== r.from_name ? h('span', { class: 'ws-row-company' }, r.company) : null,
-      h('time', { class: 'ws-row-time', datetime: r.received_at || null }, listTime(r.received_at))),
+      r.amount != null ? h('span', { class: 'ws-row-amount mono', title: 'Invoice total' }, money(r.amount)) : null,
+      h('time', { class: ['ws-row-time', r.amount != null && 'has-amount'].filter(Boolean).join(' '), datetime: r.received_at || null }, listTime(r.received_at))),
     h('span', { class: 'ws-row-line' },
       h('span', { class: 'ws-row-subject' }, r.subject || 'No subject'),
       h('span', { class: 'ws-row-id mono', title: `Zendesk ticket #${r.ticket_id}` }, `#${r.ticket_id}`)),

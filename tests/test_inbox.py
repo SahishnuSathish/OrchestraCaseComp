@@ -254,7 +254,7 @@ class ThreadAndQueueTests(InboxCase):
         rows = self.get("/api/inbox/threads")["rows"]
         keys = {"ticket_id", "from_name", "from_email", "company", "subject", "snippet", "received_at", "source", "zendesk_status", "outcome",
                 "intent", "invoice_refs", "flags", "sender_verified", "assignee", "workflow_state", "review_state", "group_id", "group_size",
-                "reading", "category"}
+                "reading", "category", "amount", "currency", "due_date", "urgency", "destination", "destination_name"}
         for r in rows:
             self.assertEqual(set(r), keys)
             self.assertEqual(r["source"], "Outlook")
@@ -264,6 +264,20 @@ class ThreadAndQueueTests(InboxCase):
         self.assertTrue(any(r["sender_verified"] for r in rows) and any(not r["sender_verified"] for r in rows))
         for r in rows:  # the practice data has no same-invoice groups, so every thread stands alone
             self.assertEqual((r["group_id"], r["group_size"]), (None, 1))
+
+    def test_rows_carry_sort_fields(self):
+        rows = self.get("/api/inbox/threads")["rows"]
+        for r in rows:
+            self.assertIn(r["urgency"], range(1, 6))
+            self.assertIn(r["destination"], {"cfo", "approver", "vendor", "payment_run", "forwarded", "desk", "closed"})
+            if r["amount"] is not None:
+                self.assertEqual(r["currency"], "USD")
+            else:
+                self.assertIsNone(r["due_date"])
+            if "fraud" in r["flags"]:
+                self.assertEqual(r["urgency"], 1)
+        self.assertTrue(any(r["amount"] is not None for r in rows))
+        self.assertTrue(any(r["amount"] is None for r in rows))  # HR, thank-yous and unknown senders have no invoice
 
     def test_follow_up_threads_are_grouped(self):
         self.addCleanup(inbox.reset)  # this test adds a thread; the others expect the backlog only
