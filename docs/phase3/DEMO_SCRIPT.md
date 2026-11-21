@@ -23,7 +23,7 @@ That is the client's "15 minutes per ticket" done in about 15 seconds, with noth
    If you have already used that folder, stop the server, delete the folder, then start again. Alternatively, Elena → Settings → Advanced → Reset the inbox, with **Start completely fresh** ticked.
 2. **Window A, as Elena (CFO).** Open http://127.0.0.1:8790/ → Orchestra staff → Sign in with Microsoft → **Elena Lockhart**. Then:
    1. Go to Settings → **Advanced**.
-   2. In **Tickets file or folder**, paste `C:\Users\Sahishnu Sathish\Downloads\unseen_tickets.json`.
+   2. In **Tickets file or folder**, paste `C:\Users\Sahishnu Sathish\Projects\Orchestra Case Comp\data\unseen_tickets.json`.
    3. In **Only these ticket numbers**, type `41864`.
    4. Click **Add to the inbox as new mail**. The toast says 1 email added, first in line.
 3. **Window B, as Ulla (AP specialist).** Open a second browser window (each window is its own sign-in) → http://127.0.0.1:8790/ → Sign in with Microsoft → **Ulla Abernathy** → Inbox. Close the "While you were away" card if you want a cleaner frame, or leave it, since it helps the story.

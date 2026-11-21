@@ -57,3 +57,8 @@ precise mono details for figures; C's rounded friendliness for the vendor side (
 **Language for Tier 2+ (from A):** warm paper canvas, green ink, the editorial serif for one line per screen, the staff
 rule marking each moment, brass only as a single thread of light inside art, white sheets with soft layered shadows
 for floating things, and hairlines everywhere else.
+
+
+## Owner's choice (Nov 20, after the run)
+
+The owner picked **look B "Instrument"** as the permanent default (`DEFAULT = 'b'` in `js/hub/looks/index.js`). A and C remain reachable with `/?look=a|c` until deleted (see HANDOFF.md section 2).
