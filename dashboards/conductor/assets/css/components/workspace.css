@@ -43,9 +43,14 @@
 .ws-row.is-checked .ws-row-link { background: var(--color-surface-selected); }
 .ws-row-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ws-row-line { display: flex; align-items: baseline; gap: var(--s-2); min-width: 0; }
-.ws-row-from { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-md); font-weight: var(--fw-medium); }
+.ws-row-from { flex: 0 1 auto; min-width: 0; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-md); font-weight: var(--fw-medium); }
 .ws-row-company { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--color-text-muted); }
 .ws-row-time { flex: none; margin-left: auto; font-size: var(--fs-xs); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ws-row-amount { flex: none; margin-left: auto; font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--color-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ws-row-time.has-amount { margin-left: var(--s-2); }
+/* Urgency stripe, tiers 1 to 3 only (the ordinary row has none). The selected row's own stripe wins. */
+.ws-row[data-urgency]:not(.is-selected)::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 1; background: var(--color-waiting); }
+.ws-row[data-urgency="1"]:not(.is-selected)::before { background: var(--color-risk); }
 .ws-row-subject { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--color-text); }
 .ws-row-id { flex: none; font-size: 11.5px; color: var(--color-text-muted); }
 .ws-row-snippet { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--color-text-secondary); }

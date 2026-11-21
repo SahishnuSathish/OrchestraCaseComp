@@ -15,7 +15,8 @@ import { button, iconButton, setBusy, field, setFieldError } from '../components
 import { badge } from '../components/badges.js';
 import { skeletonRows, skeletonText, empty, notice } from '../components/data.js';
 import { tabs as tabsComp } from '../components/layout.js';
-import { modal, toast } from '../components/overlays.js';
+import { modal, toast, menu } from '../components/overlays.js';
+import { SORTS, DEFAULT_SORT, normalizeSort, sortRows, groupKey } from '../components/workspace/sort.js';
 import { ensureWorkspaceIcons } from '../components/workspace/icons.js';
 import { wsQueues, wsQueuePicker, wsMessageRow, wsAwayCard, QUEUE_LABELS } from '../components/workspace/list.js';
 import { wsSubjectBar, wsBadgeRow, wsInsight, wsFraudBanner, wsWorkflowNotices, wsThread, wsReceipt } from '../components/workspace/reading.js';
@@ -42,6 +43,7 @@ export function mount(root, { route, session }) {
 
   const S = {
     runId: null, queues: [], queuesLoading: true, queue: route.query?.queue || DEFAULT_QUEUE, q: route.query?.q || '',
+    sort: normalizeSort(route.query?.sort ?? ls('ws.sort')),
     rows: [], rowsLoading: true, rowsError: null, selected: route.ticketId || null,
     thread: null, wfState: null, threadError: null,
     summary: null, opened: loadOpened(), fresh: new Set(), selectMode: false, checked: new Set(),
@@ -60,6 +62,13 @@ export function mount(root, { route, session }) {
   const liveRegion = h('div', { class: 'sr-only', 'aria-live': 'polite', 'aria-atomic': 'true' });
   const syncBtn = button({ label: 'Sync now', icon: 'refresh', size: 'sm', variant: 'secondary', onClick: () => syncNow() });
   const syncNote = h('span', { class: 'ws-sync-note' });
+  const sortLabel = () => SORTS.find((s) => s.id === S.sort)?.label || SORTS[0].label;
+  const sortBtn = menu({
+    label: `Sort: ${sortLabel()}`, size: 'sm', variant: 'quiet', align: 'start',
+    items: () => SORTS.map((s) => ({ label: s.label, checked: s.id === S.sort, onSelect: () => setSort(s.id) })),
+  });
+  sortBtn.classList.add('ws-sort');
+  sortBtn.setAttribute('aria-label', 'Sort the list');
   const header = h('header', { class: 'ws-head' },
     h('h1', { class: 'ws-head-title' }, 'Inbox'),
     h('span', { class: 'ws-head-conn' }, icon('mail'), h('span', { class: 'ws-head-mailbox' }, 'ap@orchestra-mock.example')),
@@ -88,7 +97,20 @@ export function mount(root, { route, session }) {
   fill(root, shell);
 
   // ------------------------------------------------------------------ urls and layout
-  const queryFor = () => ({ queue: S.q ? undefined : (S.queue !== DEFAULT_QUEUE ? S.queue : undefined), q: S.q || undefined });
+  const queryFor = () => ({
+    queue: S.q ? undefined : (S.queue !== DEFAULT_QUEUE ? S.queue : undefined), q: S.q || undefined, sort: S.sort !== DEFAULT_SORT ? S.sort : undefined,
+  });
+  // Choosing a sort re-orders the rows already loaded: no request. The choice is kept in the URL and in browser storage.
+  function setSort(id) {
+    id = normalizeSort(id);
+    if (id === S.sort) return;
+    S.sort = id;
+    ls('ws.sort', id);
+    S.rows = sortRows(S.rows, S.sort, { arrived: S.arrived });
+    navigate(urlFor(NARROW() ? null : S.selected), { replace: true });
+    liveRegion.textContent = `Sorted by ${sortLabel()}`;
+    paintList();
+  }
   const urlFor = (id) => href('inbox', { ticketId: id || undefined, query: queryFor() });
   ticketTabs.attach({
     email: me,
@@ -144,12 +166,9 @@ export function mount(root, { route, session }) {
     try {
       const r = await inboxApi.threads(S.q ? { q: S.q } : { queue: S.queue });
       if (destroyed || seq !== rowsSeq) return;
-      // Newest first within every queue, by the real instant (times come with different offsets). Emails that arrived
-      // while this window was open stay at the top, newest first, as in Outlook. (The app clock keeps the real time of
-      // day, so just after midnight an arrival would otherwise sort below the morning's backlog.)
-      const rows = [...(r.rows || [])].sort(newestFirst);
-      const top = [...S.arrived].map((id) => rows.find((x) => x.ticket_id === id)).filter(Boolean).reverse();
-      S.rows = [...top, ...rows.filter((x) => !S.arrived.includes(x.ticket_id))];
+      // Ordered by the chosen sort (components/workspace/sort.js). Under Newest first, emails that arrived while this
+      // window was open stay at the top, as in Outlook; under every other sort they take their place in the order.
+      S.rows = sortRows(r.rows || [], S.sort, { arrived: S.arrived });
       S.rowsError = null;
     } catch (e) {
       if (seq !== rowsSeq) return;
@@ -167,13 +186,14 @@ export function mount(root, { route, session }) {
       h('div', { class: 'ws-list-titles' },
         S.queues.length ? wsQueuePicker({ queues: S.queues, selected: S.queue, onSelect: selectQueue }) : null,
         h('h2', { class: 'ws-list-title' }, title),
-        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n)),
-        h('span', { class: 'ws-list-order' }, 'Newest first')),
+        h('span', { class: 'ws-list-count' }, S.rowsLoading && !S.rows.length ? '' : fmtInt(n))),
       S.q ? button({ label: 'Clear', size: 'sm', variant: 'quiet', icon: 'x', onClick: () => { S.q = ''; setSearchValue(''); navigate(urlFor(S.selected), { replace: true }); loadRows(); paintQueues(); } }) : null,
       canSelect ? button({
         label: S.selectMode ? 'Done' : 'Select', size: 'sm', variant: 'quiet', icon: S.selectMode ? 'check' : 'square-check',
         attrs: { 'aria-pressed': String(S.selectMode) }, onClick: () => { S.selectMode = !S.selectMode; S.checked.clear(); paintLayout(); paintList(); },
-      }) : null);
+      }) : null,
+      // Its own row under the title: the column is too narrow to share a line with the title and Select.
+      (sortBtn.querySelector('.c-btn-label').textContent = `Sort: ${sortLabel()}`, h('div', { class: 'ws-sort-row' }, sortBtn)));
   }
   function paintList() {
     paintListHead();
@@ -194,12 +214,23 @@ export function mount(root, { route, session }) {
     const scroller = listCol.querySelector('.ws-list-scroll');
     const top = scroller.scrollTop;
     const hadFocus = listEl.contains(document.activeElement) ? Number(document.activeElement.closest('.ws-row')?.dataset.id) : null;
-    fill(listEl, S.rows.map((r) => wsMessageRow(r, {
-      selected: r.ticket_id === S.selected, opened: S.opened.has(r.ticket_id), href: urlFor(r.ticket_id), isNew: S.fresh.has(r.ticket_id),
-      selectMode: S.selectMode, checked: S.checked.has(r.ticket_id), queue: S.q ? null : S.queue,
-      onCheck: (row, on) => { if (on) S.checked.add(row.ticket_id); else S.checked.delete(row.ticket_id); listEl.querySelector(`.ws-row[data-id="${row.ticket_id}"]`)?.classList.toggle('is-checked', on); paintBulk(); },
-      onOpen: (row) => openRow(row.ticket_id),
-    })));
+    // "Goes to" puts a small heading above each destination (and each approver), with how many rows sit under it.
+    const heads = new Map();
+    for (const r of S.rows) { const g = groupKey(r, S.sort); if (g) heads.set(g.id, { ...g, n: (heads.get(g.id)?.n || 0) + 1 }); }
+    let lastGroup = null;
+    const items = [];
+    for (const r of S.rows) {
+      const g = groupKey(r, S.sort);
+      if (g && g.id !== lastGroup) items.push(h('li', { role: 'presentation', class: 'ws-group-head' }, h('span', null, g.label), h('span', { class: 'ws-group-n' }, fmtInt(heads.get(g.id).n))));
+      lastGroup = g ? g.id : null;
+      items.push(wsMessageRow(r, {
+        selected: r.ticket_id === S.selected, opened: S.opened.has(r.ticket_id), href: urlFor(r.ticket_id), isNew: S.fresh.has(r.ticket_id),
+        selectMode: S.selectMode, checked: S.checked.has(r.ticket_id), queue: S.q ? null : S.queue,
+        onCheck: (row, on) => { if (on) S.checked.add(row.ticket_id); else S.checked.delete(row.ticket_id); listEl.querySelector(`.ws-row[data-id="${row.ticket_id}"]`)?.classList.toggle('is-checked', on); paintBulk(); },
+        onOpen: (row) => openRow(row.ticket_id),
+      }));
+    }
+    fill(listEl, items);
     if (!S.rows.some((r) => r.ticket_id === S.selected)) listEl.querySelector('.ws-row-link')?.setAttribute('tabindex', '0');
     if (listEl.parentNode !== listBody) fill(listBody, listEl);
     scroller.scrollTop = top;
@@ -877,6 +908,13 @@ export function mount(root, { route, session }) {
       const queue = r.query?.queue || DEFAULT_QUEUE;
       const listChanged = q !== S.q || (!q && queue !== S.queue);
       S.q = q; S.queue = queue;
+      // A link that names a sort sets it; a link that names none (a copied ticket link, a toast) keeps the current one.
+      if (r.query?.sort != null && normalizeSort(r.query.sort) !== S.sort) {
+        S.sort = normalizeSort(r.query.sort);
+        ls('ws.sort', S.sort);
+        S.rows = sortRows(S.rows, S.sort, { arrived: S.arrived });
+        paintList();
+      }
       if (listChanged) { setSearchValue(q); loadRows(); paintQueues(); }
       const next = r.ticketId || null;
       if (next !== S.selected) {
@@ -901,9 +939,6 @@ export function mount(root, { route, session }) {
     },
   };
 }
-
-const when = (r) => { const t = Date.parse(r.received_at || ''); return Number.isNaN(t) ? 0 : t; };
-const newestFirst = (a, b) => when(b) - when(a) || b.ticket_id - a.ticket_id;
 
 function loadSet(key) {
   try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); } catch { return new Set(); }
